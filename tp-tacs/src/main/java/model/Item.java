@@ -1,26 +1,20 @@
 package model;
 
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "Item")
 public class Item {
-
-    public Item() {
-    }
 
     public Item(ItemType itemType, int quantity) {
         this.quantity = quantity;
         this.itemType = itemType;
     }
 
-    @XmlElement
-    private ItemType itemType;
-    @XmlElement
+    private final ItemType itemType;
     private int quantity;
 
-    public void addItems(int amount) {
-        quantity += amount;
+    public void addItems(int quantity) {
+        this.quantity += quantity;
     }
 
     public double calculatePrice() {
@@ -29,12 +23,8 @@ public class Item {
 
     // Getters
 
-    public int getId() {
-        return itemType.getId();
-    }
-
-    public String getName() {
-        return itemType.getName();
+    public ItemType getItemType() {
+        return itemType;
     }
 
     public int getQuantity() {

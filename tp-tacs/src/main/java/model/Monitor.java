@@ -1,6 +1,5 @@
 package model;
 
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.*;
 
@@ -26,12 +25,10 @@ public class Monitor {
         users.add(user);
     }
 
-    @XmlElement
     public int getUniqueUsers() {
         return users.size();
     }
 
-    @XmlElement
     public int getOrdersCreated() {
         return orders.size();
     }

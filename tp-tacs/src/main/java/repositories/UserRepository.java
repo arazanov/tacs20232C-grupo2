@@ -5,11 +5,12 @@ import daos.UserDao;
 import model.User;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
 @Path("users")
-@Produces("text/xml")
+@Produces({MediaType.APPLICATION_JSON})
 public class UserRepository implements Repository<User> {
     private final Dao<User> dao = new UserDao();
 

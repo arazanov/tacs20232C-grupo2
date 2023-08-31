@@ -53,7 +53,14 @@ public class OrderTest {
         order1.addItems(user2, empanadaVerdura, 3);
 
         // ítems y cantidades del pedido
-        System.out.println("ítems: " + order1.items());
+        System.out.println("ítems: ");
+        order1.getItems().forEach(i -> {
+            System.out.println("\t" + i.getItemType().getName());
+            System.out.println("\t" + i.getQuantity());
+            System.out.println("\t" + i.getItemType().getDescription());
+            System.out.println("\t" + i.calculatePrice());
+            System.out.println();
+        });
         System.out.println();
 
         // trazabilidad

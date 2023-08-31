@@ -1,14 +1,9 @@
 package model;
 
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "ItemType")
 public class ItemType {
-
-    public ItemType() {
-    }
 
     public ItemType(int id, String name, String description, double price) {
         this.id = id;
@@ -17,14 +12,10 @@ public class ItemType {
         this.price = price;
     }
 
-    @XmlAttribute
-    private int id;
-    @XmlElement
-    private String name;
-    @XmlElement
-    private String description;
-    @XmlElement
-    private double price;
+    private final int id;
+    private final String name;
+    private final String description;
+    private final double price;
 
     // Getters
 

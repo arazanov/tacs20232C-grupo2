@@ -5,11 +5,12 @@ import daos.OrderDao;
 import model.Order;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
 @Path("orders")
-@Produces("text/xml")
+@Produces({MediaType.APPLICATION_JSON})
 public class OrderRepository implements Repository<Order> {
     private final Dao<Order> dao = new OrderDao();
 
