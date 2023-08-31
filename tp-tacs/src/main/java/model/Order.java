@@ -13,7 +13,7 @@ public class Order {
         this.items = new ArrayList<>();
         this.actions = new ArrayList<>();
         this.closed = false;
-        this.actions.add(new Creation(user, this));
+        this.actions.add(new Action(user, this, " created an order"));
     }
 
     private User user;
@@ -32,11 +32,10 @@ public class Order {
         if (itemOptional.isPresent()) itemOptional.get().addItems(quantity);
         else items.add(new Item(itemType, quantity));
 
-        actions.add(new Change(
+        actions.add(new Action(
                 user,
                 this,
-                itemType.getName(),
-                quantity
+                " added " + quantity + " \"" + itemType.getName() + "\""
         ));
     }
 
