@@ -1,21 +1,23 @@
 package daos;
 
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
+import model.ItemType;
 import model.Order;
+import model.User;
 
-import java.util.ArrayList;
-
-@Path("order")
-@Produces("text/xml")
 public class OrderDao extends Dao<Order> {
-
     public OrderDao() {
-        elements = new ArrayList<>();
-    }
+        User user1 = new User("pepe");
+        User user2 = new User("carla");
+        ItemType empanadaCarne = new ItemType(1, "empanada de carne", "", 200);
+        ItemType pizzaNapo = new ItemType(1, "pizza napolitana", "", 1200);
 
-    @Override
-    public void update(Order order, String[] params) {
+        Order order1 = new Order(user1);
 
+        order1.addItems(user1, empanadaCarne, 6);
+        order1.addItems(user2, pizzaNapo, 1);
+        order1.addItems(user2, empanadaCarne, 2);
+        order1.close(user1);
+
+        elements.put(1, order1);
     }
 }

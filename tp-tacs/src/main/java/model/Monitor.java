@@ -1,13 +1,14 @@
 package model;
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.*;
 
-@XmlRootElement(name = "monitor")
+@XmlRootElement(name = "Monitor")
 public class Monitor {
     private static Monitor instance = null;
 
-    private Monitor() {
+    public Monitor() {
         this.orders = new HashSet<>();
         this.users = new HashSet<>();
     }
@@ -17,19 +18,21 @@ public class Monitor {
         return instance;
     }
 
-    private Set<Order> orders;
-    private Set<User> users;
+    private final Set<Order> orders;
+    private final Set<User> users;
 
     public void beNotified(User user, Order order) {
         orders.add(order);
         users.add(user);
     }
 
-    public int uniqueUsers() {
+    @XmlElement
+    public int getUniqueUsers() {
         return users.size();
     }
 
-    public int ordersCreated() {
+    @XmlElement
+    public int getOrdersCreated() {
         return orders.size();
     }
 

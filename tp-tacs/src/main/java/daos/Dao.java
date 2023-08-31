@@ -1,26 +1,28 @@
 package daos;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public abstract class Dao<T> {
-    protected List<T> elements;
+    protected Map<Integer, T> elements = new HashMap<>();
 
     public Optional<T> get(int id) {
         return Optional.ofNullable(elements.get(id));
     }
 
     public List<T> getAll() {
-        return elements;
+        return new ArrayList<>(elements.values());
     }
 
     public void save(T t) {
-        elements.add(t);
+        Integer maxKey = Collections.max(elements.keySet());
+        elements.put(maxKey + 1, t);
     }
 
-    public abstract void update(T t, String[] params);
+    public void update(T t, int id) {
 
-    public void delete(T t) {
-        elements.remove(t);
+    }
+
+    public void delete(int id) {
+        elements.remove(id);
     }
 }

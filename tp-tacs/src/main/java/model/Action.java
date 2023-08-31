@@ -1,13 +1,15 @@
 package model;
 
-import lombok.Getter;
-
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-@XmlRootElement(name = "action")
+@XmlRootElement(name = "Action")
 public class Action {
+
+    public Action() {
+    }
 
     public Action(User user, Order order, String description) {
         this.user = user;
@@ -17,10 +19,13 @@ public class Action {
         notify(Monitor.getInstance());
     }
 
+    @XmlElement
     private User user;
+    @XmlElement
     private Order order;
+    @XmlElement
     private LocalDateTime dateTime;
-    @Getter
+    @XmlElement
     private String description;
 
     public void notify(Monitor monitor) {

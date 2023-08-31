@@ -8,27 +8,30 @@ import org.junit.Test;
 
 public class OrderTest {
     private User user1, user2, user3;
-    private Order order1, order2;
     private ItemType empanadaCarne, empanadaVerdura, pizzaNapo, pizzaFuga;
 
     @Before
     public void init() {
         empanadaCarne = new ItemType(
+                1,
                 "empanada de carne",
                 "empanada de carne cortada a cuchillo con cebolla",
                 200
         );
         empanadaVerdura = new ItemType(
+                2,
                 "empanada de verdura",
                 "empanada de acelga con ricota",
                 200
         );
         pizzaNapo = new ItemType(
+                3,
                 "pizza napolitana",
                 "muzzarella, tomates en rodajas, ajo",
                 1200
         );
         pizzaFuga = new ItemType(
+                4,
                 "pizza fugazzeta",
                 "muzzarella y cebolla caramelizada",
                 1100
@@ -41,7 +44,8 @@ public class OrderTest {
 
     @Test
     public void placeAnOrder() {
-        order1 = new Order(user1);
+        Order order1 = new Order(user1);
+
         order1.addItems(user1, empanadaCarne, 6);
         order1.addItems(user2, pizzaNapo, 1);
         order1.addItems(user3, empanadaCarne, 2);
@@ -57,8 +61,8 @@ public class OrderTest {
         System.out.println();
 
         // contador de pedidos
-        System.out.println("Pedidos creados: " + Monitor.getInstance().ordersCreated());
-        System.out.println("Usuarios que interactuaron: " + Monitor.getInstance().uniqueUsers());
+        System.out.println("Pedidos creados: " + Monitor.getInstance().getOrdersCreated());
+        System.out.println("Usuarios que interactuaron: " + Monitor.getInstance().getUniqueUsers());
 
         Assert.assertEquals(1200 + 8 * 200, order1.calculatePrice(), 0);
     }

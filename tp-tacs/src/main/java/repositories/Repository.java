@@ -1,35 +1,12 @@
 package repositories;
 
-import daos.Dao;
-
+import javax.ws.rs.core.Response;
 import java.util.List;
 
-public class Repository<T> {
-
-    public Repository(Dao<T> dao) {
-        this.dao = dao;
-    }
-
-    private Dao<T> dao;
-
-    public List<T> read() {
-        return dao.getAll();
-    }
-
-    public T readById(int id) {
-        return dao.get(id).orElse(null);
-    }
-
-    public void create(T t) {
-        dao.save(t);
-    }
-
-    public void update(T t, String[] params) {
-        dao.update(t, params);
-    }
-
-    public void delete(T t) {
-        dao.delete(t);
-    }
-
+public interface Repository<T> {
+    List<T> getAll();
+    T get(int id);
+    Response create(T t);
+    void update(T t, int id);
+    Response delete(int id);
 }

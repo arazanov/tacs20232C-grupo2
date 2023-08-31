@@ -1,12 +1,17 @@
 package model;
 
-import lombok.Getter;
-
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.core.Response;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.*;
 
-@XmlRootElement(name = "order")
+@XmlRootElement(name = "Order")
 public class Order {
+
+    public Order() {
+    }
 
     public Order(User user) {
         this.user = user;
@@ -16,18 +21,23 @@ public class Order {
         this.actions.add(new Action(user, this, " created an order"));
     }
 
+    @XmlElement
     private User user;
     private List<Item> items;
-    @Getter
     private List<Action> actions;
-    @Getter
+    @XmlElement
     private boolean closed;
+    @XmlElement
     private Double totalPrice;
 
-    public void addItems(User user, ItemType itemType, int quantity) {
-        if(isClosed()) return;
+    private Optional<Item> findById(int id) {
+        return items.stream().filter(i -> i.getId() == id).findFirst();
+    }
 
-        Optional<Item> itemOptional = items.stream().filter(i -> i.getItemType().equals(itemType)).findFirst();
+    public Response addItems(User user, ItemType itemType, int quantity) {
+        if(isClosed()) return Response.status(Response.Status.UNAUTHORIZED).build();
+
+        Optional<Item> itemOptional = findById(itemType.getId());
 
         if (itemOptional.isPresent()) itemOptional.get().addItems(quantity);
         else items.add(new Item(itemType, quantity));
@@ -37,6 +47,12 @@ public class Order {
                 this,
                 " added " + quantity + " \"" + itemType.getName() + "\""
         ));
+        return Response.ok().build();
+    }
+
+    public Response deleteItem(int id) {
+        findById(id).ifPresent(i -> items.remove(id));
+        return Response.ok().build();
     }
 
     public void close(User user) {
@@ -58,4 +74,29 @@ public class Order {
         return items.stream().mapToDouble(Item::calculatePrice).reduce(0, Double::sum);
     }
 
+    // Getters
+
+    public User getUser() {
+        return user;
+    }
+
+    @GET
+    @Path("items")
+    public List<Item> getItems() {
+        return items;
+    }
+
+    @GET
+    @Path("actions")
+    public List<Action> getActions() {
+        return actions;
+    }
+
+    public boolean isClosed() {
+        return closed;
+    }
+
+    public Double getTotalPrice() {
+        return totalPrice;
+    }
 }
