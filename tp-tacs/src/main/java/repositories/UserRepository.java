@@ -1,49 +1,53 @@
 package repositories;
 
-import daos.Dao;
 import daos.UserDao;
 import model.User;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+
 import java.util.List;
 
 @Path("users")
-@Produces({MediaType.APPLICATION_JSON})
-public class UserRepository implements Repository<User> {
-    private final Dao<User> dao = new UserDao();
+@Produces(MediaType.APPLICATION_JSON)
+public class UserRepository extends Repository<User> {
+
+    public UserRepository() {
+        dao = new UserDao();
+    }
 
     @GET
     @Override
     public List<User> getAll() {
-        return dao.getAll();
+        return super.getAll();
     }
 
     @GET
     @Path("{id}")
     @Override
     public User get(@PathParam("id") int id) {
-        return dao.get(id).orElse(null);
+        return super.get(id);
     }
 
     @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     @Override
     public Response create(User user) {
-        dao.save(user);
-        return Response.ok().build();
+        return super.create(user);
     }
 
     @Override
     public void update(User user, int id) {
-        dao.update(user, id);
+        super.update(user, id);
     }
 
     @DELETE
     @Path("{id}")
     @Override
     public Response delete(@PathParam("id") int id) {
-        dao.delete(id);
-        return Response.ok().build();
+        return super.delete(id);
     }
+
 }

@@ -1,59 +1,53 @@
 package repositories;
 
-import daos.Dao;
 import daos.OrderDao;
 import model.Order;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+
 import java.util.List;
 
 @Path("orders")
-@Produces({MediaType.APPLICATION_JSON})
-public class OrderRepository implements Repository<Order> {
-    private final Dao<Order> dao = new OrderDao();
+@Produces(MediaType.APPLICATION_JSON)
+public class OrderRepository extends Repository<Order> {
+
+    public OrderRepository() {
+        dao = new OrderDao();
+    }
 
     @GET
     @Override
     public List<Order> getAll() {
-        return dao.getAll();
+        return super.getAll();
     }
 
     @GET
     @Path("{id}")
     @Override
     public Order get(@PathParam("id") int id) {
-        return dao.get(id).orElse(null);
-    }
-
-    @Path("{id}")
-    public Order pathToActions(@PathParam("id") int id) {
-        return dao.get(id).orElse(null);
-    }
-
-    @Path("{id}")
-    public Order pathToItems(@PathParam("id") int id) {
-        return dao.get(id).orElse(null);
+        return super.get(id);
     }
 
     @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     @Override
     public Response create(Order order) {
-        dao.save(order);
-        return Response.ok().build();
+        return super.create(order);
     }
 
     @Override
     public void update(Order order, int id) {
-        dao.update(order, id);
+        super.update(order, id);
     }
 
     @DELETE
     @Path("{id}")
     @Override
     public Response delete(@PathParam("id") int id) {
-        dao.delete(id);
-        return Response.ok().build();
+        return super.delete(id);
     }
+
 }

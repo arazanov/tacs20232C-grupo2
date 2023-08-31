@@ -1,24 +1,28 @@
 package model;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @XmlRootElement(name = "Action")
 public class Action {
 
+    public Action() {
+    }
+
     public Action(User user, Order order, String description) {
         this.user = user;
         this.order = order;
-        this.dateTime = LocalDateTime.now();
-        this.description = user.getUsername() + description + " on " + dateTime.format(DateTimeFormatter.ISO_DATE);
+        this.dateTime = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
+        this.description = user.getUsername() + description + " on " + this.dateTime;
         notify(Monitor.getInstance());
     }
 
-    private final User user;
-    private final Order order;
-    private final LocalDateTime dateTime;
-    private final String description;
+    private User user;
+    private Order order;
+    private String dateTime;
+    private String description;
 
     public void notify(Monitor monitor) {
         monitor.beNotified(user, order);
@@ -31,7 +35,7 @@ public class Action {
     }
 
     public String getDateTime() {
-        return dateTime.format(DateTimeFormatter.ISO_DATE_TIME);
+        return dateTime;
     }
 
     public String getDescription() {

@@ -1,12 +1,33 @@
 package repositories;
 
-import javax.ws.rs.core.Response;
+import daos.Dao;
+import jakarta.ws.rs.core.Response;
+
 import java.util.List;
 
-public interface Repository<T> {
-    List<T> getAll();
-    T get(int id);
-    Response create(T t);
-    void update(T t, int id);
-    Response delete(int id);
+public class Repository<T> {
+    protected Dao<T> dao;
+
+    public List<T> getAll() {
+        return dao.getAll();
+    }
+
+    public T get(int id) {
+        return dao.get(id).orElse(null);
+    }
+
+    public Response create(T t) {
+        dao.save(t);
+        return Response.ok().build();
+    }
+
+    public void update(T t, int id) {
+        dao.update(t, id);
+    }
+
+    public Response delete(int id) {
+        dao.delete(id);
+        return Response.ok().build();
+    }
+
 }

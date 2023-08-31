@@ -1,20 +1,24 @@
 package services;
 
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
+import jakarta.ws.rs.core.MediaType;
+
+import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.lifecycle.ResourceProvider;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
 import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
+
 import repositories.ItemTypeRepository;
 import repositories.MonitorRepository;
 import repositories.OrderRepository;
 import repositories.UserRepository;
 
-import javax.ws.rs.core.MediaType;
+import java.io.IOException;
 import java.util.*;
 
 public class RestfulServer {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         JAXRSServerFactoryBean factoryBean = new JAXRSServerFactoryBean();
 
         factoryBean.setResourceClasses(
@@ -48,6 +52,13 @@ public class RestfulServer {
         factoryBean.setProviders(providers);
 
         factoryBean.setAddress("http://localhost:8080/");
-        factoryBean.create();
+        Server server = factoryBean.create();
+
+        System.out.println("Server ready...");
+
+        System.in.read();
+
+        server.destroy();
+        System.exit(0);
     }
 }

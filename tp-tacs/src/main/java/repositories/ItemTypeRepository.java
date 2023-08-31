@@ -1,50 +1,52 @@
 package repositories;
 
-import daos.Dao;
 import daos.ItemTypeDao;
 import model.ItemType;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import java.util.List;
 
 @Path("itemTypes")
 @Produces(MediaType.APPLICATION_JSON)
-public class ItemTypeRepository implements Repository<ItemType> {
-    private final Dao<ItemType> dao = new ItemTypeDao();
+public class ItemTypeRepository extends Repository<ItemType> {
+
+    public ItemTypeRepository() {
+        dao = new ItemTypeDao();
+    }
 
     @GET
     @Override
     public List<ItemType> getAll() {
-        return dao.getAll();
+        return super.getAll();
     }
 
     @GET
     @Path("{id}")
     @Override
     public ItemType get(@PathParam("id") int id) {
-        return dao.get(id).orElse(null);
+        return super.get(id);
     }
 
     @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     @Override
     public Response create(ItemType itemType) {
-        dao.save(itemType);
-        return Response.ok().build();
+        return super.create(itemType);
     }
 
     @Override
     public void update(ItemType itemType, int id) {
-        dao.update(itemType, id);
+        super.update(itemType, id);
     }
 
     @DELETE
     @Path("{id}")
     @Override
     public Response delete(@PathParam("id") int id) {
-        dao.delete(id);
-        return Response.ok().build();
+        return super.delete(id);
     }
 
 }

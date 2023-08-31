@@ -1,13 +1,17 @@
 package model;
 
-import javax.ws.rs.DELETE;
-import javax.ws.rs.POST;
-import javax.ws.rs.core.Response;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.core.Response;
+import jakarta.xml.bind.annotation.XmlRootElement;
+
 import java.util.*;
 
 @XmlRootElement(name = "Order")
 public class Order {
+
+    public Order() {
+    }
 
     public Order(User user) {
         this.user = user;
@@ -17,9 +21,9 @@ public class Order {
         this.actions.add(new Action(user, this, " created an order"));
     }
 
-    private final User user;
-    private final List<Item> items;
-    private final List<Action> actions;
+    private User user;
+    private List<Item> items;
+    private List<Action> actions;
     private boolean closed;
     private Double totalPrice;
 
