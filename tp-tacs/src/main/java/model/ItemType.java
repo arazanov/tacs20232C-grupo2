@@ -1,6 +1,11 @@
+package model;
+
 import lombok.Getter;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 @Getter
+@XmlRootElement(name = "item-type")
 public class ItemType {
 
     public ItemType(String name, String description, double price) {

@@ -1,3 +1,7 @@
+import model.ItemType;
+import model.Monitor;
+import model.Order;
+import model.User;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

@@ -1,15 +1,17 @@
+package model;
+
 import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-public class Change implements Action {
+public class Creation implements Action {
 
-    public Change(User user, Order order, String itemName, int quantity) {
+    public Creation(User user, Order order) {
         this.user = user;
         this.order = order;
         this.dateTime = LocalDateTime.now();
-        this.description = user.getUsername() + " added " + quantity + " " + itemName + " on " + dateTime.format(DateTimeFormatter.ISO_DATE);
+        this.description = "order created by " + user.getUsername() + " on " + dateTime.format(DateTimeFormatter.ISO_DATE);
         notify(Monitor.getInstance());
     }
 
@@ -19,6 +21,7 @@ public class Change implements Action {
     @Getter
     private String description;
 
+    @Override
     public void notify(Monitor monitor) {
         monitor.beNotified(user, order);
     }

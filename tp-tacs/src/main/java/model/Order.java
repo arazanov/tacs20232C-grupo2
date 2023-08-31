@@ -1,6 +1,11 @@
+package model;
+
 import lombok.Getter;
+
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.*;
 
+@XmlRootElement(name = "order")
 public class Order {
 
     public Order(User user) {

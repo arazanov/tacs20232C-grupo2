@@ -1,6 +1,11 @@
+package model;
+
 import lombok.Getter;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 @Getter
+@XmlRootElement(name = "item")
 public class Item {
 
     public Item(ItemType itemType, int quantity) {

@@ -1,5 +1,9 @@
+package model;
+
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.*;
 
+@XmlRootElement(name = "monitor")
 public class Monitor {
     private static Monitor instance = null;
 
