@@ -6,6 +6,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
+
 public class OrderTest {
     private User user1, user2, user3;
     private ItemType empanadaCarne, empanadaVerdura, pizzaNapo, pizzaFuga;
@@ -46,10 +48,14 @@ public class OrderTest {
     public void placeAnOrder() {
         Order order1 = new Order(user1);
 
+        order1.shareWith(user2, user3);
+
         order1.addItems(user1, empanadaCarne, 6);
         order1.addItems(user2, pizzaNapo, 1);
         order1.addItems(user3, empanadaCarne, 2);
+
         order1.close(user1);
+
         order1.addItems(user2, empanadaVerdura, 3);
 
         // ítems y cantidades del pedido
@@ -71,6 +77,6 @@ public class OrderTest {
         System.out.println("Pedidos creados: " + Monitor.getInstance().getOrdersCreated());
         System.out.println("Usuarios que interactuaron: " + Monitor.getInstance().getUniqueUsers());
 
-        Assert.assertEquals(1200 + 8 * 200, order1.calculatePrice(), 0);
+        Assert.assertEquals(1200 + 8 * 200, order1.getTotalPrice(), 0);
     }
 }

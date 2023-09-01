@@ -15,6 +15,7 @@ public class Order {
 
     public Order(User user) {
         this.user = user;
+        this.users = new HashSet<>();
         this.items = new ArrayList<>();
         this.actions = new ArrayList<>();
         this.closed = false;
@@ -22,18 +23,20 @@ public class Order {
     }
 
     private User user;
+    private Set<User> users;
     private List<Item> items;
     private List<Action> actions;
     private boolean closed;
     private Double totalPrice;
 
-    private Optional<Item> findById(int id) {
-        return items.stream().filter(i -> i.getItemType().getId() == id).findFirst();
+    public void shareWith(User ... users) {
+        Collections.addAll(this.users, users);
     }
 
     @POST
     public Response addItems(User user, ItemType itemType, int quantity) {
-        if(isClosed()) return Response.status(Response.Status.UNAUTHORIZED).build();
+        if(isClosed() || !user.equals(this.user) && !users.contains(user))
+            return Response.status(Response.Status.UNAUTHORIZED).build();
 
         Optional<Item> itemOptional = findById(itemType.getId());
 
@@ -49,7 +52,7 @@ public class Order {
     }
 
     @DELETE
-    public Response deleteItem(int id) {
+    public Response removeItem(int id) {
         findById(id).ifPresent(i -> items.remove(id));
         return Response.ok().build();
     }
@@ -57,13 +60,14 @@ public class Order {
     public void close(User user) {
         if(isClosed()) return;
         if(this.user.equals(user)) this.closed = true;
+        actions.add(new Action(user, this, " closed the order"));
     }
 
-    public double calculatePrice() {
-        if(isClosed()) {
-            if(totalPrice == null) totalPrice = items.stream().mapToDouble(Item::calculatePrice).reduce(0, Double::sum);
-            return totalPrice;
-        }
+    private Optional<Item> findById(int id) {
+        return items.stream().filter(i -> i.getItemType().getId() == id).findFirst();
+    }
+
+    private double calculatePrice() {
         return items.stream().mapToDouble(Item::calculatePrice).reduce(0, Double::sum);
     }
 
@@ -71,6 +75,10 @@ public class Order {
 
     public User getUser() {
         return user;
+    }
+
+    public Set<User> getUsers() {
+        return users;
     }
 
     public List<Item> getItems() {
@@ -86,6 +94,10 @@ public class Order {
     }
 
     public Double getTotalPrice() {
+        if(isClosed()) {
+            if(totalPrice == null) totalPrice = calculatePrice();
+            return totalPrice;
+        }
         return calculatePrice();
     }
 

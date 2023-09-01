@@ -8,10 +8,13 @@ public class OrderDao extends Dao<Order> {
     public OrderDao() {
         User user1 = new User("pepe");
         User user2 = new User("carla");
+        User user3 = new User("alex");
+
         ItemType empanadaCarne = new ItemType(1, "empanada de carne", "empanada de carne cortada a cuchillo con cebolla", 200);
         ItemType pizzaNapo = new ItemType(3, "pizza napolitana", "muzzarella, tomates en rodajas, ajo", 1200);
 
         Order order1 = new Order(user1);
+        order1.shareWith(user2, user3);
 
         order1.addItems(user1, empanadaCarne, 6);
         order1.addItems(user2, pizzaNapo, 1);
