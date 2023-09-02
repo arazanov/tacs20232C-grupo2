@@ -1,6 +1,6 @@
 package daos;
 
-import model.ItemType;
+import model.Item;
 import model.Order;
 import model.User;
 
@@ -10,17 +10,20 @@ public class OrderDao extends Dao<Order> {
         User user2 = new User("carla");
         User user3 = new User("alex");
 
-        ItemType empanadaCarne = new ItemType(1, "empanada de carne", "empanada de carne cortada a cuchillo con cebolla", 200);
-        ItemType pizzaNapo = new ItemType(3, "pizza napolitana", "muzzarella, tomates en rodajas, ajo", 1200);
+        Item empanadaCarne = new Item("empanada de carne");
+        Item pizzaNapolitana = new Item("pizza napolitana");
 
         Order order1 = new Order(user1);
+
         order1.shareWith(user2, user3);
 
         order1.addItems(user1, empanadaCarne, 6);
-        order1.addItems(user2, pizzaNapo, 1);
-        order1.addItems(user2, empanadaCarne, 2);
+        order1.addItems(user2, pizzaNapolitana, 2);
+        order1.removeItems(user1, pizzaNapolitana, 1);
+        order1.addItems(user3, empanadaCarne, 2);
+
         order1.close(user1);
 
-        elements.put(1, order1);
+        entities.put(1, order1);
     }
 }

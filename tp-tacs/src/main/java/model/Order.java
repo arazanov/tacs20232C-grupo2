@@ -1,8 +1,5 @@
 package model;
 
-import jakarta.ws.rs.DELETE;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.core.Response;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
 import java.util.*;
@@ -19,7 +16,9 @@ public class Order {
         this.items = new ArrayList<>();
         this.actions = new ArrayList<>();
         this.closed = false;
-        this.actions.add(new Action(user, this, " created an order"));
+
+        this.actions.add(new Action(user, " created an order"));
+        Monitor.getInstance().orderCreated(user);
     }
 
     private User user;
@@ -27,51 +26,49 @@ public class Order {
     private List<Item> items;
     private List<Action> actions;
     private boolean closed;
-    private Double totalPrice;
 
     public void shareWith(User ... users) {
         Collections.addAll(this.users, users);
     }
 
-    @POST
-    public Response addItems(User user, ItemType itemType, int quantity) {
-        if(isClosed() || !user.equals(this.user) && !users.contains(user))
-            return Response.status(Response.Status.UNAUTHORIZED).build();
+    public void addItems(User user, Item item, int quantity) {
+        if(unauthorized(user)) return;
+        Monitor.getInstance().userInteraction(user);
 
-        Optional<Item> itemOptional = findById(itemType.getId());
+        Optional<Item> itemOptional = find(item);
 
         if (itemOptional.isPresent()) itemOptional.get().addItems(quantity);
-        else items.add(new Item(itemType, quantity));
+        else {
+            item.addItems(quantity);
+            items.add(item);
+        }
 
-        actions.add(new Action(
-                user,
-                this,
-                " added " + quantity + " \"" + itemType.getName() + "\""
-        ));
-        return Response.ok().build();
+        actions.add(new Action(user, " added " + quantity + " \"" + item.getDescription() + "\""));
     }
 
-    @DELETE
-    public Response removeItem(int id) {
-        findById(id).ifPresent(i -> items.remove(id));
-        return Response.ok().build();
+    public void removeItems(User user, Item item, int quantity) {
+        if(unauthorized(user)) return;
+        Monitor.getInstance().userInteraction(user);
+
+        find(item).ifPresent(i -> {
+            i.removeItems(quantity);
+            actions.add(new Action(user, " removed " + quantity + " \"" + item.getDescription() + "\""));
+        });
     }
 
     public void close(User user) {
         if(isClosed()) return;
         if(this.user.equals(user)) this.closed = true;
-        actions.add(new Action(user, this, " closed the order"));
+        actions.add(new Action(user, " closed the order"));
     }
 
-    private Optional<Item> findById(int id) {
-        return items.stream().filter(i -> i.getItemType().getId() == id).findFirst();
+    private Optional<Item> find(Item item) {
+        return items.stream().filter(i -> i.equals(item)).findFirst();
     }
 
-    private double calculatePrice() {
-        return items.stream().mapToDouble(Item::calculatePrice).reduce(0, Double::sum);
+    private boolean unauthorized(User user) {
+        return isClosed() || !user.equals(this.user) && !users.contains(user);
     }
-
-    // Getters
 
     public User getUser() {
         return user;
@@ -91,14 +88,6 @@ public class Order {
 
     public boolean isClosed() {
         return closed;
-    }
-
-    public Double getTotalPrice() {
-        if(isClosed()) {
-            if(totalPrice == null) totalPrice = calculatePrice();
-            return totalPrice;
-        }
-        return calculatePrice();
     }
 
 }

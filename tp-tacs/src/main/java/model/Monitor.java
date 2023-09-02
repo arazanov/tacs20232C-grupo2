@@ -1,15 +1,13 @@
 package model;
 
 import jakarta.xml.bind.annotation.XmlRootElement;
-import java.util.*;
 
 @XmlRootElement(name = "Monitor")
 public class Monitor {
-    private static Monitor instance = null;
 
     public Monitor() {
-        this.orders = new HashSet<>();
-        this.users = new HashSet<>();
+        this.uniqueUsers = 0;
+        this.ordersCreated = 0;
     }
 
     public static Monitor getInstance() {
@@ -17,20 +15,28 @@ public class Monitor {
         return instance;
     }
 
-    private final Set<Order> orders;
-    private final Set<User> users;
+    private static Monitor instance = null;
+    private int uniqueUsers;
+    private int ordersCreated;
 
-    public void beNotified(User user, Order order) {
-        orders.add(order);
-        users.add(user);
+    public void orderCreated(User user) {
+        ordersCreated++;
+        userInteraction(user);
+    }
+
+    public void userInteraction(User user) {
+        if(user.neverInteracted()) {
+            user.interact();
+            uniqueUsers++;
+        }
     }
 
     public int getUniqueUsers() {
-        return users.size();
+        return uniqueUsers;
     }
 
     public int getOrdersCreated() {
-        return orders.size();
+        return ordersCreated;
     }
 
 }

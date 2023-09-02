@@ -9,7 +9,6 @@ import org.apache.cxf.jaxrs.lifecycle.ResourceProvider;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
 import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
 
-import repositories.ItemTypeRepository;
 import repositories.MonitorRepository;
 import repositories.OrderRepository;
 import repositories.UserRepository;
@@ -22,14 +21,12 @@ public class RestfulServer {
         JAXRSServerFactoryBean factoryBean = new JAXRSServerFactoryBean();
 
         factoryBean.setResourceClasses(
-                ItemTypeRepository.class,
                 OrderRepository.class,
                 UserRepository.class,
                 MonitorRepository.class
         );
 
         List<ResourceProvider> resourceProviders = Arrays.asList(
-            new SingletonResourceProvider(new ItemTypeRepository()),
             new SingletonResourceProvider(new OrderRepository()),
             new SingletonResourceProvider(new UserRepository()),
             new SingletonResourceProvider(new MonitorRepository())
@@ -55,9 +52,7 @@ public class RestfulServer {
         Server server = factoryBean.create();
 
         System.out.println("Server ready...");
-
         System.in.read();
-
         server.destroy();
         System.exit(0);
     }

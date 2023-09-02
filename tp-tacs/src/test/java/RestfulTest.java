@@ -1,5 +1,4 @@
 import com.fasterxml.jackson.databind.ObjectMapper;
-import model.ItemType;
 import model.User;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
@@ -7,7 +6,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import repositories.ItemTypeRepository;
 import repositories.UserRepository;
 
 import java.io.IOException;
@@ -33,26 +31,10 @@ public class RestfulTest {
         client.close();
     }
 
-    private ItemType getItemType(int id) throws IOException, URISyntaxException {
-        URL url = new URI(BASE_URL + "itemTypes/" + id).toURL();
-        InputStream input = url.openStream();
-        return new ObjectMapper().readValue(new InputStreamReader(input), ItemType.class);
-    }
-
     private User getUser(int id) throws IOException, URISyntaxException {
         URL url = new URI(BASE_URL + "users/" + id).toURL();
         InputStream input = url.openStream();
         return new ObjectMapper().readValue(new InputStreamReader(input), User.class);
-    }
-
-    @Test
-    public void getItemTypeMethod() throws IOException, URISyntaxException {
-        Comparator<ItemType> itemTypeComparator = Comparator
-                .comparingInt(ItemType::getId)
-                .thenComparing(ItemType::getName)
-                .thenComparing(ItemType::getDescription)
-                .thenComparingDouble(ItemType::getPrice);
-        Assert.assertEquals(0, itemTypeComparator.compare(new ItemTypeRepository().get(1), getItemType(1)));
     }
 
     @Test

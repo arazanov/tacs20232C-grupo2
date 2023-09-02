@@ -11,24 +11,15 @@ public class Action {
     public Action() {
     }
 
-    public Action(User user, Order order, String description) {
+    public Action(User user, String description) {
         this.user = user;
-        this.order = order;
         this.dateTime = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
-        this.description = user.getUsername() + description + " on " + this.dateTime;
-        notify(Monitor.getInstance());
+        this.description = user.getUsername() + description;
     }
 
     private User user;
-    private Order order;
     private String dateTime;
     private String description;
-
-    public void notify(Monitor monitor) {
-        monitor.beNotified(user, order);
-    }
-
-    // Getters
 
     public User getUser() {
         return user;

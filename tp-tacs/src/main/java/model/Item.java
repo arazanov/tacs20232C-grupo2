@@ -8,26 +8,24 @@ public class Item {
     public Item() {
     }
 
-    public Item(ItemType itemType, int quantity) {
-        this.quantity = quantity;
-        this.itemType = itemType;
+    public Item(String description) {
+        this.description = description;
+        this.quantity = 0;
     }
 
-    private ItemType itemType;
+    private String description;
     private int quantity;
 
     public void addItems(int quantity) {
         this.quantity += quantity;
     }
 
-    public double calculatePrice() {
-        return quantity * itemType.getPrice();
+    public void removeItems(int quantity) {
+        this.quantity -= quantity;
     }
 
-    // Getters
-
-    public ItemType getItemType() {
-        return itemType;
+    public String getDescription() {
+        return description;
     }
 
     public int getQuantity() {
