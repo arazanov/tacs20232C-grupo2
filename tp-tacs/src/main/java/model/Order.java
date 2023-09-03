@@ -58,8 +58,10 @@ public class Order {
 
     public void close(User user) {
         if(isClosed()) return;
-        if(this.user.equals(user)) this.closed = true;
-        actions.add(new Action(user, " closed the order"));
+        if(this.user.getUsername().equals(user.getUsername())) {
+            this.closed = true;
+            actions.add(new Action(user, " closed the order"));
+        }
     }
 
     private Optional<Item> find(Item item) {

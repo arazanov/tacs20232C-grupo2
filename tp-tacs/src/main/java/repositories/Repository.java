@@ -21,11 +21,17 @@ public class Repository<T> {
         return Response.ok().build();
     }
 
-    public void update(T t, int id) {
-        dao.update(t, id);
+    public Response update(int id, T t) {
+        T optionalT = get(id);
+        if(optionalT == null) return Response.status(Response.Status.NOT_FOUND).build();
+        if(optionalT.equals(t)) return Response.notModified().build();
+        dao.update(id, t);
+        return Response.ok().build();
     }
 
     public Response delete(int id) {
+        T optionalT = get(id);
+        if(optionalT == null) return Response.status(Response.Status.NOT_FOUND).build();
         dao.delete(id);
         return Response.ok().build();
     }

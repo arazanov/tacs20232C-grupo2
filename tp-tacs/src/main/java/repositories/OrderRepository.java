@@ -6,6 +6,7 @@ import model.Order;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import model.User;
 
 import java.util.List;
 
@@ -38,9 +39,14 @@ public class OrderRepository extends Repository<Order> {
         return super.create(order);
     }
 
-    @Override
-    public void update(Order order, int id) {
-        super.update(order, id);
+    @PATCH
+    @Path("{id}/close")
+    public Response close(@PathParam("id") int id, User user) {
+        Order order = get(id);
+        if(order == null) return Response.status(Response.Status.NOT_FOUND).build();
+        order.close(user);
+        dao.update(id, order);
+        return Response.ok().build();
     }
 
     @DELETE

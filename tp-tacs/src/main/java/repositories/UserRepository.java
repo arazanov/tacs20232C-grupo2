@@ -38,9 +38,11 @@ public class UserRepository extends Repository<User> {
         return super.create(user);
     }
 
+    @PATCH
+    @Path("{id}")
     @Override
-    public void update(User user, int id) {
-        super.update(user, id);
+    public Response update(@PathParam("id") int id, User user) {
+        return super.update(id, user);
     }
 
     @DELETE

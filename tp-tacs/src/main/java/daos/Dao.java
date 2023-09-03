@@ -17,8 +17,8 @@ public abstract class Dao<T> {
         entities.put(Collections.max(entities.keySet()) + 1, t);
     }
 
-    public void update(T t, int id) {
-
+    public void update(int id, T t) {
+        entities.put(id, t);
     }
 
     public void delete(int id) {
