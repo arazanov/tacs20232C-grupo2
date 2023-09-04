@@ -1,7 +1,6 @@
 # tacs20232C-grupo2
 
 ## Build
-En tp-tacs
 ```
 docker build .
 docker-compose up
