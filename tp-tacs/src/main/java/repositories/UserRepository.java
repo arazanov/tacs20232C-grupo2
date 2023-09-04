@@ -38,7 +38,7 @@ public class UserRepository extends Repository<User> {
         return super.create(user);
     }
 
-    @PATCH
+    @PUT
     @Path("{id}")
     @Override
     public Response update(@PathParam("id") int id, User user) {
