@@ -83,6 +83,18 @@ public class Order {
         return Response.status(Response.Status.FORBIDDEN).build();
     }
 
+    @PATCH
+    @Path("reopen")
+    public Response reopen(User user) {
+        if(!isClosed()) return Response.status(Response.Status.NOT_MODIFIED).build();
+        if(this.user.getUsername().equals(user.getUsername())) {
+            this.closed = false;
+            actions.add(new Action(user, "reopen the order"));
+            return Response.ok().build();
+        }
+        return Response.status(Response.Status.FORBIDDEN).build();
+    }
+
     private Optional<Item> find(String description) {
         return items.stream().filter(i -> i.getDescription().equals(description)).findFirst();
     }
