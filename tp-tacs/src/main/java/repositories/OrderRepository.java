@@ -34,19 +34,20 @@ public class OrderRepository extends Repository<Order> {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Override
-    public Response create(Order order) {
-        return super.create(order);
+    public Response create(User user) {
+        return super.create(new Order(user));
     }
 
-    @PATCH
-    @Path("{id}/close")
-    public Response close(@PathParam("id") int id, User user) {
-        Order order = get(id);
-        if(order == null) return Response.status(Response.Status.NOT_FOUND).build();
-        order.close(user);
-        dao.update(id, order);
-        return Response.ok().build();
+    @PUT
+    @Path("{id}")
+    @Override
+    public Response update(@PathParam("id") int id, Order order) {
+        return super.update(id, order);
+    }
+
+    @Path("{id}")
+    public Order modify(@PathParam("id") int id) {
+        return get(id);
     }
 
     @DELETE

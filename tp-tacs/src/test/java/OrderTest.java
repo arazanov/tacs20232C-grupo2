@@ -1,4 +1,3 @@
-import model.Item;
 import model.Monitor;
 import model.Order;
 import model.User;
@@ -6,17 +5,13 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
+
 public class OrderTest {
     private User user1, user2, user3;
-    private Item empanadaCarne, empanadaVerdura, pizzaNapolitana, pizzaFugazzeta;
 
     @Before
     public void init() {
-        empanadaCarne = new Item("empanada de carne");
-        empanadaVerdura = new Item("empanada de verdura");
-        pizzaNapolitana = new Item("pizza napolitana");
-        pizzaFugazzeta = new Item("pizza fugazzeta");
-
         user1 = new User("pepe");
         user2 = new User("carla");
         user3 = new User("alex");
@@ -26,16 +21,16 @@ public class OrderTest {
     public void placeAnOrder() {
         Order order1 = new Order(user1);
 
-        order1.shareWith(user2, user3);
+        order1.shareWith(Arrays.asList(user2));
 
-        order1.addItems(user1, empanadaCarne, 6);
-        order1.addItems(user2, pizzaNapolitana, 2);
-        order1.removeItems(user1, pizzaNapolitana, 1);
-        order1.addItems(user3, empanadaCarne, 2);
+        order1.addItems(user1, "empanada de carne", 6);
+        order1.addItems(user2, "pizza napolitana", 2);
+        order1.removeItems(user1, "pizza napolitana", 1);
+        order1.addItems(user3, "empanada de carne", 2);
 
         order1.close(user1);
 
-        order1.addItems(user2, empanadaVerdura, 3);
+        order1.addItems(user2, "empanada de verdura", 3);
 
         // ítems y cantidades del pedido
         System.out.println("Ítems: ");
