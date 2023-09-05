@@ -86,14 +86,14 @@ Mis Pedidos:
 
 ![wireframe de pedidos](/wireframes/pedidos.jpg)
 
-Pedido Abierta Admin:
+Pedido Abierto Admin:
 
 ![wireframe de o](/wireframes/pedido_admin.jpg)
 
-Pedido Abierta Invitado:
+Pedido Abierto Invitado:
 
-![wireframe de login](/wireframes/iniciar_sesion.jpg)
+![wireframe de login](/wireframes/pedido_no_admin.jpg)
 
-Pedido Cerrada Admin:
+Pedido Cerrado Admin:
 
-![wireframe de login](/wireframes/iniciar_sesion.jpg)
+![wireframe de login](/wireframes/pedido_cerrado_admin.jpg)
