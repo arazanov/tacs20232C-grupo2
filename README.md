@@ -72,3 +72,7 @@ Body:
 
 ## Dominio  
 ![diagrama de objetos](/diagramas/objetos.jpg)
+
+## Wireframes  
+Login:
+![wireframe de login](/wireframes/iniciar_sesion.jpg)
