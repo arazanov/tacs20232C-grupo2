@@ -74,5 +74,26 @@ Body:
 ![diagrama de objetos](/diagramas/objetos.jpg)
 
 ## Wireframes  
-Login:
+Log In:
+
+![wireframe de login](/wireframes/iniciar_sesion.jpg)
+
+Sign Up:
+
+![wireframe de signup](/wireframes/crear_usuario.jpg)
+
+Mis Pedidos:
+
+![wireframe de pedidos](/wireframes/pedidos.jpg)
+
+Pedido Abierta Admin:
+
+![wireframe de o](/wireframes/pedido_admin.jpg)
+
+Pedido Abierta Invitado:
+
+![wireframe de login](/wireframes/iniciar_sesion.jpg)
+
+Pedido Cerrada Admin:
+
 ![wireframe de login](/wireframes/iniciar_sesion.jpg)
