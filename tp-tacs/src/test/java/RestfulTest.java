@@ -63,7 +63,7 @@ public class RestfulTest {
 
     private HttpResponse post(String path, String json) {
         HttpPost httpPost = new HttpPost(BASE_URL + path);
-        httpPost.setEntity(new StringEntity(json));
+        if(json != null) httpPost.setEntity(new StringEntity(json));
         httpPost.setHeader("Accept", "application/json");
         httpPost.setHeader("Content-type", "application/json");
         try {
@@ -75,7 +75,7 @@ public class RestfulTest {
 
     private HttpResponse patch(String path, String json) {
         HttpPatch httpPatch = new HttpPatch(BASE_URL + path);
-        httpPatch.setEntity(new StringEntity(json));
+        if(json != null) httpPatch.setEntity(new StringEntity(json));
         httpPatch.setHeader("Accept", "application/json");
         httpPatch.setHeader("Content-type", "application/json");
         try {
@@ -93,19 +93,19 @@ public class RestfulTest {
 
     private HttpResponse shareOrder(int id) {
         String path = "orders/" + id + "/share";
-        String json = "[{\"username\":\"carla\"},{\"username\":\"alex\"}]";
+        String json = "{\"username\":\"carla\"}";
         return post(path, json);
     }
 
-    private HttpResponse postItem(int id, String username) {
-        String path = "orders/" + id + "/addItems?description=pizza+napolitana&quantity=1";
-        String json = "{\"username\":\"" + username + "\"}";
+    private HttpResponse postItem(int id, int userId) {
+        String path = "orders/" + id + "/addItems/" + userId;
+        String json = "{\"description\":\"pizza napolitana\",\"quantity\":2}";
         return post(path, json);
     }
 
-    private HttpResponse closeOrder(int id, String username) {
-        String path = "orders/" + id + "/close";
-        String json = "{\"username\":\"" + username + "\"}";
+    private HttpResponse closeOrder(int id, int userId) {
+        String path = "orders/" + id + "/close/" + userId;
+        String json = null;
         return patch(path, json);
     }
 
@@ -114,14 +114,14 @@ public class RestfulTest {
         List<HttpResponse> responseList = new ArrayList<>();
 
         responseList.add(postOrder("pepe"));
-        responseList.add(postItem(2, "pepe"));
+        responseList.add(postItem(2, 1));
         responseList.add(shareOrder(2));
-        responseList.add(postItem(2, "carla"));
-        responseList.add(closeOrder(2, "pepe"));
+        responseList.add(postItem(2, 2));
+        responseList.add(closeOrder(2, 1));
 
         int sum = responseList.stream().mapToInt(HttpResponse::getCode).reduce(0, Integer::sum);
-        Assert.assertEquals(200 * 5, sum);
         System.out.println(gson.toJson(getOrder(2)));
+        Assert.assertEquals(200 * 5, sum);
     }
 
     @Test

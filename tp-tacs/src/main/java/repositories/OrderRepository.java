@@ -1,6 +1,8 @@
 package repositories;
 
 import daos.OrderDao;
+import daos.UserDao;
+import model.Item;
 import model.Order;
 
 import jakarta.ws.rs.*;
@@ -16,7 +18,10 @@ public class OrderRepository extends Repository<Order> {
 
     public OrderRepository() {
         dao = new OrderDao();
+        userDao = new UserDao();
     }
+
+    private final UserDao userDao;
 
     @GET
     @Override
@@ -31,11 +36,12 @@ public class OrderRepository extends Repository<Order> {
         return super.get(id);
     }
 
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response create(User user) {
-        return super.create(new Order(user));
+//    Como usuario quiero poder ver los items y cantidades que hay en un pedido.
+
+    @GET
+    @Path("{id}/items")
+    public List<Item> getItems(@PathParam("id") int id) {
+        return get(id).getItems();
     }
 
     @PUT
@@ -45,9 +51,83 @@ public class OrderRepository extends Repository<Order> {
         return super.update(id, order);
     }
 
-    @Path("{id}")
-    public Order modify(@PathParam("id") int id) {
-        return get(id);
+//    Como usuario quiero crear un pedido.
+
+    @POST
+    public Response create(User user) {
+        return super.create(new Order(user));
+    }
+
+    @POST
+    @Path("{id}/share")
+    public Response shareWith(@PathParam("id") int id, User user) {
+        get(id).shareWith(user);
+        return Response.ok().build();
+    }
+
+    public interface Modifiable {
+        void apply(Order order, User user, Item item);
+    }
+
+    public Response modifyItems(int id, int userId, Item item, Modifiable modifiable) {
+        Order order = get(id);
+        User user = userDao.get(userId).orElse(null);
+
+        assert user != null;
+        if (order.isClosed() || order.isNotTheCreator(user) && order.hasNoPermission(user))
+            return Response.status(Response.Status.FORBIDDEN).build();
+
+        modifiable.apply(order, user, item);
+        return Response.ok().build();
+    }
+
+//    Como usuario quiero agregar un nuevo item a un pedido ya creado.
+//    Como usuario quiero poder sumar N elementos (+1 por ejemplo) a un item de un pedido.
+
+    @POST
+    @Path("{id}/addItems/{userId}")
+    public Response addItems(@PathParam("id") int id, @PathParam("userId") int userId, Item item) {
+        return modifyItems(id, userId, item, Order::addItems);
+    }
+
+    @POST
+    @Path("{id}/removeItems/{userId}")
+    public Response removeItems(@PathParam("id") int id, @PathParam("userId") int userId, Item item) {
+        return modifyItems(id, userId, item, Order::removeItems);
+    }
+
+    public interface Closable {
+        void apply(Order order, User user);
+    }
+
+    public Response openClose(Order order, int userId, Closable closable) {
+        User user = userDao.get(userId).orElse(null);
+        assert user != null;
+        if (order.isNotTheCreator(user))
+            return Response.status(Response.Status.FORBIDDEN).build();
+
+        closable.apply(order, user);
+        return Response.ok().build();
+    }
+
+//    Como usuario quiero poder cerrar el pedido. Siempre y cuando haya sido creado por mí.
+
+    @PATCH
+    @Path("{id}/close/{userId}")
+    public Response close(@PathParam("id") int id, @PathParam("userId") int userId) {
+        Order order = get(id);
+        if (order.isClosed())
+            return Response.status(Response.Status.NOT_MODIFIED).build();
+        return openClose(order, userId, Order::close);
+    }
+
+    @PATCH
+    @Path("{id}/reopen/{userId}")
+    public Response reopen(@PathParam("id") int id, @PathParam("userId") int userId) {
+        Order order = get(id);
+        if (!order.isClosed())
+            return Response.status(Response.Status.NOT_MODIFIED).build();
+        return openClose(order, userId, Order::reopen);
     }
 
     @DELETE

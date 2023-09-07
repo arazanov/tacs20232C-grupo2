@@ -1,5 +1,6 @@
 package daos;
 
+import model.Item;
 import model.Order;
 import model.User;
 
@@ -13,12 +14,12 @@ public class OrderDao extends Dao<Order> {
 
         Order order1 = new Order(user1);
 
-        order1.shareWith(Arrays.asList(user2));
+        order1.shareWith(user2);
 
-        order1.addItems(user1, "empanada de carne", 6);
-        order1.addItems(user2, "pizza napolitana", 2);
-        order1.removeItems(user1, "pizza napolitana", 1);
-        order1.addItems(user3, "empanada de carne", 2);
+        order1.addItems(user1, new Item("empanada de carne", 6));
+        order1.addItems(user2, new Item("pizza napolitana", 2));
+        order1.removeItems(user1, new Item("pizza napolitana", 1));
+        order1.addItems(user3, new Item("empanada de carne", 2));
 
         order1.close(user1);
 

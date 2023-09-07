@@ -8,9 +8,9 @@ public class Item {
     public Item() {
     }
 
-    public Item(String description) {
+    public Item(String description, int quantity) {
         this.description = description;
-        this.quantity = 0;
+        this.quantity = quantity;
     }
 
     private String description;

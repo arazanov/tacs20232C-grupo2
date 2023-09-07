@@ -1,11 +1,7 @@
 package model;
 
-import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.Response;
 import jakarta.xml.bind.annotation.XmlRootElement;
-
 import java.util.*;
-import java.util.stream.Collectors;
 
 @XmlRootElement(name = "Order")
 public class Order {
@@ -30,79 +26,56 @@ public class Order {
     private List<Action> actions;
     private boolean closed;
 
-    @POST
-    @Path("share")
-    public Response shareWith(List<User> users) {
-        this.users.addAll(users);
-        actions.add(new Action(user, " shared the order with " + users.stream().map(User::getUsername).collect(Collectors.joining(","))));
-        return Response.ok().build();
+    public void shareWith(User user) {
+        this.users.add(user);
+        actions.add(new Action(this.user, " shared the order with " + user.getUsername()));
     }
 
-    @POST
-    @Path("addItems")
-    public Response addItems(User user, @QueryParam("description") String description, @QueryParam("quantity") int quantity) {
-        if(unauthorized(user)) return Response.status(Response.Status.FORBIDDEN).build();
+    public void addItems(User user, Item item) {
         Monitor.getInstance().userInteraction(user);
 
+        String description = item.getDescription();
+        int quantity = item.getQuantity();
         Optional<Item> itemOptional = find(description);
 
         if (itemOptional.isPresent()) itemOptional.get().addItems(quantity);
-        else {
-            Item item = new Item(description);
-            item.addItems(quantity);
-            items.add(item);
-        }
+        else items.add(item);
 
         actions.add(new Action(user, " added " + quantity + " \"" + description + "\""));
-        return Response.ok().build();
     }
 
-    @POST
-    @Path("removeItems")
-    public Response removeItems(User user, @QueryParam("description") String description, @QueryParam("quantity") int quantity) {
-        if(unauthorized(user)) return Response.status(Response.Status.FORBIDDEN).build();
+    public void removeItems(User user, Item item) {
         Monitor.getInstance().userInteraction(user);
+
+        String description = item.getDescription();
+        int quantity = item.getQuantity();
 
         find(description).ifPresent(i -> {
             i.removeItems(quantity);
             actions.add(new Action(user, " removed " + quantity + " \"" + description + "\""));
         });
-
-        return Response.ok().build();
     }
 
-    @PATCH
-    @Path("close")
-    public Response close(User user) {
-        if(isClosed()) return Response.status(Response.Status.NOT_MODIFIED).build();
-        if(this.user.getUsername().equals(user.getUsername())) {
-            this.closed = true;
-            actions.add(new Action(user, " closed the order"));
-            return Response.ok().build();
-        }
-        return Response.status(Response.Status.FORBIDDEN).build();
+    public void close(User user) {
+        this.closed = true;
+        actions.add(new Action(user, " closed the order"));
     }
 
-    @PATCH
-    @Path("reopen")
-    public Response reopen(User user) {
-        if(!isClosed()) return Response.status(Response.Status.NOT_MODIFIED).build();
-        if(this.user.getUsername().equals(user.getUsername())) {
-            this.closed = false;
-            actions.add(new Action(user, "reopen the order"));
-            return Response.ok().build();
-        }
-        return Response.status(Response.Status.FORBIDDEN).build();
+    public void reopen(User user) {
+        this.closed = false;
+        actions.add(new Action(user, " reopened the order"));
+    }
+
+    public boolean isNotTheCreator(User user) {
+        return !this.user.getUsername().equals(user.getUsername());
+    }
+
+    public boolean hasNoPermission(User user) {
+        return users.stream().noneMatch(u -> u.getUsername().equals(user.getUsername()));
     }
 
     private Optional<Item> find(String description) {
         return items.stream().filter(i -> i.getDescription().equals(description)).findFirst();
-    }
-
-    private boolean unauthorized(User user) {
-        return isClosed() ||
-                !user.getUsername().equals(this.user.getUsername()) &&
-                        users.stream().noneMatch(u -> u.getUsername().equals(user.getUsername()));
     }
 
     public User getUser() {
@@ -113,8 +86,6 @@ public class Order {
         return users;
     }
 
-    @GET
-    @Path("items")
     public List<Item> getItems() {
         return items;
     }
