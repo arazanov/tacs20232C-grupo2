@@ -1,8 +1,8 @@
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import model.Order;
-import model.User;
+import com.model.Order;
+import com.model.User;
 import org.apache.hc.client5.http.classic.methods.HttpPatch;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -13,7 +13,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import repositories.UserRepository;
+import com.repositories.UserRepository;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,7 +22,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class RestfulTest {
@@ -126,6 +125,6 @@ public class RestfulTest {
 
     @Test
     public void getUserMethod() {
-        Assert.assertEquals(new UserRepository().get(2).getUsername(), getUser(2).getUsername());
+        Assert.assertEquals(new UserRepository().findById(2).map(User::getUsername).orElse(""), getUser(2).getUsername());
     }
 }

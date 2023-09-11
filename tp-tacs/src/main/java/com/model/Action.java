@@ -1,11 +1,11 @@
-package model;
+package com.model;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-@XmlRootElement(name = "Action")
+@Component
 public class Action {
 
     public Action() {

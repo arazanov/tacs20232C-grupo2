@@ -1,8 +1,8 @@
-package model;
+package com.model;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
+import org.springframework.stereotype.Component;
 
-@XmlRootElement(name = "Monitor")
+@Component
 public class Monitor {
 
     public Monitor() {

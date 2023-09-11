@@ -1,12 +1,10 @@
-import model.Item;
-import model.Monitor;
-import model.Order;
-import model.User;
+import com.model.Item;
+import com.model.Monitor;
+import com.model.Order;
+import com.model.User;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.Arrays;
 
 public class OrderTest {
     private User user1, user2, user3;
@@ -30,7 +28,7 @@ public class OrderTest {
         order1.removeItems(user1, new Item("pizza napolitana", 1));
         order1.addItems(user3, new Item("empanada de carne", 2));
 
-        order1.close(user1);
+        order1.changeStatus(user1, true);
 
         // ítems y cantidades del pedido
         System.out.println("Ítems: ");

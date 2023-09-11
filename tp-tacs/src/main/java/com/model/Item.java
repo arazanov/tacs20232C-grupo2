@@ -1,8 +1,8 @@
-package model;
+package com.model;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
+import org.springframework.stereotype.Component;
 
-@XmlRootElement(name = "Item")
+@Component
 public class Item {
 
     public Item() {

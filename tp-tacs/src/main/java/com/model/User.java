@@ -1,8 +1,8 @@
-package model;
+package com.model;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
+import org.springframework.stereotype.Component;
 
-@XmlRootElement(name = "User")
+@Component
 public class User {
 
     public User() {
@@ -13,12 +13,25 @@ public class User {
         this.neverInteracted = true;
     }
 
+    private int id;
     private String username;
     private String password;
     private boolean neverInteracted;
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public String getUsername() {
         return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public boolean neverInteracted() {

@@ -1,9 +1,11 @@
-package model;
+package com.model;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
+import org.springframework.stereotype.Component;
+
 import java.util.*;
+import java.util.stream.Collectors;
 
-@XmlRootElement(name = "Order")
+@Component
 public class Order {
 
     public Order() {
@@ -20,6 +22,7 @@ public class Order {
         Monitor.getInstance().orderCreated(user);
     }
 
+    private int id;
     private User user;
     private Set<User> users;
     private List<Item> items;
@@ -31,9 +34,12 @@ public class Order {
         actions.add(new Action(this.user, " shared the order with " + user.getUsername()));
     }
 
-    public void addItems(User user, Item item) {
-        Monitor.getInstance().userInteraction(user);
+    public void shareWith(List<User> users) {
+        this.users.addAll(users);
+        actions.add(new Action(this.user, " shared the order with " + users.stream().map(User::getUsername).collect(Collectors.joining(", "))));
+    }
 
+    public void addItems(User user, Item item) {
         String description = item.getDescription();
         int quantity = item.getQuantity();
         Optional<Item> itemOptional = find(description);
@@ -42,32 +48,30 @@ public class Order {
         else items.add(item);
 
         actions.add(new Action(user, " added " + quantity + " \"" + description + "\""));
+        Monitor.getInstance().userInteraction(user);
     }
 
     public void removeItems(User user, Item item) {
-        Monitor.getInstance().userInteraction(user);
-
         String description = item.getDescription();
-        int quantity = item.getQuantity();
 
         find(description).ifPresent(i -> {
+            int quantity = item.getQuantity();
+            if (quantity > i.getQuantity()) quantity = i.getQuantity();
             i.removeItems(quantity);
+
             actions.add(new Action(user, " removed " + quantity + " \"" + description + "\""));
+            Monitor.getInstance().userInteraction(user);
         });
     }
 
-    public void close(User user) {
-        this.closed = true;
-        actions.add(new Action(user, " closed the order"));
+    public void changeStatus(User user, boolean close) {
+        this.closed = close;
+        if (close) actions.add(new Action(user, " closed the order"));
+        else actions.add(new Action(user, " reopened the order"));
     }
 
-    public void reopen(User user) {
-        this.closed = false;
-        actions.add(new Action(user, " reopened the order"));
-    }
-
-    public boolean isNotTheCreator(User user) {
-        return !this.user.getUsername().equals(user.getUsername());
+    public boolean isTheCreator(User user) {
+        return this.user.getUsername().equals(user.getUsername());
     }
 
     public boolean hasNoPermission(User user) {
@@ -76,6 +80,14 @@ public class Order {
 
     private Optional<Item> find(String description) {
         return items.stream().filter(i -> i.getDescription().equals(description)).findFirst();
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public User getUser() {
