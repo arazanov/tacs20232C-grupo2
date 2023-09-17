@@ -47,7 +47,7 @@ public class Order {
         if (itemOptional.isPresent()) itemOptional.get().addItems(quantity);
         else items.add(item);
 
-        actions.add(new Action(user, " added " + quantity + " \"" + description + "\""));
+        actions.add(new Action(user, " added " + quantity + " '" + description + "'"));
         Monitor.getInstance().userInteraction(user);
     }
 
@@ -59,7 +59,7 @@ public class Order {
             if (quantity > i.getQuantity()) quantity = i.getQuantity();
             i.removeItems(quantity);
 
-            actions.add(new Action(user, " removed " + quantity + " \"" + description + "\""));
+            actions.add(new Action(user, " removed " + quantity + " '" + description + "'"));
             Monitor.getInstance().userInteraction(user);
         });
     }

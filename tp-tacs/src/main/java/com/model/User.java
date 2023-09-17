@@ -1,5 +1,6 @@
 package com.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -15,8 +16,10 @@ public class User {
 
     private int id;
     private String username;
+    @JsonIgnore
     private String password;
-    private boolean neverInteracted;
+    @JsonIgnore
+    private boolean neverInteracted = true;
 
     public int getId() {
         return id;
@@ -34,7 +37,7 @@ public class User {
         this.username = username;
     }
 
-    public boolean neverInteracted() {
+    public boolean isNeverInteracted() {
         return neverInteracted;
     }
 

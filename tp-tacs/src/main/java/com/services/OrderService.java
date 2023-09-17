@@ -15,7 +15,11 @@ public class OrderService {
     private final Repository<Order> orderRepository = new OrderRepository();
 
     public Order createOrder(int userId) {
-        Order order = new Order(new UserService().getUserById(userId));
+        User user = new UserService().getUserById(userId);
+        if(user == null){
+            return null;
+        }
+        Order order = new Order(user);
         order.setId(orderRepository.maxId());
         return orderRepository.save(order);
     }
@@ -30,6 +34,9 @@ public class OrderService {
 
     public Order addItem(int id, int userId, Item item) {
         Order order = orderRepository.findById(id).orElse(createOrder(userId));
+        if(order == null) {
+            return null;
+        }
         User user = new UserService().getUserById(userId);
         order.addItems(user, item);
         return order;

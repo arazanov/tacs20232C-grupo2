@@ -1,12 +1,24 @@
 package com.repositories;
 
 import com.model.User;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class UserRepository extends Repository<User> {
 
     public UserRepository() {
-        User pepe = new User("pepe");
+
+        String[] nombres = {"pepe", "carla", "alex", "juan", "maria", "lucas", "ana", "sergio", "laura", "diego"};
+
+        for (int i = 0; i < 10; i++) {
+            User usuario = new User(nombres[i]);
+            usuario.setId(i + 1);
+            entities.add(usuario);
+        }
+
+        /*User pepe = new User("pepe");
         pepe.setId(1);
         User carla = new User("carla");
         carla.setId(2);
@@ -15,7 +27,7 @@ public class UserRepository extends Repository<User> {
 
         entities.add(pepe);
         entities.add(carla);
-        entities.add(alex);
+        entities.add(alex);*/
     }
 
     @Override

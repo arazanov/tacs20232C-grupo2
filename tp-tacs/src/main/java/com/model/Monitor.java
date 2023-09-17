@@ -25,7 +25,7 @@ public class Monitor {
     }
 
     public void userInteraction(User user) {
-        if(user.neverInteracted()) {
+        if(user.isNeverInteracted()) {
             user.interact();
             uniqueUsers++;
         }
