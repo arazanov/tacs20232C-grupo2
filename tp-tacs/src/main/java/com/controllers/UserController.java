@@ -16,17 +16,18 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
+@RequestMapping("/users")
 public class UserController {
 
     @Autowired
     private UserService userService;
 
-    @GetMapping("/users")
+    @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
         return ResponseEntity.ok(userService.getUserList());
     }
 
-    @GetMapping("/users/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<Object> getUserById(@PathVariable int id) {
         User user = userService.getUserById(id);
         if (user != null) {
@@ -43,7 +44,7 @@ public class UserController {
         }
     }
 
-    @PostMapping("/users")
+    @PostMapping
     public ResponseEntity<User> addUser(@RequestBody User user) {
         // Crea el nuevo usuario
         User newUser = userService.createUser(user);
@@ -57,12 +58,12 @@ public class UserController {
         return ResponseEntity.created(location).body(newUser);
     }
 
-    @PutMapping("/users")
+    @PutMapping
     public ResponseEntity<User> updateUser(@RequestBody User user) {
         return ResponseEntity.ok().body(userService.updateUserById(user));
     }
 
-    @DeleteMapping("/users/{id}")
+    @DeleteMapping("/{id}")
     public HttpStatus deleteUser(@PathVariable int id) {
         userService.deleteUserById(id);
         return HttpStatus.NO_CONTENT;
