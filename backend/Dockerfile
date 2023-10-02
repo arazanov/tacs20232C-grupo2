@@ -1,0 +1,10 @@
+FROM maven:latest AS MAVEN_TOOL_CHAIN
+COPY pom.xml /tmp/
+COPY src /tmp/src/
+WORKDIR /tmp/
+RUN mvn package
+
+FROM tomcat:latest
+COPY --from=MAVEN_TOOL_CHAIN /tmp/target/ROOT*.war $CATALINA_HOME/webapps/
+EXPOSE 8080
+CMD ["catalina.sh", "run"]
