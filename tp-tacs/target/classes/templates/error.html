@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Error</title>
+</head>
+<body>
+<div>
+    <h1>Error</h1>
+    <p>Error Code: <span th:text="${status.value}">500</span></p>
+    <p>Error Message: <span th:text="${error.message}">Internal Server Error</span></p>
+    <p>Additional Information: <span th:text="${error.description}">There was an unexpected error.</span></p>
+</div>
+</body>
+</html>

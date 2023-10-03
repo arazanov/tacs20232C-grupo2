@@ -1,6 +1,8 @@
 package com.example.telegrambot;
 
 public enum UserState {
-    WAITING_LOGIN_NAME,
-    NO_STATE
+    WAITING_SHARE_ID,
+    WAITING_ID,
+    LOGGED_IN,
+    LOGGED_OUT
 }

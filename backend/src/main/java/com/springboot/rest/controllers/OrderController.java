@@ -106,6 +106,8 @@ public class OrderController {
 
     @PatchMapping("/orders/{id}/")
     public ResponseEntity<Order> shareOrder(@PathVariable int id, @RequestBody User user) {
+        System.out.println("ENTRAA");
+
         return ResponseEntity.ok().body(orderService.shareOrder(id, user));
     }
 
