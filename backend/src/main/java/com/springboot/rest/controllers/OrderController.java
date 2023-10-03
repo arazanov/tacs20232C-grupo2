@@ -112,8 +112,12 @@ public class OrderController {
     }
 
     @PatchMapping("/orders/{id}/{userId}")
-    public ResponseEntity<Order> closeOrder(@PathVariable int id, @PathVariable int userId, @RequestBody Order order) {
-        return ResponseEntity.ok().body(orderService.closeOrder(id, userId, order.isClosed()));
+    public ResponseEntity<Order> modifyOrder(@PathVariable int id, @PathVariable int userId, @RequestBody Order order) {
+        if(order.getDescription() != null)
+            return ResponseEntity.ok().body(orderService.changeDescription(id, order.getDescription()));
+        if(order.isClosed() != null)
+            return ResponseEntity.ok().body(orderService.closeOrder(id, userId, order.isClosed()));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
     @DeleteMapping("/orders/{id}")

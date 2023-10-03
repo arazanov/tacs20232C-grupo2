@@ -36,6 +36,13 @@ public class OrderService {
         return orderRepository.findByUserId(id);
     }
 
+    public Order changeDescription(int id, String description) {
+        Order order = orderRepository.findById(id).orElse(null);
+        if (order != null)
+            order.setDescription(description);
+        return order;
+    }
+
     public Order addItem(int id, int userId, Item item) {
         Order order = orderRepository.findById(id).orElse(createOrder(userId));
         if(order == null) {

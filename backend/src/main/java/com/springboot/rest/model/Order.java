@@ -119,7 +119,7 @@ public class Order {
         return actions;
     }
 
-    public boolean isClosed() {
+    public Boolean isClosed() {
         return closed;
     }
 

@@ -1,14 +1,13 @@
 import React, { Component } from 'react';
 import { Link, withRouter } from 'react-router-dom';
-import { Button, Container, Form, FormGroup, Input, Label } from 'reactstrap';
+import {Button, ButtonGroup, Container, Form, FormGroup, Input, Label, Table} from 'reactstrap';
 import AppNavbar from './AppNavbar';
 
 class OrderEdit extends Component {
 
     emptyItem = {
-        name: '',
-        users: [],
-        closed: false
+        description: '',
+        items: [],
     };
 
     constructor(props) {
@@ -40,8 +39,8 @@ class OrderEdit extends Component {
         event.preventDefault();
         const {item} = this.state;
 
-        await fetch('/orders' + (item.id ? '/' + item.id : ''), {
-            method: (item.id) ? 'PUT' : 'POST',
+        await fetch(('/orders/' + item.id + '/1'), {
+            method: 'PATCH',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
@@ -55,16 +54,42 @@ class OrderEdit extends Component {
         const {item} = this.state;
         const title = <h2 style={{paddingTop: 50, paddingBottom: 50}}>{item.id ? 'Edit Order' : 'Add Order'}</h2>;
 
+        const itemList = item.items.map(i => {
+            return <tr key={i.id}>
+                <td style={{whiteSpace: 'nowrap'}}>{i.description}</td>
+                <td>{i.quantity}</td>
+                <td>
+                    <ButtonGroup>
+                        <Button size="sm" color="primary" tag={Link} to={"/orders/" + item.id + "/items/" + i.id}>Add</Button>
+                        <Button size="sm" color="secondary" tag={Link} to={"/orders/" + item.id + "/items/" + i.id}>Remove</Button>
+                        <Button size="sm" color="danger" onClick={() => this.remove(i.id)}>Delete</Button>
+                    </ButtonGroup>
+                </td>
+            </tr>
+        });
+
         return <div>
             <AppNavbar/>
             <Container>
                 {title}
                 <Form onSubmit={this.handleSubmit}>
                     <FormGroup>
-                        <Label for="name">Name</Label>
-                        <Input type="text" name="name" id="name" value={item.name || ''}
-                               onChange={this.handleChange} autoComplete="name"/>
+                        <Label for="description">Description</Label>
+                        <Input type="text" name="description" id="description" defaultValue={item.description || ''}
+                               onChange={this.handleChange} autoComplete="description"/>
                     </FormGroup>
+                    <Table className="mt-4">
+                        <thead>
+                        <tr>
+                            <th width="30%">Name</th>
+                            <th width="30%">Quantity</th>
+                            <th width="40%">Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {itemList}
+                        </tbody>
+                    </Table>
                     <FormGroup style={{paddingTop: 50}}>
                         <Button color="primary" type="submit" >Save</Button>{' '}
                         <Button color="secondary" tag={Link} to="/orders">Cancel</Button>
