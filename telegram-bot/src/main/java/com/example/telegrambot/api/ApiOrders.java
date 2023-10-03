@@ -1,5 +1,9 @@
 package com.example.telegrambot.api;
-
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -8,6 +12,48 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class ApiOrders {
+
+    public boolean mySharePatch(String id,String body){
+        try {
+            // URL de la API a la que deseas hacer la solicitud PATCH
+            String apiUrl = "http://localhost:8080/orders/"+id+"/"; // Reemplaza 123 con el valor de ID correcto
+
+            // Cuerpo de la solicitud PATCH como una cadena JSON
+            String jsonBody = body;
+
+            // Tipo de contenido del cuerpo de la solicitud
+            MediaType mediaType = MediaType.parse("application/json");
+
+            // Crear un cliente OkHttpClient
+            OkHttpClient client = new OkHttpClient();
+
+            // Construir la solicitud PATCH con el cuerpo
+            Request request = new Request.Builder()
+                    .url(apiUrl)
+                    .patch(RequestBody.create(mediaType, jsonBody))
+                    .build();
+
+            // Realizar la solicitud PATCH
+            Response response = client.newCall(request).execute();
+
+            // Verificar el código de respuesta
+            if (response.isSuccessful()) {
+                // La solicitud PATCH fue exitosa
+                System.out.println("Solicitud PATCH exitosa.");
+                return true;
+            } else {
+                // La solicitud PATCH no fue exitosa
+                System.out.println("La solicitud PATCH no fue exitosa. Código de respuesta: " + response.code());
+                return false;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+
+}
+
+
 
     public boolean createOrdersByUserId(String id) {
         try {
@@ -41,8 +87,12 @@ public class ApiOrders {
 
     public boolean shareOrder(String id,String userBody) {
         try {
+
+            String urlStr = "http://localhost:8080/orders/" + id+"/";
             // Crear una URL para la solicitud HTTP
-            URL url = new URL("http://localhost:8080/orders/" + id);
+            URL url = new URL(urlStr);
+
+            System.out.println(urlStr);
 
 
             // Abrir una conexión HTTP
@@ -60,8 +110,9 @@ public class ApiOrders {
             connection.setDoOutput(true);
 
             // Obtener el flujo de salida para escribir el cuerpo de la solicitud
-            try (DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream())) {
-                outputStream.writeBytes(userBody);
+            try (OutputStream outputStream = connection.getOutputStream()) {
+                byte[] requestBodyBytes = userBody.getBytes("UTF-8");
+                outputStream.write(requestBodyBytes);
                 outputStream.flush();
             }
 

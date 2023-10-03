@@ -2,18 +2,11 @@ package com.example.telegrambot;
 
 import com.example.telegrambot.api.ApiOrders;
 import com.example.telegrambot.api.UserApi;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import org.telegram.abilitybots.api.objects.MessageContext;
-import org.telegram.abilitybots.api.sender.SilentSender;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.stickers.Sticker;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.HashMap;
-import java.util.Locale;
-
-import static org.telegram.abilitybots.api.util.AbilityUtils.getChatId;
 public class MessageHandler {
     private final HashMap<Long,Long> userSessions = new HashMap<>();
     private final HashMap<Long,UserState> userState = new HashMap<>();
@@ -81,14 +74,23 @@ public class MessageHandler {
     }
     private String responseShareId(long chatId,String[] message){
         userState.remove(chatId);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
         JsonNode jsonNode = new UserApi().getUserById(String.valueOf(message[0]));
+
         String pedidoId = cacheData.get(chatId).get("pedidoId");
         cacheData.remove(chatId);
         if(jsonNode!=null){
-            String requestBody = "{\"id\": "+jsonNode.get("id").asText()+ ",\"username\": \""+jsonNode.get("username").asText()+"\" }";
+            String requestBody="";
+            try {
+                requestBody = objectMapper.writeValueAsString(jsonNode);
+            }catch (JsonProcessingException e ){
+                return "No se a logrado compartir el pedido";
+            }
             System.out.println(requestBody);
             System.out.println(pedidoId);
-            boolean response = new ApiOrders().shareOrder(pedidoId,requestBody);
+            boolean response = new ApiOrders().mySharePatch(pedidoId,requestBody);
             if(response) return "Se a compartido el pedido con exito";
             return "No se a logrado compartir el pedido";
         }

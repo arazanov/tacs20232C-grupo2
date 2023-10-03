@@ -1,18 +1,10 @@
 package com.example.telegrambot;
 
-import org.springframework.core.env.Environment;
-import org.telegram.abilitybots.api.bot.AbilityBot;
-import org.telegram.abilitybots.api.bot.BaseAbilityBot;
-import org.telegram.abilitybots.api.objects.*;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-
-import java.util.function.BiConsumer;
-
-import static org.telegram.abilitybots.api.util.AbilityUtils.getChatId;
 
 public class PedidosBot extends TelegramLongPollingBot {
 
