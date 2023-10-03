@@ -1,6 +1,6 @@
 package com.example.telegrambot.services;
 
-import com.example.telegrambot.handles.TelegramHandle;
+import com.example.telegrambot.PedidosBot;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -10,9 +10,9 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 public class TelegramBotService {
     public TelegramBotService(){
         try {
-            TelegramHandle myHandle = new TelegramHandle();
+            PedidosBot pedidosBot = new PedidosBot();
             TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
-            telegramBotsApi.registerBot(myHandle);
+            telegramBotsApi.registerBot(pedidosBot);
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
