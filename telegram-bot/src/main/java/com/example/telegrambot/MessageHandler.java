@@ -57,13 +57,82 @@ public class MessageHandler {
             case "/crearPedido": return crearPedido(userId,commandsParts);
             case "/logout": return logout(chatId,commandsParts);
             case "/compartirPedido": return compartirPedido(chatId,commandsParts);
+            case "/agregarItemAPedido": return agregarItemAPedido(chatId,commandsParts);
+            case "/cerrar": return cerrar(userId,commandsParts);
+
         }
 
         switch (userState.get(chatId)){
             case WAITING_SHARE_ID: return responseShareId(chatId,command);
+            case WAITING_ITEM_DESCRIPTION: return responseItemDescription(chatId,message);
+            case WAITING_ITEM_QUANTITY: return responseItemQuantity(chatId,command[0]);
         }
 
-        return "";
+        return "Por favor ingrese uno de los siguientes comandos: " +
+                "\n/verPedidos" +
+                "\n/verUsuario" +
+                "\n/crearPedido" +
+                "\n/logout";
+    }
+
+    private String cerrar(long userId,String[] commands){
+        try {
+            JsonNode order = new ApiOrders().getOrderById(commands[1]);
+            if(isAdmin(userId,order)){
+                boolean response =new ApiOrders().closeOrderApi(commands[1],String.valueOf(userId),"{\"closed\":true}");
+                if(response) return "Pedido cerrado";
+                return "No se pudo cerrar el pedido";
+            }
+            return "No se pudo cerrar el pedido";
+        }catch (Exception e){
+            return "No se pudo cerrar el pedido";
+        }
+    }
+
+    private String responseItemQuantity(long chatId,String message){
+        int qty;
+        try {
+             qty = Integer.valueOf(message);
+        } catch (Exception e){
+            userState.remove(chatId);
+            cacheData.remove(chatId);
+            return "Esta no es una cantidad posible";
+        }
+        String pedidoId = cacheData.get(chatId).get("pedidoId");
+        String description = cacheData.get(chatId).get("description");
+
+        String jsonBody = "{\"description\":\""+description+"\", \"quantity\":"+String.valueOf(qty)+"}";
+
+        boolean response = new ApiOrders().addItemApi(pedidoId, String.valueOf(userSessions.get(chatId)),jsonBody);
+
+        userState.remove(chatId);
+        cacheData.remove(chatId);
+        if(response) return "Item agregado correctamente";
+        return "El item no pudo ser agregado";
+    }
+
+
+    private String responseItemDescription(long chatId,String message){
+        cacheData.get(chatId).put("description",message);
+        userState.put(chatId,UserState.WAITING_ITEM_QUANTITY);
+        return "Por favor escriba cuantos items de estos desea";
+    }
+
+    private String agregarItemAPedido(long chatId,String[] message){
+        long userId = userSessions.get(chatId);
+        String pedidoId;
+        try {
+            pedidoId = message[1];
+        } catch (Exception e ){
+            return "La sintaxis de agregarItemAPedido es: /agregarItemAPedido_PedidoID";
+        }
+        if(testAcces(userId,pedidoId)==null){
+            return "No puedes agregar items a este pedido.";
+        }
+        cacheData.put(chatId,new HashMap<>());
+        cacheData.get(chatId).put("pedidoId",pedidoId);
+        userState.put(chatId,UserState.WAITING_ITEM_DESCRIPTION);
+        return "Por favor, escriba la descripcion del item.";
     }
 
     private String logout(long chatId,String[] message){
@@ -155,10 +224,23 @@ public class MessageHandler {
                 JsonNode item = items.get(j);
                 pedidoText += "\n"+item.get("quantity").asText()+" "+item.get("description").asText();
             }
+            if (pedido.get("closed").asBoolean()){
+                pedidoText+="\nPedido cerrado";
+                return pedidoText;
+            }
+            pedidoText+="\n/compartirPedido_"+pedidoId;
+            pedidoText+="\n/agregarItemAPedido_"+pedidoId;
+            if(isAdmin(userId,pedido)){
+                pedidoText+="\n/cerrar_"+pedidoId;
+            }
             return pedidoText;
         }
 
         return "No se puede acceder al pedido";
+    }
+
+    private boolean isAdmin(long userId,JsonNode pedido){
+        return Long.valueOf(pedido.get("user").get("id").asInt()) == userId;
     }
 
     private JsonNode testAcces(long userId,String pedidoId){
@@ -181,72 +263,4 @@ public class MessageHandler {
         }
         return "La orden no pudo ser creada con exito.";
     }
-
-
-
-
-    /*
-
-    private final SilentSender silentSender;
-
-
-    public MessageHandler(SilentSender sender){
-        this.silentSender = sender;
-    }
-
-
-    private Long getSession(long chatId){
-        long userId = userSessions.get(chatId);
-        System.out.println(userId);
-        return userId;
-        //if(userId == null) sendMessage(chatId,"Primero debes iniciar sesion. /login");
-    }
-    public void viewOrders(MessageContext ctx){
-
-        sendMessage(ctx.chatId(),"AAAAAAAAA ");
-
-        System.out.println("llama a viewOrders");
-        long userId = getSession(ctx.chatId());
-
-        userSessions.get(ctx.chatId());
-
-    }
-    public void login(MessageContext ctx){
-        sendMessage(ctx.chatId(),"Por favor, introduce tu id de usuario: ");
-        userState.put(ctx.chatId(),UserState.WAITING_LOGIN_NAME);
-    }
-
-    public void sendMessage(long chatId,String message){
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(chatId);
-        sendMessage.setText(message);
-        silentSender.execute(sendMessage);
-
-    }
-    public void processLogin(long chatId,Message message){
-        try {
-            String userId = message.getText();
-            JsonNode user = new UserApi().getUserById(userId);
-            if(user.get("id").asText().equals(userId)){
-                userSessions.put(chatId,Long.valueOf(userId));
-                sendMessage(chatId,"Sesion iniciada correctamente.");
-                userState.put(chatId,UserState.NO_STATE);
-                return;
-            }
-            sendMessage(chatId,"La sesion no pudo ser establecida");
-        }catch (Exception e){
-            sendMessage(chatId,"La sesion no pudo ser establecida");
-        }
-        userState.put(chatId,UserState.NO_STATE);
-    }
-    public boolean userIsActive(Long chatId) {
-        return userState.containsKey(chatId);
-    }
-    public void replyToButtons(Update upd){
-        Message message = upd.getMessage();
-        Long chatId = getChatId(upd);
-        switch (userState.get(chatId)){
-            case WAITING_LOGIN_NAME -> processLogin(chatId,message);
-        }
-    }*/
 }
