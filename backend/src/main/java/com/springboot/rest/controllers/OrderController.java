@@ -27,45 +27,32 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getOrderList());
     }
 
-    @GetMapping("/orders/{id}")
-    public ResponseEntity<Object> getOrderById(@PathVariable int id) {
-        Order order = orderService.getOrderById(id);
-        if (order != null) {
-            return ResponseEntity.ok().body(order);
-        } else {
-            Map<String, Object> errorDetails = new HashMap<>();
-            errorDetails.put("error", "La orden con ID " + id + " no se encontró en el sistema.");
-            errorDetails.put("detalle", "Asegúrese de que la URL esté escrita correctamente o pruebe con un ID de recurso diferente.");
-            errorDetails.put("timestamp", new Date());
-
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDetails);
-        }
-
-        /*return ResponseEntity.ofNullable(orderService.getOrderById(id));*/
-    }
-
     @GetMapping("/user/{id}/orders")
     public ResponseEntity<Object> getOrdersByUserId(@PathVariable int id) {
         List<Order> orders = orderService.getOrdersByUserId(id);
         return ResponseEntity.ok().body(orders);
     }
 
-        /*return ResponseEntity.ofNullable(orderService.getOrderById(id));*/
+    private Map<String, Object> errorDetails(int id) {
+        return new HashMap<>() {{
+            put("error", "La orden con ID " + id + " no se encontró en el sistema.");
+            put("detalle", "Asegúrese de que la URL esté escrita correctamente o pruebe con un ID de recurso diferente.");
+            put("timestamp", new Date());
+        }};
+    }
+
+    @GetMapping("/orders/{id}")
+    public ResponseEntity<Object> getOrderById(@PathVariable int id) {
+        Order order = orderService.getOrderById(id);
+        if (order != null) return ResponseEntity.ok().body(order);
+        else return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDetails(id));
+    }
 
     @GetMapping("/orders/{orderId}/items")
     public ResponseEntity<Object> getItemsByOrderById(@PathVariable int orderId) {
-
         Order order = orderService.getOrderById(orderId);
-        if (order != null) {
-            return ResponseEntity.ok().body(order.getItems());
-        } else {
-            Map<String, Object> errorDetails = new HashMap<>();
-            errorDetails.put("error", "La orden con ID " + orderId + " no se encontró en el sistema.");
-            errorDetails.put("detalle", "Asegúrese de que la URL esté escrita correctamente o pruebe con un ID de recurso diferente.");
-            errorDetails.put("timestamp", new Date());
-
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDetails);
-        }
+        if (order != null) return ResponseEntity.ok().body(order.getItems());
+        else return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDetails(orderId));
     }
 
     @PostMapping("/orders/{userId}")

@@ -23,6 +23,7 @@ public class Order {
     }
 
     private int id;
+    private String description;
     private User user;
     private Set<User> users;
     private List<Item> items;
@@ -92,6 +93,14 @@ public class Order {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public User getUser() {

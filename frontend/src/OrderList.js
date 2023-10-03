@@ -17,6 +17,16 @@ class OrderList extends Component {
             .then(data => this.setState({orders: data}));
     }
 
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (
+            this.state.orders !== prevState.orders
+        ) {
+            fetch('/orders')
+                .then(response => response.json())
+                .then(data => this.setState({orders: data}));
+        }
+    }
+
     async remove(id) {
         await fetch(`/orders/${id}`, {
             method: 'DELETE',
@@ -30,6 +40,36 @@ class OrderList extends Component {
         });
     }
 
+    async close(id) {
+        await fetch(`/orders/${id}/1`, {
+            method: 'PATCH',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                closed: true
+            })
+        })
+            .then((response) => response.json())
+            .then((data) => console.log(data));
+    }
+
+    async open(id) {
+        await fetch(`/orders/${id}/1`, {
+            method: 'PATCH',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                closed: false
+            })
+        })
+            .then((response) => response.json())
+            .then((data) => console.log(data));
+    }
+
     render() {
         const {orders, isLoading} = this.state;
 
@@ -39,11 +79,13 @@ class OrderList extends Component {
 
         const orderList = orders.map(order => {
             return <tr key={order.id}>
-                <td style={{whiteSpace: 'nowrap'}}>{order.ordername}</td>
-                <td>{order.id}</td>
+                <td style={{whiteSpace: 'nowrap'}}>{order.description}</td>
+                <td>{order.users.map(user => user.username).join(", ")}</td>
+                <td>{order.closed ? "closed" : "open"}</td>
                 <td>
                     <ButtonGroup>
                         <Button size="sm" color="primary" tag={Link} to={"/orders/" + order.id}>Edit</Button>
+                        <Button size="sm" color="secondary" onClick={() => order.closed ? this.open(order.id) : this.close(order.id)}>{order.closed ? "Open" : "Close"}</Button>
                         <Button size="sm" color="danger" onClick={() => this.remove(order.id)}>Delete</Button>
                     </ButtonGroup>
                 </td>
@@ -62,7 +104,8 @@ class OrderList extends Component {
                         <thead>
                         <tr>
                             <th width="30%">Name</th>
-                            <th width="30%">Id</th>
+                            <th width="20%">Users</th>
+                            <th width="20%">State</th>
                             <th width="40%">Actions</th>
                         </tr>
                         </thead>
