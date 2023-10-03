@@ -44,6 +44,14 @@ public class OrderController {
         /*return ResponseEntity.ofNullable(orderService.getOrderById(id));*/
     }
 
+    @GetMapping("/user/{id}/orders")
+    public ResponseEntity<Object> getOrdersByUserId(@PathVariable int id) {
+        List<Order> orders = orderService.getOrdersByUserId(id);
+        return ResponseEntity.ok().body(orders);
+    }
+
+        /*return ResponseEntity.ofNullable(orderService.getOrderById(id));*/
+
     @GetMapping("/orders/{orderId}/items")
     public ResponseEntity<Object> getItemsByOrderById(@PathVariable int orderId) {
 

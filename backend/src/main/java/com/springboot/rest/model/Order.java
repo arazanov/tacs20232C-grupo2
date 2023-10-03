@@ -51,6 +51,10 @@ public class Order {
         Monitor.getInstance().userInteraction(user);
     }
 
+    public boolean hasUser(int id){
+        if(user.getId()==id) return true;
+        return users.stream().anyMatch(e->e.getId()==id);
+    }
     public void removeItems(User user, Item item) {
         String description = item.getDescription();
 

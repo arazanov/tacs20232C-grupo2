@@ -5,6 +5,7 @@ import com.springboot.rest.model.Order;
 import com.springboot.rest.model.User;
 
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class OrderRepository extends Repository<Order> {
 
@@ -67,6 +68,10 @@ public class OrderRepository extends Repository<Order> {
         order1.changeStatus(pepe, true);
 
         entities.add(order1);
+    }
+
+    public List<Order> findByUserId(int id){
+        return entities.stream().filter(e -> e.hasUser(id)).collect(Collectors.toList());
     }
 
     @Override

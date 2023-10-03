@@ -12,7 +12,7 @@ import java.util.List;
 @Service
 public class OrderService {
 
-    private final Repository<Order> orderRepository = new OrderRepository();
+    private final OrderRepository orderRepository = new OrderRepository();
 
     public Order createOrder(int userId) {
         User user = new UserService().getUserById(userId);
@@ -30,6 +30,10 @@ public class OrderService {
 
     public Order getOrderById(int id) {
         return orderRepository.findById(id).orElse(null);
+    }
+
+    public List<Order> getOrdersByUserId(int id) {
+        return orderRepository.findByUserId(id);
     }
 
     public Order addItem(int id, int userId, Item item) {
