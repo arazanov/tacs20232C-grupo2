@@ -1,10 +1,10 @@
-package com.services;
+package com.springboot.rest.services;
 
-import com.model.Order;
-import com.model.User;
-import com.repositories.OrderRepository;
-import com.repositories.Repository;
-import com.repositories.UserRepository;
+import com.springboot.rest.model.Order;
+import com.springboot.rest.model.User;
+import com.springboot.rest.repositories.OrderRepository;
+import com.springboot.rest.repositories.Repository;
+import com.springboot.rest.repositories.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

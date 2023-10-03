@@ -1,8 +1,10 @@
+package com.springboot.rest;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.model.Order;
-import com.model.User;
+import com.springboot.rest.model.Order;
+import com.springboot.rest.model.User;
 import org.apache.hc.client5.http.classic.methods.HttpPatch;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -13,7 +15,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import com.repositories.UserRepository;
+import com.springboot.rest.repositories.UserRepository;
 
 import java.io.IOException;
 import java.io.InputStream;

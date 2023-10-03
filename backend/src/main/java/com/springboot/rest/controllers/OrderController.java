@@ -1,9 +1,9 @@
-package com.controllers;
+package com.springboot.rest.controllers;
 
-import com.model.Item;
-import com.model.Order;
-import com.model.User;
-import com.services.OrderService;
+import com.springboot.rest.model.Item;
+import com.springboot.rest.model.Order;
+import com.springboot.rest.model.User;
+import com.springboot.rest.services.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

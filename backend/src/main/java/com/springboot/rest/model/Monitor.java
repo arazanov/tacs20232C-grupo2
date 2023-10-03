@@ -1,4 +1,4 @@
-package com.model;
+package com.springboot.rest.model;
 
 import org.springframework.stereotype.Component;
 

@@ -1,7 +1,9 @@
-import com.model.Item;
-import com.model.Monitor;
-import com.model.Order;
-import com.model.User;
+package com.springboot.rest;
+
+import com.springboot.rest.model.Item;
+import com.springboot.rest.model.Monitor;
+import com.springboot.rest.model.Order;
+import com.springboot.rest.model.User;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

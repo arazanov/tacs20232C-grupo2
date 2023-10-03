@@ -1,10 +1,10 @@
-package com.services;
+package com.springboot.rest.services;
 
-import com.model.Item;
-import com.model.Order;
-import com.model.User;
-import com.repositories.OrderRepository;
-import com.repositories.Repository;
+import com.springboot.rest.model.Item;
+import com.springboot.rest.model.Order;
+import com.springboot.rest.model.User;
+import com.springboot.rest.repositories.OrderRepository;
+import com.springboot.rest.repositories.Repository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

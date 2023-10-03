@@ -1,9 +1,7 @@
-package com.repositories;
+package com.springboot.rest.repositories;
 
-import com.model.User;
+import com.springboot.rest.model.User;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 public class UserRepository extends Repository<User> {

@@ -1,4 +1,4 @@
-package com.repositories;
+package com.springboot.rest.repositories;
 
 import java.util.ArrayList;
 import java.util.List;

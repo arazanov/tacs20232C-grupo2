@@ -1,12 +1,11 @@
-package com.controllers;
+package com.springboot.rest.controllers;
 
-
-import com.model.User;
+import com.springboot.rest.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.services.UserService;
+import com.springboot.rest.services.UserService;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;

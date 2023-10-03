@@ -1,10 +1,9 @@
-package com.services;
+package com.springboot.rest.services;
 
-import com.model.User;
-import com.repositories.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.springboot.rest.model.User;
+import com.springboot.rest.repositories.UserRepository;
+import com.springboot.rest.repositories.Repository;
 import org.springframework.stereotype.Service;
-import com.repositories.Repository;
 
 import java.util.List;
 import java.util.Optional;

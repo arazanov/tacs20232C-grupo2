@@ -1,11 +1,9 @@
-package com.repositories;
+package com.springboot.rest.repositories;
 
-import com.model.Item;
-import com.model.Order;
-import com.model.User;
+import com.springboot.rest.model.Item;
+import com.springboot.rest.model.Order;
+import com.springboot.rest.model.User;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 public class OrderRepository extends Repository<Order> {

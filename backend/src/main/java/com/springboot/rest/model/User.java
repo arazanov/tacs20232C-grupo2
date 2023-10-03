@@ -1,4 +1,4 @@
-package com.model;
+package com.springboot.rest.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.stereotype.Component;
@@ -11,7 +11,6 @@ public class User {
 
     public User(String username) {
         this.username = username;
-        this.neverInteracted = true;
     }
 
     private int id;
