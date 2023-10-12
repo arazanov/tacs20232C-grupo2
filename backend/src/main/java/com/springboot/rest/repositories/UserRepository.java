@@ -8,34 +8,24 @@ public class UserRepository extends Repository<User> {
 
     public UserRepository() {
 
-        String[] nombres = {"pepe", "carla", "alex", "juan", "maria", "lucas", "ana", "sergio", "laura", "diego"};
+        String[] names = {"pepe", "carla", "alex", "juan", "maria", "lucas", "ana", "sergio", "laura", "diego"};
 
-        for (int i = 0; i < 10; i++) {
-            User usuario = new User(nombres[i]);
-            usuario.setId(i + 1);
-            entities.add(usuario);
+        for (int i = 0; i < names.length; i++) {
+            User user = new User(names[i]);
+            user.setId(i + 1);
+            user.setPassword("123");
+            entities.add(user);
         }
 
-        /*User pepe = new User("pepe");
-        pepe.setId(1);
-        User carla = new User("carla");
-        carla.setId(2);
-        User alex = new User("alex");
-        alex.setId(3);
-
-        entities.add(pepe);
-        entities.add(carla);
-        entities.add(alex);*/
     }
 
     @Override
-    public Optional<User> findById(int id) {
-        return entities.stream().filter(e -> e.getId() == id).findFirst();
+    public int getId(User user) {
+        return user.getId();
     }
 
-    @Override
-    public int maxId() {
-        return entities.stream().mapToInt(User::getId).max().orElse(0) + 1;
+    public Optional<User> findByUsername(String username) {
+        return entities.stream().filter(e -> e.getUsername().equals(username)).findFirst();
     }
 
 }

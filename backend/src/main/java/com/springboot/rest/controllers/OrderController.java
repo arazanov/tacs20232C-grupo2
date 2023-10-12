@@ -17,21 +17,21 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
+@RequestMapping("/orders")
 public class OrderController {
 
-    @Autowired
-    private OrderService orderService;
+    private final OrderService orderService = new OrderService();
 
-    @GetMapping("/orders")
+    @GetMapping
     public ResponseEntity<List<Order>> getAllOrders() {
         return ResponseEntity.ok(orderService.getOrderList());
     }
 
-    @GetMapping("/user/{id}/orders")
+    /*@GetMapping("/user/{id}/orders")
     public ResponseEntity<Object> getOrdersByUserId(@PathVariable int id) {
         List<Order> orders = orderService.getOrdersByUserId(id);
         return ResponseEntity.ok().body(orders);
-    }
+    }*/
 
     private Map<String, Object> errorDetails(int id) {
         return new HashMap<>() {{
@@ -41,21 +41,21 @@ public class OrderController {
         }};
     }
 
-    @GetMapping("/orders/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<Object> getOrderById(@PathVariable int id) {
         Order order = orderService.getOrderById(id);
         if (order != null) return ResponseEntity.ok().body(order);
         else return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDetails(id));
     }
 
-    @GetMapping("/orders/{orderId}/items")
-    public ResponseEntity<Object> getItemsByOrderById(@PathVariable int orderId) {
-        Order order = orderService.getOrderById(orderId);
+    @GetMapping("/{id}/items")
+    public ResponseEntity<Object> getItemsByOrderById(@PathVariable int id) {
+        Order order = orderService.getOrderById(id);
         if (order != null) return ResponseEntity.ok().body(order.getItems());
-        else return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDetails(orderId));
+        else return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDetails(id));
     }
 
-    @PostMapping("/orders/{userId}")
+    @PostMapping("/{userId}")
     public ResponseEntity<Object> addOrder(@PathVariable int userId) {
 
         // Crea la nueva orden
@@ -64,7 +64,7 @@ public class OrderController {
         if (newOrder != null) {
             // Crea una URI que apunta al nuevo recurso.
             URI location = ServletUriComponentsBuilder.fromCurrentRequest()
-                    .replacePath("/orders/{id}")
+                    .replacePath("/{id}")
                     .buildAndExpand(newOrder.getId())
                     .toUri();
 
@@ -80,7 +80,7 @@ public class OrderController {
 
     }
 
-    @PostMapping("/orders/{id}/{userId}")
+    @PostMapping("/{id}/{userId}")
     public ResponseEntity<Object> addItem(@PathVariable int id, @PathVariable int userId, @RequestBody Item item) {
 
         // Crea la nueva orden
@@ -104,14 +104,14 @@ public class OrderController {
         }
     }
 
-    @PatchMapping("/orders/{id}/")
+    @PatchMapping("/{id}/")
     public ResponseEntity<Order> shareOrder(@PathVariable int id, @RequestBody User user) {
         System.out.println("ENTRAA");
 
         return ResponseEntity.ok().body(orderService.shareOrder(id, user));
     }
 
-    @PatchMapping("/orders/{id}/{userId}")
+    @PatchMapping("/{id}/{userId}")
     public ResponseEntity<Order> modifyOrder(@PathVariable int id, @PathVariable int userId, @RequestBody Order order) {
         if(order.getDescription() != null)
             return ResponseEntity.ok().body(orderService.changeDescription(id, order.getDescription()));
@@ -120,7 +120,7 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
-    @DeleteMapping("/orders/{id}")
+    @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteOrder(@PathVariable int id) {
         orderService.deleteOrderById(id);

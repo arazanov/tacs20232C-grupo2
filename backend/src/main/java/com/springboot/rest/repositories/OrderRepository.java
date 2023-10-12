@@ -6,7 +6,6 @@ import com.springboot.rest.model.User;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class OrderRepository extends Repository<Order> {
@@ -46,18 +45,13 @@ public class OrderRepository extends Repository<Order> {
         entities.add(order2);
     }
 
+    @Override
+    public int getId(Order order) {
+        return order.getId();
+    }
+
     public List<Order> findByUserId(int id){
         return entities.stream().filter(e -> e.hasUser(id)).collect(Collectors.toList());
-    }
-
-    @Override
-    public Optional<Order> findById(int id) {
-        return entities.stream().filter(e -> e.getId() == id).findFirst();
-    }
-
-    @Override
-    public int maxId() {
-        return entities.stream().mapToInt(Order::getId).max().orElse(0) + 1;
     }
 
 }
