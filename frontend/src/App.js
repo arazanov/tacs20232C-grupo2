@@ -1,18 +1,18 @@
 import React, { Component } from 'react';
 import './App.css';
-import Home from './Home';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import UserList from './UserList';
-import UserEdit from './UserEdit';
-import OrderList from "./OrderList";
-import OrderEdit from "./OrderEdit";
+import UserList from './users/UserList';
+import UserEdit from './users/UserEdit';
+import OrderList from "./orders/OrderList";
+import OrderEdit from "./orders/OrderEdit";
+import Login from "./users/Login";
 
 class App extends Component {
     render() {
         return (
             <Router>
                 <Switch>
-                    <Route path='/' exact={true} component={Home}/>
+                    <Route path='/' exact={true} component={Login}/>
                     <Route path='/users' exact={true} component={UserList}/>
                     <Route path='/users/:id' component={UserEdit}/>
                     <Route path='/orders' exact={true} component={OrderList}/>

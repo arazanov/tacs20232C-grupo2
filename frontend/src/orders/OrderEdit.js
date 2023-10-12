@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
 import { Link, withRouter } from 'react-router-dom';
 import {Button, ButtonGroup, Container, Form, FormGroup, Input, Label, Table} from 'reactstrap';
-import AppNavbar from './AppNavbar';
+import AppNavbar from '../AppNavbar';
 
 class OrderEdit extends Component {
 
     emptyItem = {
         description: '',
         items: [],
+        users: []
     };
 
     constructor(props) {
@@ -52,7 +53,9 @@ class OrderEdit extends Component {
 
     render() {
         const {item} = this.state;
-        const title = <h2 style={{paddingTop: 50, paddingBottom: 50}}>{item.id ? 'Edit Order' : 'Add Order'}</h2>;
+        const title = <h2 style={{paddingTop: 50, paddingBottom: 50}}>Edit order</h2>;
+        const titleTable1 = <h3 style={{paddingTop: 50}}>Items</h3>;
+        const titleTable2 = <h3 style={{paddingTop: 50}}>Users</h3>;
 
         const itemList = item.items.map(i => {
             return <tr key={i.id}>
@@ -62,6 +65,17 @@ class OrderEdit extends Component {
                     <ButtonGroup>
                         <Button size="sm" color="primary" tag={Link} to={"/orders/" + item.id + "/items/" + i.id}>Add</Button>
                         <Button size="sm" color="secondary" tag={Link} to={"/orders/" + item.id + "/items/" + i.id}>Remove</Button>
+                        <Button size="sm" color="danger" onClick={() => this.remove(i.id)}>Delete</Button>
+                    </ButtonGroup>
+                </td>
+            </tr>
+        });
+
+        const userList = item.users.map(i => {
+            return <tr key={i.id}>
+                <td style={{whiteSpace: 'nowrap'}}>{i.username}</td>
+                <td>
+                    <ButtonGroup>
                         <Button size="sm" color="danger" onClick={() => this.remove(i.id)}>Delete</Button>
                     </ButtonGroup>
                 </td>
@@ -78,6 +92,7 @@ class OrderEdit extends Component {
                         <Input type="text" name="description" id="description" defaultValue={item.description || ''}
                                onChange={this.handleChange} autoComplete="description"/>
                     </FormGroup>
+                    {titleTable1}
                     <Table className="mt-4">
                         <thead>
                         <tr>
@@ -88,6 +103,18 @@ class OrderEdit extends Component {
                         </thead>
                         <tbody>
                         {itemList}
+                        </tbody>
+                    </Table>
+                    {titleTable2}
+                    <Table className="mt-4">
+                        <thead>
+                        <tr>
+                            <th width="60%">Name</th>
+                            <th width="40%">Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {userList}
                         </tbody>
                     </Table>
                     <FormGroup style={{paddingTop: 50}}>

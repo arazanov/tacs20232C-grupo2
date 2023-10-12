@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { Button, ButtonGroup, Container, Table } from 'reactstrap';
-import AppNavbar from './AppNavbar';
+import {Button, ButtonGroup, Container, FormGroup, Table} from 'reactstrap';
+import AppNavbar from '../AppNavbar';
 import { Link } from 'react-router-dom';
 
 class OrderList extends Component {
@@ -80,7 +80,6 @@ class OrderList extends Component {
         const orderList = orders.map(order => {
             return <tr key={order.id}>
                 <td style={{whiteSpace: 'nowrap'}}>{order.description}</td>
-                <td>{order.users.map(user => user.username).join(", ")}</td>
                 <td>{order.closed ? "closed" : "open"}</td>
                 <td>
                     <ButtonGroup>
@@ -96,16 +95,12 @@ class OrderList extends Component {
             <div>
                 <AppNavbar/>
                 <Container fluid>
-                    <div style={{ display: "flex", paddingTop: 20 }} className="float-right">
-                        <h3>Orders</h3>
-                        <Button style={{ marginLeft: "auto" }} color="success" tag={Link} to="/orders/new">Add Order</Button>
-                    </div>
+                    <h3 style={{ paddingTop: 50 }}>Orders</h3>
                     <Table className="mt-4">
                         <thead>
                         <tr>
                             <th width="30%">Name</th>
-                            <th width="20%">Users</th>
-                            <th width="20%">State</th>
+                            <th width="30%">State</th>
                             <th width="40%">Actions</th>
                         </tr>
                         </thead>
@@ -113,6 +108,9 @@ class OrderList extends Component {
                         {orderList}
                         </tbody>
                     </Table>
+                    <FormGroup style={{paddingTop: 20}}>
+                        <Button color="success" tag={Link} to="/orders/new">Add Order</Button>
+                    </FormGroup>
                 </Container>
             </div>
         );
