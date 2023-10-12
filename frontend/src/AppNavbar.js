@@ -1,24 +1,14 @@
-import React, {Component} from 'react';
+import React, {useState} from 'react';
 import {Navbar, NavbarBrand} from 'reactstrap';
-import {Link} from 'react-router-dom';
 
-export default class AppNavbar extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {isOpen: false};
-        this.toggle = this.toggle.bind(this);
+export default function AppNavbar() {
+    const [isOpen, setState] = useState(false);
+
+    function toggle() {
+        setState(!isOpen);
     }
 
-    toggle() {
-        this.setState({
-            isOpen: !this.state.isOpen
-        });
-    }
-
-    render() {
-        return <Navbar color="dark" dark expand="md">
-            <NavbarBrand tag={Link} to="/">Logout</NavbarBrand>
-        </Navbar>;
-    }
-    
+    return <Navbar color="dark" dark expand="md">
+        <NavbarBrand href="/">Logout</NavbarBrand>
+    </Navbar>;
 }

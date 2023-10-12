@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Link, withRouter } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Button, Container, Form, FormGroup, Input, Label } from 'reactstrap';
 import AppNavbar from '../AppNavbar';
 
@@ -47,7 +47,7 @@ class UserEdit extends Component {
             },
             body: JSON.stringify(item),
         });
-        this.props.history.push('/users');
+        this.props.navigate.push('/users');
     }
 
     render() {
@@ -71,7 +71,7 @@ class UserEdit extends Component {
                     </FormGroup>
                     <FormGroup>
                         <Button color="primary" type="submit">Save</Button>{' '}
-                        <Button color="secondary" tag={Link} to="/users">Cancel</Button>
+                        <Link to={"/users"}><Button color="secondary">Cancel</Button></Link>
                     </FormGroup>
                 </Form>
             </Container>
@@ -79,4 +79,4 @@ class UserEdit extends Component {
     }
 
 }
-export default withRouter(UserEdit);
+export default UserEdit;

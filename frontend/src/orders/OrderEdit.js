@@ -1,130 +1,123 @@
-import React, { Component } from 'react';
-import { Link, withRouter } from 'react-router-dom';
+import React, {useEffect, useState} from 'react';
+import {Link, useNavigate, useParams} from 'react-router-dom';
 import {Button, ButtonGroup, Container, Form, FormGroup, Input, Label, Table} from 'reactstrap';
 import AppNavbar from '../AppNavbar';
 
-class OrderEdit extends Component {
+export default function OrderEdit() {
+    const { id } = useParams();
+    const [order, setOrder] = useState({ description: '', items: [], users: [] });
+    const navigate = useNavigate();
 
-    emptyItem = {
-        description: '',
-        items: [],
-        users: []
-    };
+    useEffect(() => {
+        fetch(`/orders/${id}`)
+            .then((response) => response.json())
+            .then((data) => setOrder(data));
+    }, [id]);
 
-    constructor(props) {
-        super(props);
-        this.state = {
-            item: this.emptyItem
-        };
-        this.handleChange = this.handleChange.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
+    function handleChange(event) {
+        const name = event.target.name;
+        const value = event.target.value;
+
+        let updatedOrder = order;
+        updatedOrder[name] = value;
+        setOrder(updatedOrder);
     }
 
-    async componentDidMount() {
-        if (this.props.match.params.id !== 'new') {
-            const order = await (await fetch(`/orders/${this.props.match.params.id}`)).json();
-            this.setState({item: order});
-        }
-    }
-
-    handleChange(event) {
-        const target = event.target;
-        const value = target.value;
-        const name = target.name;
-        let item = {...this.state.item};
-        item[name] = value;
-        this.setState({item});
-    }
-
-    async handleSubmit(event) {
+    function handleSubmit(event) {
         event.preventDefault();
-        const {item} = this.state;
 
-        await fetch(('/orders/' + item.id + '/1'), {
+        fetch(('/orders/' + id + '/1'), {
             method: 'PATCH',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(item),
-        });
-        this.props.history.push('/orders');
+            body: JSON.stringify(order),
+        })
+            .then(response => response.json())
+            .then(data => console.log(data));
+
+        navigate('/orders');
     }
 
-    render() {
-        const {item} = this.state;
-        const title = <h2 style={{paddingTop: 50, paddingBottom: 50}}>Edit order</h2>;
-        const titleTable1 = <h3 style={{paddingTop: 50}}>Items</h3>;
-        const titleTable2 = <h3 style={{paddingTop: 50}}>Users</h3>;
-
-        const itemList = item.items.map(i => {
-            return <tr key={i.id}>
+    const itemList = order.items.map(i => {
+        return (
+            <tr key={i.id}>
                 <td style={{whiteSpace: 'nowrap'}}>{i.description}</td>
                 <td>{i.quantity}</td>
                 <td>
                     <ButtonGroup>
-                        <Button size="sm" color="primary" tag={Link} to={"/orders/" + item.id + "/items/" + i.id}>Add</Button>
-                        <Button size="sm" color="secondary" tag={Link} to={"/orders/" + item.id + "/items/" + i.id}>Remove</Button>
-                        <Button size="sm" color="danger" onClick={() => this.remove(i.id)}>Delete</Button>
+                        <Link to={"/orders/" + order.id + "/items/" + i.id}>
+                            <Button size="sm" color="primary">Add</Button>
+                        </Link>
+                        <Link to={"/orders/" + order.id + "/items/" + i.id}>
+                            <Button size="sm" color="secondary">Remove</Button>
+                        </Link>
+                        <Button size="sm" color="danger">Delete</Button>
                     </ButtonGroup>
                 </td>
             </tr>
-        });
+        )
+    });
 
-        const userList = item.users.map(i => {
-            return <tr key={i.id}>
+    const userList = order.users.map(i => {
+        return (
+            <tr key={i.id}>
                 <td style={{whiteSpace: 'nowrap'}}>{i.username}</td>
                 <td>
                     <ButtonGroup>
-                        <Button size="sm" color="danger" onClick={() => this.remove(i.id)}>Delete</Button>
+                        <Button size="sm" color="danger">Delete</Button>
                     </ButtonGroup>
                 </td>
             </tr>
-        });
+        )
+    });
 
-        return <div>
-            <AppNavbar/>
-            <Container>
-                {title}
-                <Form onSubmit={this.handleSubmit}>
-                    <FormGroup>
-                        <Label for="description">Description</Label>
-                        <Input type="text" name="description" id="description" defaultValue={item.description || ''}
-                               onChange={this.handleChange} autoComplete="description"/>
-                    </FormGroup>
-                    {titleTable1}
-                    <Table className="mt-4">
-                        <thead>
+    return (
+        <div>
+        <AppNavbar/>
+        <Container>
+            <h2 style={{paddingTop: 50, paddingBottom: 50}}>Edit order</h2>
+            <Form onSubmit={handleSubmit}>
+                <FormGroup>
+                    <Label for="description">Description</Label>
+                    <Input type="text" name="description" id="description" defaultValue={order.description || ''}
+                           onChange={handleChange} autoComplete="description"/>
+                </FormGroup>
+                <h3 style={{paddingTop: 50}}>Items</h3>
+                <Table className="mt-4">
+                    <thead>
                         <tr>
                             <th width="30%">Name</th>
                             <th width="30%">Quantity</th>
                             <th width="40%">Actions</th>
                         </tr>
-                        </thead>
-                        <tbody>
+                    </thead>
+                    <tbody>
                         {itemList}
-                        </tbody>
-                    </Table>
-                    {titleTable2}
-                    <Table className="mt-4">
-                        <thead>
+                    </tbody>
+                </Table>
+                <h3 style={{paddingTop: 50}}>Users</h3>
+                <Table className="mt-4">
+                    <thead>
                         <tr>
                             <th width="60%">Name</th>
                             <th width="40%">Actions</th>
                         </tr>
-                        </thead>
-                        <tbody>
+                    </thead>
+                    <tbody>
                         {userList}
-                        </tbody>
-                    </Table>
-                    <FormGroup style={{paddingTop: 50}}>
-                        <Button color="primary" type="submit" >Save</Button>{' '}
-                        <Button color="secondary" tag={Link} to="/orders">Cancel</Button>
-                    </FormGroup>
-                </Form>
-            </Container>
-        </div>
-    }
+                    </tbody>
+                </Table>
+                <FormGroup style={{paddingTop: 50}}>
+                    <Button color="primary" type="submit">Save</Button>{' '}
+                    <Link to="/orders">
+                        <Button color="secondary">Cancel</Button>
+                    </Link>
+                </FormGroup>
+            </Form>
+        </Container>
+    </div>
+    );
 
 }
-export default withRouter(OrderEdit);

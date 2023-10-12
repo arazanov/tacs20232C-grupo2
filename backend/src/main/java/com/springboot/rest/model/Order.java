@@ -46,7 +46,11 @@ public class Order {
         Optional<Item> itemOptional = find(description);
 
         if (itemOptional.isPresent()) itemOptional.get().addItems(quantity);
-        else items.add(item);
+        else {
+            int maxItemId = items.stream().mapToInt(Item::getId).max().orElse(0) + 1;
+            item.setId(maxItemId);
+            items.add(item);
+        }
 
         actions.add(new Action(user, " added " + quantity + " '" + description + "'"));
         Monitor.getInstance().userInteraction(user);

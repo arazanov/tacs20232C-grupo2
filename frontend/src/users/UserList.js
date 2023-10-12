@@ -43,7 +43,7 @@ class UserList extends Component {
                 <td>{user.id}</td>
                 <td>
                     <ButtonGroup>
-                        <Button size="sm" color="primary" tag={Link} to={"/users/" + user.id}>Edit</Button>
+                        <Link to={"/users/" + user.id}><Button size="sm" color="primary">Edit</Button></Link>
                         <Button size="sm" color="danger" onClick={() => this.remove(user.id)}>Delete</Button>
                     </ButtonGroup>
                 </td>
@@ -56,7 +56,9 @@ class UserList extends Component {
                 <Container fluid>
                     <div style={{ display: "flex", paddingTop: 20 }} className="float-right">
                         <h3>Users</h3>
-                        <Button style={{ marginLeft: "auto" }} color="success" tag={Link} to="/users/new">Add User</Button>
+                        <Link to={"/users/new"}>
+                            <Button style={{ marginLeft: "auto" }} color="success">Add User</Button>
+                        </Link>
                     </div>
                     <Table className="mt-4">
                         <thead>
