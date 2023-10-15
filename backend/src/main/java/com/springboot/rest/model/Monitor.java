@@ -1,5 +1,6 @@
 package com.springboot.rest.model;
 
+import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.stereotype.Component;
 
 @Component

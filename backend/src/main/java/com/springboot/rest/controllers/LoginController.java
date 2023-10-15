@@ -13,7 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/")
 public class LoginController {
 
-    UserService userService = new UserService();
+    private final UserService userService;
+
+    public LoginController(UserService userService){
+        this.userService = userService;
+    }
 
     @PostMapping
     public ResponseEntity<Object> login(@RequestBody User user) {

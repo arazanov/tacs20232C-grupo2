@@ -4,6 +4,7 @@ import com.springboot.rest.model.Item;
 import com.springboot.rest.model.Order;
 import com.springboot.rest.model.User;
 import com.springboot.rest.services.OrderService;
+import com.springboot.rest.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,8 +21,12 @@ import java.util.Map;
 @RequestMapping("/orders")
 public class OrderController {
 
-    private final OrderService orderService = new OrderService();
+    private final OrderService orderService;
 
+    @Autowired
+    public OrderController(OrderService orderService) {
+        this.orderService = orderService;
+    }
     @GetMapping
     public ResponseEntity<List<Order>> getAllOrders() {
         return ResponseEntity.ok(orderService.getOrderList());
@@ -42,21 +47,21 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Object> getOrderById(@PathVariable int id) {
+    public ResponseEntity<Object> getOrderById(@PathVariable String id) {
         Order order = orderService.getOrderById(id);
         if (order != null) return ResponseEntity.ok().body(order);
-        else return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDetails(id));
+        else return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Integer.parseInt(id));
     }
 
     @GetMapping("/{id}/items")
-    public ResponseEntity<Object> getItemsByOrderById(@PathVariable int id) {
+    public ResponseEntity<Object> getItemsByOrderById(@PathVariable String id) {
         Order order = orderService.getOrderById(id);
         if (order != null) return ResponseEntity.ok().body(order.getItems());
-        else return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDetails(id));
+        else return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDetails(Integer.parseInt(id)));
     }
 
     @PostMapping("/{userId}")
-    public ResponseEntity<Object> addOrder(@PathVariable int userId) {
+    public ResponseEntity<Object> addOrder(@PathVariable String userId) {
 
         // Crea la nueva orden
         Order newOrder = orderService.createOrder(userId);
@@ -81,7 +86,7 @@ public class OrderController {
     }
 
     @PostMapping("/{id}/{userId}")
-    public ResponseEntity<Object> addItem(@PathVariable int id, @PathVariable int userId, @RequestBody Item item) {
+    public ResponseEntity<Object> addItem(@PathVariable String id, @PathVariable String userId, @RequestBody Item item) {
 
         // Crea la nueva orden
         Order order = orderService.addItem(id, userId, item);
@@ -105,14 +110,14 @@ public class OrderController {
     }
 
     @PatchMapping("/{id}/")
-    public ResponseEntity<Order> shareOrder(@PathVariable int id, @RequestBody User user) {
+    public ResponseEntity<Order> shareOrder(@PathVariable String id, @RequestBody User user) {
         System.out.println("ENTRAA");
 
         return ResponseEntity.ok().body(orderService.shareOrder(id, user));
     }
 
     @PatchMapping("/{id}/{userId}")
-    public ResponseEntity<Order> modifyOrder(@PathVariable int id, @PathVariable int userId, @RequestBody Order order) {
+    public ResponseEntity<Order> modifyOrder(@PathVariable String id, @PathVariable String userId, @RequestBody Order order) {
         if(order.getDescription() != null)
             return ResponseEntity.ok().body(orderService.changeDescription(id, order.getDescription()));
         if(order.isClosed() != null)
@@ -122,7 +127,7 @@ public class OrderController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteOrder(@PathVariable int id) {
+    public void deleteOrder(@PathVariable String id) {
         orderService.deleteOrderById(id);
     }
     

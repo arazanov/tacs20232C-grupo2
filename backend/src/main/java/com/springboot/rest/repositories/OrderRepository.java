@@ -3,14 +3,18 @@ package com.springboot.rest.repositories;
 import com.springboot.rest.model.Item;
 import com.springboot.rest.model.Order;
 import com.springboot.rest.model.User;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 
+import javax.swing.text.html.Option;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class OrderRepository extends Repository<Order> {
+public interface OrderRepository extends MongoRepository<Order,String> {
 
-    public OrderRepository() {
+   /* public OrderRepository() {
         User pepe = new User("pepe");
         pepe.setId(1);
         User carla = new User("carla");
@@ -46,12 +50,11 @@ public class OrderRepository extends Repository<Order> {
     }
 
     @Override
-    public int getId(Order order) {
+    public String getId(Order order) {
         return order.getId();
     }
-
-    public List<Order> findByUserId(int id){
-        return entities.stream().filter(e -> e.hasUser(id)).collect(Collectors.toList());
-    }
+*/
+    @Query("{ 'user.id' : ?0 }")
+    Optional<List<Order>> findByUserId(String id);
 
 }

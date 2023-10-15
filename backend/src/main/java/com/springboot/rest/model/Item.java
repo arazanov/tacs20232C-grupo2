@@ -1,8 +1,12 @@
 package com.springboot.rest.model;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.stereotype.Component;
 
 @Component
+@Document(collection = "items")
 public class Item {
 
     public Item() {
@@ -12,9 +16,11 @@ public class Item {
         this.description = description;
         this.quantity = quantity;
     }
-
+    @Id
     private int id;
+    @Field("description")
     private String description;
+    @Field("quantity")
     private int quantity;
 
     public void addItems(int quantity) {

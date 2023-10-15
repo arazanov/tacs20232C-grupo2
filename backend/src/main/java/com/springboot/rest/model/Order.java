@@ -1,11 +1,16 @@
 package com.springboot.rest.model;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
+@Document(collection = "orders")
 public class Order {
 
     public Order() {
@@ -21,13 +26,20 @@ public class Order {
         this.actions.add(new Action(user, " created an order"));
         Monitor.getInstance().orderCreated(user);
     }
-
-    private int id;
+    @Id
+    private String id;
+    @Field("description")
     private String description;
+    @Field("user")
+    @DBRef
     private User user;
+    @Field("users")
     private Set<User> users;
+    @Field("items")
     private List<Item> items;
+    @Field("actions")
     private List<Action> actions;
+    @Field("closed")
     private boolean closed;
 
     public void shareWith(User user) {
@@ -56,7 +68,7 @@ public class Order {
         Monitor.getInstance().userInteraction(user);
     }
 
-    public boolean hasUser(int id){
+    public boolean hasUser(String id){
         if(user.getId()==id) return true;
         return users.stream().anyMatch(e->e.getId()==id);
     }
@@ -91,11 +103,11 @@ public class Order {
         return items.stream().filter(i -> i.getDescription().equals(description)).findFirst();
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 

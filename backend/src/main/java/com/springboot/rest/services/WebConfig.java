@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class WebConfig {
 
-    @Bean
+   /* @Bean
     public Repository<User> userRepository() {
         return new UserRepository();
     }
@@ -19,5 +19,5 @@ public class WebConfig {
     @Bean
     public Repository<Order> orderRepository() {
         return new OrderRepository();
-    }
+    }*/
 }

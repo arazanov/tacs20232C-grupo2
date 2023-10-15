@@ -1,11 +1,13 @@
 package com.springboot.rest.repositories;
 
 import com.springboot.rest.model.User;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.Optional;
 
-public class UserRepository extends Repository<User> {
+public interface UserRepository extends MongoRepository<User,String> {
 
+/*
     public UserRepository() {
 
         String[] names = {"pepe", "carla", "alex", "juan", "maria", "lucas", "ana", "sergio", "laura", "diego"};
@@ -27,5 +29,6 @@ public class UserRepository extends Repository<User> {
     public Optional<User> findByUsername(String username) {
         return entities.stream().filter(e -> e.getUsername().equals(username)).findFirst();
     }
+*/
 
 }

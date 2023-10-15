@@ -5,22 +5,30 @@ import com.springboot.rest.model.Order;
 import com.springboot.rest.model.User;
 import com.springboot.rest.repositories.OrderRepository;
 import com.springboot.rest.repositories.Repository;
+import com.springboot.rest.repositories.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Service
 public class OrderService {
 
-    private final OrderRepository orderRepository = new OrderRepository();
+    private final OrderRepository orderRepository;
+    private final UserService userService;
+    @Autowired
+    public OrderService(OrderRepository orderRepository,UserService userService){
+        this.orderRepository = orderRepository;
+        this.userService = userService;
+    }
 
-    public Order createOrder(int userId) {
-        User user = new UserService().getUserById(userId);
+    public Order createOrder(String userId) {
+        User user = userService.getUserById(userId);
         if(user == null){
             return null;
         }
         Order order = new Order(user);
-        order.setId(orderRepository.maxId());
         return orderRepository.save(order);
     }
 
@@ -28,47 +36,47 @@ public class OrderService {
         return orderRepository.findAll();
     }
 
-    public Order getOrderById(int id) {
+    public Order getOrderById(String id) {
         return orderRepository.findById(id).orElse(null);
     }
 
-    public List<Order> getOrdersByUserId(int id) {
-        return orderRepository.findByUserId(id);
+    public List<Order> getOrdersByUserId(String id) {
+        return orderRepository.findByUserId(id).orElse(null);
     }
 
-    public Order changeDescription(int id, String description) {
+    public Order changeDescription(String id, String description) {
         Order order = orderRepository.findById(id).orElse(null);
         if (order != null)
             order.setDescription(description);
         return order;
     }
 
-    public Order addItem(int id, int userId, Item item) {
+    public Order addItem(String id, String userId, Item item) {
         Order order = orderRepository.findById(id).orElse(createOrder(userId));
         if(order == null) {
             return null;
         }
-        User user = new UserService().getUserById(userId);
+        User user = userService.getUserById(userId);
         order.addItems(user, item);
         return order;
     }
 
-    public Order shareOrder(int id, User user) {
+    public Order shareOrder(String id, User user) {
         Order order = orderRepository.findById(id).orElse(null);
         if (order != null) order.shareWith(user);
         return order;
     }
 
-    public Order closeOrder(int id, int userId, boolean close) {
+    public Order closeOrder(String id, String userId, boolean close) {
         Order order = orderRepository.findById(id).orElse(null);
         if (order != null) {
-            User user = new UserService().getUserById(userId);
+            User user = userService.getUserById(userId);
             if (order.isTheCreator(user)) order.changeStatus(user, close);
         }
         return order;
     }
 
-    public void deleteOrderById(int id) {
+    public void deleteOrderById(String id) {
         orderRepository.deleteById(id);
     }
 }

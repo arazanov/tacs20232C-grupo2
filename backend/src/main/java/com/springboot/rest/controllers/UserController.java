@@ -18,7 +18,12 @@ import java.util.Map;
 @RequestMapping("/users")
 public class UserController {
 
-    private final UserService userService = new UserService();
+    private final UserService userService;
+
+    @Autowired
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
@@ -26,7 +31,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Object> getUserById(@PathVariable int id) {
+    public ResponseEntity<Object> getUserById(@PathVariable String id) {
         User user = userService.getUserById(id);
         if (user != null) {
             System.out.println(user.isNeverInteracted());
@@ -45,7 +50,7 @@ public class UserController {
     @PostMapping
     public ResponseEntity<User> addUser(@RequestBody User user) {
         // Crea el nuevo usuario
-        User newUser = userService.createUser(user);
+        User newUser = userService.saveUser(user);
 
         // Crea una URI que apunta al nuevo recurso.
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
@@ -58,11 +63,11 @@ public class UserController {
 
     @PutMapping
     public ResponseEntity<User> updateUser(@RequestBody User user) {
-        return ResponseEntity.ok().body(userService.updateUserById(user));
+        return ResponseEntity.ok().body(userService.saveUser(user));
     }
 
     @DeleteMapping("/{id}")
-    public HttpStatus deleteUser(@PathVariable int id) {
+    public HttpStatus deleteUser(@PathVariable String id) {
         userService.deleteUserById(id);
         return HttpStatus.NO_CONTENT;
     }

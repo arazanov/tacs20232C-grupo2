@@ -1,9 +1,13 @@
 package com.springboot.rest.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.stereotype.Component;
 
 @Component
+@Document(collection = "users")
 public class User {
 
     public User() {
@@ -13,17 +17,21 @@ public class User {
         this.username = username;
     }
 
-    private int id;
+    @Id
+    private String id;
+    @Field("username")
     private String username;
+    @Field("password")
     private String password;
+    @Field("neverInteracted")
     @JsonIgnore
     private boolean neverInteracted = true;
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
