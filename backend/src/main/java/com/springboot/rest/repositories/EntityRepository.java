@@ -1,20 +1,19 @@
 package com.springboot.rest.repositories;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public abstract class Repository<T> {
-    protected List<T> entities = new ArrayList<>();
+public abstract class EntityRepository<T> {
+    protected List<T> entities;
 
-    public abstract int getId(T t);
+    public abstract String getId(T t);
 
     public List<T> findAll() {
         return entities;
     }
 
-    public Optional<T> findById(int id) {
-        return entities.stream().filter(e -> getId(e) == id).findFirst();
+    public Optional<T> findById(String id) {
+        return entities.stream().filter(e -> getId(e).equals(id)).findFirst();
     }
 
     public T updateById(T t) {
@@ -22,8 +21,9 @@ public abstract class Repository<T> {
         return save(t);
     }
 
-    public int maxId() {
-        return entities.stream().mapToInt(this::getId).max().orElse(0) + 1;
+    public String maxId() {
+        int maxId = entities.stream().mapToInt(e -> Integer.parseInt(getId(e))).max().orElse(0) + 1;
+        return String.valueOf(maxId);
     }
 
     public T save(T t) {
@@ -31,7 +31,7 @@ public abstract class Repository<T> {
         return t;
     }
 
-    public void deleteById(int id) {
+    public void deleteById(String id) {
         Optional<T> optionalT = findById(id);
         optionalT.ifPresent(t -> entities.remove(t));
     }

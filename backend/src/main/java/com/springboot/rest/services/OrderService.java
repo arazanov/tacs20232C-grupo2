@@ -4,24 +4,19 @@ import com.springboot.rest.model.Item;
 import com.springboot.rest.model.Order;
 import com.springboot.rest.model.User;
 import com.springboot.rest.repositories.OrderRepository;
-import com.springboot.rest.repositories.Repository;
-import com.springboot.rest.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Service
 public class OrderService {
 
-    private final OrderRepository orderRepository;
-    private final UserService userService;
     @Autowired
-    public OrderService(OrderRepository orderRepository,UserService userService){
-        this.orderRepository = orderRepository;
-        this.userService = userService;
-    }
+    private OrderRepository orderRepository;
+
+    @Autowired
+    private UserService userService;
 
     public Order createOrder(String userId) {
         User user = userService.getUserById(userId);
@@ -41,7 +36,7 @@ public class OrderService {
     }
 
     public List<Order> getOrdersByUserId(String id) {
-        return orderRepository.findByUserId(id).orElse(null);
+        return orderRepository.findByUserId(id);
     }
 
     public Order changeDescription(String id, String description) {

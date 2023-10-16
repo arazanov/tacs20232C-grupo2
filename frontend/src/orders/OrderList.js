@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {Button, ButtonGroup, Container, FormGroup, Table} from 'reactstrap';
 import AppNavbar from '../AppNavbar';
-import { Link } from 'react-router-dom';
 
 export default function OrderList() {
     const [orders, setOrders] = useState([]);
@@ -46,9 +45,7 @@ export default function OrderList() {
             <td>{order.closed ? "Closed" : "Open"}</td>
             <td>
                 <ButtonGroup>
-                    <Link to={`/orders/${order.id}`}>
-                        <Button size="sm" color="primary">Edit</Button>
-                    </Link>
+                    <Button size="sm" color="primary" href={`/orders/${order.id}`}>Edit</Button>
                     <Button size="sm" color="secondary" onClick={() => handleChange(order.id, !order.closed)}>
                         {order.closed ? "Open" : "Close"}
                     </Button>
@@ -75,8 +72,9 @@ export default function OrderList() {
                         {orderList}
                     </tbody>
                 </Table>
-                <FormGroup style={{paddingTop: 20}}>
-                    <Link to={"/orders/new"}><Button color="success">Add Order</Button></Link>
+                <FormGroup style={{ paddingTop: 50 }}>
+                    <Button color="primary" type="submit">Save</Button>{' '}
+                    <Button color="secondary" href="/orders">Cancel</Button>
                 </FormGroup>
             </Container>
         </div>

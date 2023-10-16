@@ -26,6 +26,7 @@ public class Order {
         this.actions.add(new Action(user, " created an order"));
         Monitor.getInstance().orderCreated(user);
     }
+
     @Id
     private String id;
     @Field("description")
@@ -69,9 +70,10 @@ public class Order {
     }
 
     public boolean hasUser(String id){
-        if(user.getId()==id) return true;
-        return users.stream().anyMatch(e->e.getId()==id);
+        if (user.getId().equals(id)) return true;
+        return users.stream().anyMatch(e -> e.getId().equals(id));
     }
+
     public void removeItems(User user, Item item) {
         String description = item.getDescription();
 

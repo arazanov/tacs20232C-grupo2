@@ -7,16 +7,13 @@ import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
 
-    private final UserRepository userRepository;
-
     @Autowired
-    public UserService(UserRepository userRepository){
-        this.userRepository = userRepository;
-    }
+    private UserRepository userRepository;
 
     public User saveUser(User user) {
         return userRepository.save(user);
@@ -30,13 +27,27 @@ public class UserService {
         return userRepository.findById(id).orElse(null);
     }
 
-    public boolean exists(User user) {
+    /*public boolean exists(User user) {
         return userRepository.exists(Example.of(user));
-    }
+    }*/
 
+    public User updateUserById(User user) {
+        Optional<User> userFound = userRepository.findById(user.getId());
+        if(userFound.isEmpty()) return null;
+        User userUpdate = userFound.get();
+        userUpdate.setUsername(user.getUsername());
+        return userRepository.updateById(userUpdate);
+    }
 
     public void deleteUserById(String id) {
         userRepository.deleteById(id);
     }
 
+    public boolean existsByUsername(String username) {
+        return userRepository.findByUsername(username).isPresent();
+    }
+
+    public boolean existsByEmail(String email) {
+        return userRepository.findByEmail(email).isPresent();
+    }
 }

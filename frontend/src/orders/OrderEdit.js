@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
-import {Link, useNavigate, useParams} from 'react-router-dom';
-import {Button, ButtonGroup, Container, Form, FormGroup, Input, Label, Table} from 'reactstrap';
+import {useNavigate, useParams} from 'react-router-dom';
+import {Button, ButtonGroup, Container, Form, FormGroup, Input, Label, Table, Row, Col} from 'reactstrap';
 import AppNavbar from '../AppNavbar';
 
 export default function OrderEdit() {
@@ -14,13 +14,20 @@ export default function OrderEdit() {
             .then((data) => setOrder(data));
     }, [id]);
 
-    function handleChange(event) {
+    function handleOrderChange(event) {
         const name = event.target.name;
         const value = event.target.value;
 
         let updatedOrder = order;
         updatedOrder[name] = value;
         setOrder(updatedOrder);
+    }
+
+    function handleItemChange(e, itemId) {
+        let updatedOrder = order;
+        updatedOrder.items[itemId - 1][e.target.name] = e.target.value;
+        setOrder(updatedOrder);
+        console.log(order.items[itemId - 1]);
     }
 
     function handleSubmit(event) {
@@ -40,26 +47,6 @@ export default function OrderEdit() {
         navigate('/orders');
     }
 
-    const itemList = order.items.map(i => {
-        return (
-            <tr key={i.id}>
-                <td style={{whiteSpace: 'nowrap'}}>{i.description}</td>
-                <td>{i.quantity}</td>
-                <td>
-                    <ButtonGroup>
-                        <Link to={"/orders/" + order.id + "/items/" + i.id}>
-                            <Button size="sm" color="primary">Add</Button>
-                        </Link>
-                        <Link to={"/orders/" + order.id + "/items/" + i.id}>
-                            <Button size="sm" color="secondary">Remove</Button>
-                        </Link>
-                        <Button size="sm" color="danger">Delete</Button>
-                    </ButtonGroup>
-                </td>
-            </tr>
-        )
-    });
-
     const userList = order.users.map(i => {
         return (
             <tr key={i.id}>
@@ -73,31 +60,42 @@ export default function OrderEdit() {
         )
     });
 
+    const itemList = order.items.map(i => {
+        return (
+            <Row key={i.id}>
+                <Col md={5}>
+                    <FormGroup>
+                        <Input name="description" type="text" bsSize="sm" defaultValue={i.description}
+                               onChange={(e) => handleItemChange(e, i.id)}/>
+                    </FormGroup>
+                </Col>
+                <Col md={2}>
+                    <FormGroup>
+                        <Input name="quantity" type="number" bsSize="sm" defaultValue={i.quantity}
+                               onChange={(e) => handleItemChange(e, i.id)}/>
+                    </FormGroup>
+                </Col>
+                <Col md={3}>
+                    <Button size="sm" color="danger">Delete</Button>
+                </Col>
+            </Row>
+        )
+    });
+
     return (
         <div>
         <AppNavbar/>
         <Container>
-            <h2 style={{paddingTop: 50, paddingBottom: 50}}>Edit order</h2>
+            <h2 style={{paddingTop: 50, paddingBottom: 20}}>Edit order</h2>
             <Form onSubmit={handleSubmit}>
                 <FormGroup>
                     <Label for="description">Description</Label>
                     <Input type="text" name="description" id="description" defaultValue={order.description || ''}
-                           onChange={handleChange} autoComplete="description"/>
+                           onChange={handleOrderChange} autoComplete="description"/>
                 </FormGroup>
-                <h3 style={{paddingTop: 50}}>Items</h3>
-                <Table className="mt-4">
-                    <thead>
-                        <tr>
-                            <th width="30%">Name</th>
-                            <th width="30%">Quantity</th>
-                            <th width="40%">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {itemList}
-                    </tbody>
-                </Table>
-                <h3 style={{paddingTop: 50}}>Users</h3>
+                <h3 style={{paddingTop: 30, paddingBottom: 20}}>Items</h3>
+                {itemList}
+                <h3 style={{paddingTop: 30}}>Users</h3>
                 <Table className="mt-4">
                     <thead>
                         <tr>
@@ -109,11 +107,9 @@ export default function OrderEdit() {
                         {userList}
                     </tbody>
                 </Table>
-                <FormGroup style={{paddingTop: 50}}>
+                <FormGroup style={{paddingTop: 30}}>
                     <Button color="primary" type="submit">Save</Button>{' '}
-                    <Link to="/orders">
-                        <Button color="secondary">Cancel</Button>
-                    </Link>
+                    <Button color="secondary" href="/orders">Cancel</Button>
                 </FormGroup>
             </Form>
         </Container>

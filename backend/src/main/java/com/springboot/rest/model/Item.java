@@ -16,6 +16,7 @@ public class Item {
         this.description = description;
         this.quantity = quantity;
     }
+
     @Id
     private int id;
     @Field("description")
