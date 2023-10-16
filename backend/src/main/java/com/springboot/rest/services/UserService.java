@@ -16,6 +16,7 @@ public class UserService {
     private UserRepository userRepository;
 
     public User saveUser(User user) {
+        user.setId(userRepository.maxId());
         return userRepository.save(user);
     }
 

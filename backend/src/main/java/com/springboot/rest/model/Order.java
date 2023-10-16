@@ -1,5 +1,6 @@
 package com.springboot.rest.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -22,7 +23,6 @@ public class Order {
         this.items = new ArrayList<>();
         this.actions = new ArrayList<>();
         this.closed = false;
-
         this.actions.add(new Action(user, " created an order"));
         Monitor.getInstance().orderCreated(user);
     }
@@ -33,12 +33,16 @@ public class Order {
     private String description;
     @Field("user")
     @DBRef
+    @JsonIgnore
     private User user;
     @Field("users")
+    @JsonIgnore
     private Set<User> users;
     @Field("items")
+    @JsonIgnore
     private List<Item> items;
     @Field("actions")
+    @JsonIgnore
     private List<Action> actions;
     @Field("closed")
     private boolean closed;
@@ -50,7 +54,8 @@ public class Order {
 
     public void shareWith(List<User> users) {
         this.users.addAll(users);
-        actions.add(new Action(this.user, " shared the order with " + users.stream().map(User::getUsername).collect(Collectors.joining(", "))));
+        actions.add(new Action(this.user, " shared the order with "
+                + users.stream().map(User::getUsername).collect(Collectors.joining(", "))));
     }
 
     public void addItems(User user, Item item) {
@@ -60,8 +65,8 @@ public class Order {
 
         if (itemOptional.isPresent()) itemOptional.get().addItems(quantity);
         else {
-            int maxItemId = items.stream().mapToInt(Item::getId).max().orElse(0) + 1;
-            item.setId(maxItemId);
+            int maxItemId = items.stream().mapToInt(i -> Integer.parseInt(i.getId())).max().orElse(0) + 1;
+            item.setId(String.valueOf(maxItemId));
             items.add(item);
         }
 
@@ -137,7 +142,7 @@ public class Order {
         return actions;
     }
 
-    public Boolean isClosed() {
+    public boolean isClosed() {
         return closed;
     }
 

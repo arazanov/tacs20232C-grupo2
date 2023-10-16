@@ -30,9 +30,12 @@ public class User {
     @Field("email")
     private String email;
     @Field("password")
+    @JsonIgnore
     private String password;
+    @JsonIgnore
     private String token;
     @Field("roles")
+    @JsonIgnore
     private Set<String> roles;
     @Field("neverInteracted")
     @JsonIgnore
@@ -82,7 +85,7 @@ public class User {
         return roles;
     }
 
-    public boolean isNeverInteracted() {
+    public boolean neverInteracted() {
         return neverInteracted;
     }
 

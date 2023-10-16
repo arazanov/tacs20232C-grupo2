@@ -51,7 +51,7 @@ public class UserDetailsImpl implements UserDetails {
         );
     }
 
-    public String id() {
+    public String getId() {
         return id;
     }
 

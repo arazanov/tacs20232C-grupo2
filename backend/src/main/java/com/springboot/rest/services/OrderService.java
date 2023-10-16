@@ -20,10 +20,11 @@ public class OrderService {
 
     public Order createOrder(String userId) {
         User user = userService.getUserById(userId);
-        if(user == null){
+        if(user == null) {
             return null;
         }
         Order order = new Order(user);
+        order.setId(orderRepository.maxId());
         return orderRepository.save(order);
     }
 
@@ -62,13 +63,17 @@ public class OrderService {
         return order;
     }
 
-    public Order closeOrder(String id, String userId, boolean close) {
+    public Order changeStatus(String id, String userId, boolean close) {
         Order order = orderRepository.findById(id).orElse(null);
         if (order != null) {
             User user = userService.getUserById(userId);
             if (order.isTheCreator(user)) order.changeStatus(user, close);
         }
         return order;
+    }
+
+    public Order updateOrder(Order order) {
+        return orderRepository.updateById(order);
     }
 
     public void deleteOrderById(String id) {

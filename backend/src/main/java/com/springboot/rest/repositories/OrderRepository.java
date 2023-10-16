@@ -60,7 +60,7 @@ public class OrderRepository extends EntityRepository<Order> {
     }
 
     public List<Order> findByUserId(String id) {
-        return entities.stream().filter(o -> o.getUser().getId().equals(id)).collect(Collectors.toList());
+        return entities.stream().filter(o -> o.hasUser(id)).collect(Collectors.toList());
     }
 
 /*    @Query("{ 'user.id' : ?0 }")
