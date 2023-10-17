@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -29,22 +28,17 @@ public class Order {
 
     @Id
     private String id;
-    @Field("description")
     private String description;
-    @Field("user")
     @DBRef
     @JsonIgnore
     private User user;
-    @Field("users")
+    @DBRef
     @JsonIgnore
     private Set<User> users;
-    @Field("items")
     @JsonIgnore
     private List<Item> items;
-    @Field("actions")
     @JsonIgnore
     private List<Action> actions;
-    @Field("closed")
     private boolean closed;
 
     public void shareWith(User user) {
@@ -64,17 +58,13 @@ public class Order {
         Optional<Item> itemOptional = find(description);
 
         if (itemOptional.isPresent()) itemOptional.get().addItems(quantity);
-        else {
-            int maxItemId = items.stream().mapToInt(i -> Integer.parseInt(i.getId())).max().orElse(0) + 1;
-            item.setId(String.valueOf(maxItemId));
-            items.add(item);
-        }
+        else items.add(item);
 
         actions.add(new Action(user, " added " + quantity + " '" + description + "'"));
         Monitor.getInstance().userInteraction(user);
     }
 
-    public boolean hasUser(String id){
+    public boolean hasUser(String id) {
         if (user.getId().equals(id)) return true;
         return users.stream().anyMatch(e -> e.getId().equals(id));
     }

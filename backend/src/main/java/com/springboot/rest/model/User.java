@@ -2,8 +2,9 @@ package com.springboot.rest.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
@@ -25,19 +26,16 @@ public class User {
 
     @Id
     private String id;
-    @Field("username")
+    @Indexed(unique = true)
     private String username;
-    @Field("email")
     private String email;
-    @Field("password")
     @JsonIgnore
     private String password;
+    @Transient
     @JsonIgnore
     private String token;
-    @Field("roles")
     @JsonIgnore
     private Set<String> roles;
-    @Field("neverInteracted")
     @JsonIgnore
     private boolean neverInteracted = true;
 

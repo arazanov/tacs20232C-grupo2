@@ -50,6 +50,8 @@ public class MongoTest {
             );
             userRepository.save(user);
         }
+
+        Assert.assertEquals(10, userRepository.count());
     }
 
     @Test
@@ -57,6 +59,8 @@ public class MongoTest {
         User pepe = userRepository.findByUsername("pepe").orElse(null);
         User carla = userRepository.findByUsername("carla").orElse(null);
         User alex = userRepository.findByUsername("alex").orElse(null);
+
+        if (pepe == null || carla == null || alex == null) throw new AssertionError();
 
         Order order1 = new Order(pepe);
         order1.setDescription("pizzas con los chicos");
@@ -80,16 +84,7 @@ public class MongoTest {
         order2.addItems(alex, new Item("ensalada mixta", 2));
 
         orderRepository.save(order2);
-    }
-
-    @Test
-    public void countOrders() {
         Assert.assertEquals(2, orderRepository.count());
-    }
-
-    @Test
-    public void countUsers() {
-        Assert.assertEquals(10, userRepository.count());
     }
 
     @Test
