@@ -13,3 +13,9 @@ services:
       - /project/node_modules
     depends_on:
       - backend
+  telegram-bot:
+    build: telegram-bot
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
