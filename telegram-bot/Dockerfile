@@ -6,5 +6,4 @@ RUN mvn package
 
 FROM tomcat:latest
 COPY --from=MAVEN_TOOL_CHAIN /tmp/target/ROOT*.war $CATALINA_HOME/webapps/
-EXPOSE 80
 CMD ["catalina.sh", "run"]

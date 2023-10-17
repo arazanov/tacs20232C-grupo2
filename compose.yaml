@@ -1,5 +1,9 @@
 version: '2'
 services:
+  telegram-bot:
+    build: telegram-bot
+    ports:
+      - "8081:8081"
   backend:
     build: backend
     ports:
@@ -11,11 +15,5 @@ services:
     volumes:
       - ./frontend/src:/code/src
       - /project/node_modules
-    depends_on:
-      - backend
-  telegram-bot:
-    build: telegram-bot
-    ports:
-      - "80:80"
     depends_on:
       - backend
