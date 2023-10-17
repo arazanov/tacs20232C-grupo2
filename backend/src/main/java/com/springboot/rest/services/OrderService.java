@@ -24,12 +24,7 @@ public class OrderService {
             return null;
         }
         Order order = new Order(user);
-        order.setId(orderRepository.maxId());
         return orderRepository.save(order);
-    }
-
-    public List<Order> getOrderList() {
-        return orderRepository.findAll();
     }
 
     public Order getOrderById(String id) {
@@ -73,7 +68,8 @@ public class OrderService {
     }
 
     public Order updateOrder(Order order) {
-        return orderRepository.updateById(order);
+        orderRepository.deleteById(order.getId());
+        return orderRepository.save(order);
     }
 
     public void deleteOrderById(String id) {
