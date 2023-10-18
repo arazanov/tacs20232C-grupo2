@@ -33,9 +33,7 @@ public class Order {
     @JsonIgnore
     private User user;
     @DBRef
-    @JsonIgnore
     private Set<User> users;
-    @JsonIgnore
     private List<Item> items;
     @JsonIgnore
     private List<Action> actions;
