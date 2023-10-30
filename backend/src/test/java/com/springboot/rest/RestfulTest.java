@@ -5,6 +5,9 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.springboot.rest.model.Order;
 import com.springboot.rest.model.User;
+import com.springboot.rest.repositories.OrderRepository;
+import com.springboot.rest.services.OrderService;
+import com.springboot.rest.services.UserService;
 import org.apache.hc.client5.http.classic.methods.HttpPatch;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -16,6 +19,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import com.springboot.rest.repositories.UserRepository;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,7 +33,17 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+@RunWith(MockitoJUnitRunner.class)
 public class RestfulTest {
+
+    @Mock
+    private OrderRepository orderRepository;
+    @InjectMocks
+    private OrderService orderService;
+    @Mock
+    private UserRepository userRepository;
+    @InjectMocks
+    private UserService userService;
 
     private final String BASE_URL = "http://localhost:8080/";
     private CloseableHttpClient client;
@@ -127,6 +144,6 @@ public class RestfulTest {
 
     @Test
     public void getUserMethod() {
-        Assert.assertEquals(new UserRepository().findById(2).map(User::getUsername).orElse(""), getUser(2).getUsername());
+        Assert.assertEquals(userRepository.findById("2").map(User::getUsername).orElse(""), getUser(2).getUsername());
     }
 }

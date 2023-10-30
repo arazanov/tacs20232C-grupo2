@@ -2,49 +2,43 @@ package com.springboot.rest.services;
 
 import com.springboot.rest.model.User;
 import com.springboot.rest.repositories.UserRepository;
-import com.springboot.rest.repositories.Repository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UserService {
 
-    private final Repository<User> userRepository = new UserRepository();
+    @Autowired
+    private UserRepository userRepository;
 
-    public User createUser(User user) {
-        int id = userRepository.maxId();
-        user.setId(id);
+    public User saveUser(User user) {
         return userRepository.save(user);
     }
-
-    /*public List<User> createUserList(List<User> list) {
-        return userRepository.saveAll(list);
-    }*/
 
     public List<User> getUserList() {
         return userRepository.findAll();
     }
 
-    public User getUserById(int id) {
+    public User getUserById(String id) {
         return userRepository.findById(id).orElse(null);
     }
 
     public User updateUserById(User user) {
-        Optional<User> userFound = userRepository.findById(user.getId());
-
-        if (userFound.isPresent()) {
-            User userUpdate = userFound.get();
-            userUpdate.setUsername(user.getUsername());
-            return userRepository.save(user);
-        } else {
-            return null;
-        }
+        userRepository.deleteById(user.getId());
+        return userRepository.save(user);
     }
 
-    public void deleteUserById(int id) {
+    public void deleteUserById(String id) {
         userRepository.deleteById(id);
     }
 
+    public boolean existsByUsername(String username) {
+        return userRepository.findByUsername(username).isPresent();
+    }
+
+    public boolean existsByEmail(String email) {
+        return userRepository.findByEmail(email).isPresent();
+    }
 }

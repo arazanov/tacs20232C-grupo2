@@ -19,7 +19,7 @@ public class SpringBootRestApplication extends SpringBootServletInitializer {
 
     public static void main(String[] args) {
         applicationContext = SpringApplication.run(SpringBootRestApplication.class, args);
-        //checkBeansPresence("item", "order", "user", "action", "userService", "userRepository");
+        //checkBeansPresence("userRepository", "passwordEncoder");
     }
 
     // test para ver que las annotations (@) estén bien

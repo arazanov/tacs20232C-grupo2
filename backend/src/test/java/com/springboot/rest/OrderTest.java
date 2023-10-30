@@ -13,9 +13,9 @@ public class OrderTest {
 
     @Before
     public void init() {
-        user1 = new User("pepe");
-        user2 = new User("carla");
-        user3 = new User("alex");
+        user1 = new User("pepe", "pepe@gmail.com", "123");
+        user2 = new User("carla", "carla@gmail.com", "123");
+        user3 = new User("alex", "alex@gmail.com", "123");
     }
 
     @Test

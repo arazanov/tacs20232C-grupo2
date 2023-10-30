@@ -1,5 +1,6 @@
 package com.springboot.rest.model;
 
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -17,13 +18,10 @@ public class Action {
         this.description = user.getUsername() + description;
     }
 
+    @DBRef
     private User user;
     private String dateTime;
     private String description;
-
-    public User getUser() {
-        return user;
-    }
 
     public String getDateTime() {
         return dateTime;

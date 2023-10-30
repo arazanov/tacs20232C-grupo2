@@ -1,18 +1,18 @@
 package com.springboot.rest.controllers;
 
 import com.springboot.rest.model.User;
+import com.springboot.rest.payload.ErrorMessage;
+import com.springboot.rest.payload.SignUpRequest;
+import com.springboot.rest.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import com.springboot.rest.services.UserService;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/users")
@@ -21,49 +21,50 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
         return ResponseEntity.ok(userService.getUserList());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Object> getUserById(@PathVariable int id) {
+    public ResponseEntity<?> getUserById(@PathVariable String id) {
         User user = userService.getUserById(id);
-        if (user != null) {
-            System.out.println(user.isNeverInteracted());
-            return ResponseEntity.ok().body(user);
-        } else {
-            Map<String, Object> errorDetails = new HashMap<>();
-            errorDetails.put("error", "El usuario con ID " + id + " no se encontró en el sistema.");
-            errorDetails.put("detalle", "Asegúrese de que la URL esté escrita correctamente o pruebe con un ID de recurso diferente.");
-            errorDetails.put("timestamp", new Date());
-
-            // Devolver un ResponseEntity con el código de estado 404 y el objeto JSON personalizado en el cuerpo
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDetails);
-        }
+        if (user != null) return ResponseEntity.ok().body(user);
+        else return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorMessage("usuario", id));
     }
 
     @PostMapping
-    public ResponseEntity<User> addUser(@RequestBody User user) {
-        // Crea el nuevo usuario
-        User newUser = userService.createUser(user);
+    public ResponseEntity<?> registerUser(@RequestBody SignUpRequest signUpRequest) {
+        if (userService.existsByUsername(signUpRequest.getUsername()))
+            return ResponseEntity.badRequest().build();
 
-        // Crea una URI que apunta al nuevo recurso.
+        if (userService.existsByEmail(signUpRequest.getEmail()))
+            return ResponseEntity.badRequest().build();
+
+        User user = new User(
+                signUpRequest.getUsername(),
+                signUpRequest.getEmail(),
+                passwordEncoder.encode(signUpRequest.getPassword())
+        );
+
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(user.getId())
                 .toUri();
 
-        return ResponseEntity.created(location).body(newUser);
+        return ResponseEntity.created(location).body(userService.saveUser(user));
     }
 
     @PutMapping
     public ResponseEntity<User> updateUser(@RequestBody User user) {
-        return ResponseEntity.ok().body(userService.updateUserById(user));
+        return ResponseEntity.ok().body(userService.saveUser(user));
     }
 
     @DeleteMapping("/{id}")
-    public HttpStatus deleteUser(@PathVariable int id) {
+    public HttpStatus deleteUser(@PathVariable String id) {
         userService.deleteUserById(id);
         return HttpStatus.NO_CONTENT;
     }

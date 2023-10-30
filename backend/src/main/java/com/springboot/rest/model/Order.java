@@ -1,11 +1,16 @@
 package com.springboot.rest.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
+@Document(collection = "orders")
 public class Order {
 
     public Order() {
@@ -17,16 +22,20 @@ public class Order {
         this.items = new ArrayList<>();
         this.actions = new ArrayList<>();
         this.closed = false;
-
         this.actions.add(new Action(user, " created an order"));
         Monitor.getInstance().orderCreated(user);
     }
 
-    private int id;
+    @Id
+    private String id;
     private String description;
+    @DBRef
+    @JsonIgnore
     private User user;
+    @DBRef
     private Set<User> users;
     private List<Item> items;
+    @JsonIgnore
     private List<Action> actions;
     private boolean closed;
 
@@ -37,7 +46,8 @@ public class Order {
 
     public void shareWith(List<User> users) {
         this.users.addAll(users);
-        actions.add(new Action(this.user, " shared the order with " + users.stream().map(User::getUsername).collect(Collectors.joining(", "))));
+        actions.add(new Action(this.user, " shared the order with "
+                + users.stream().map(User::getUsername).collect(Collectors.joining(", "))));
     }
 
     public void addItems(User user, Item item) {
@@ -52,10 +62,11 @@ public class Order {
         Monitor.getInstance().userInteraction(user);
     }
 
-    public boolean hasUser(int id){
-        if(user.getId()==id) return true;
-        return users.stream().anyMatch(e->e.getId()==id);
+    public boolean hasUser(String id) {
+        if (user.getId().equals(id)) return true;
+        return users.stream().anyMatch(e -> e.getId().equals(id));
     }
+
     public void removeItems(User user, Item item) {
         String description = item.getDescription();
 
@@ -87,11 +98,11 @@ public class Order {
         return items.stream().filter(i -> i.getDescription().equals(description)).findFirst();
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 

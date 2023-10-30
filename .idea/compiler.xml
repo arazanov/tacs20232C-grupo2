@@ -10,16 +10,13 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="backend (1)" target="17" />
-      <module name="backend (2)" target="17" />
+      <module name="tp-tacs" target="1.8" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="backend" options="-parameters" />
-      <module name="backend (1)" options="-parameters" />
-      <module name="backend (2)" options="-parameters" />
-      <module name="telegram-bot" options="-parameters" />
+      <module name="telegram-bot" options="" />
     </option>
   </component>
 </project>
