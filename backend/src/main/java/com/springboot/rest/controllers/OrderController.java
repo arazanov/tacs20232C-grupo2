@@ -6,7 +6,6 @@ import com.springboot.rest.model.User;
 import com.springboot.rest.payload.OrderPatchRequest;
 import com.springboot.rest.security.services.UserDetailsImpl;
 import com.springboot.rest.services.ItemService;
-import com.springboot.rest.services.MonitorService;
 import com.springboot.rest.services.OrderService;
 import com.springboot.rest.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,8 +36,6 @@ public class OrderController {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private MonitorService monitorService;
 
     private String userId() {
         UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder
@@ -88,14 +85,17 @@ public class OrderController {
         String userId = userId();
         try {
             Order newOrder = new Order();
+
             newOrder.setUser(userService.findById(userId));
             orderService.save(newOrder);
+
             URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                     .replacePath("/{id}")
                     .buildAndExpand(newOrder.getId())
                     .toUri();
-            monitorService.incrementOrderCount();
+
             return ResponseEntity.created(location).body(newOrder);
+
         } catch (NoSuchElementException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                     "El usuario con ID " + userId + " no se encontró en el sistema", e);

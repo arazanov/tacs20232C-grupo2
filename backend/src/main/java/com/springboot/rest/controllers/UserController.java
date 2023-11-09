@@ -6,7 +6,6 @@ import com.springboot.rest.payload.LoginRequest;
 import com.springboot.rest.payload.SignUpRequest;
 import com.springboot.rest.security.jwt.JwtUtils;
 import com.springboot.rest.security.services.UserDetailsImpl;
-import com.springboot.rest.services.MonitorService;
 import com.springboot.rest.services.OrderService;
 import com.springboot.rest.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,9 +43,6 @@ public class UserController {
     @Autowired
     private OrderService orderService;
 
-    @Autowired
-    private MonitorService monitorService;
-
     private JwtResponse authenticateUser(String username, String password) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(username, password));
@@ -80,8 +76,6 @@ public class UserController {
                 .path("/{id}")
                 .buildAndExpand(user.getId())
                 .toUri();
-
-        monitorService.incrementUserCount();
 
         return ResponseEntity.created(location).body(authenticateUser(
                 signUpRequest.getUsername(),

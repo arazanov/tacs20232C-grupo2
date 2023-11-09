@@ -1,10 +1,10 @@
 package com.springboot.rest.controllers;
 
 import com.springboot.rest.model.Monitor;
-import com.springboot.rest.services.MonitorService;
+import com.springboot.rest.services.OrderService;
+import com.springboot.rest.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -13,11 +13,17 @@ import org.springframework.web.bind.annotation.RestController;
 public class MonitorController {
 
     @Autowired
-    private MonitorService monitorService;
+    private OrderService orderService;
+
+    @Autowired
+    private UserService userService;
 
     @GetMapping
-    public Monitor get() {
-        return monitorService.find();
+    public Monitor getMonitor() {
+        return new Monitor(
+                userService.userCount(),
+                orderService.orderCount()
+        );
     }
 
 }

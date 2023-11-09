@@ -34,6 +34,10 @@ public class OrderService {
         return orderRepository.findById(id).map(Order::getUsers).orElseThrow();
     }
 
+    public long orderCount() {
+        return orderRepository.count();
+    }
+
     private void update(Order order) {
         orderRepository.deleteById(order.getId());
         orderRepository.save(order);

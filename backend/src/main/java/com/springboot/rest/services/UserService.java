@@ -26,6 +26,10 @@ public class UserService {
         );
     }
 
+    public long userCount() {
+        return userRepository.count();
+    }
+
     public boolean exists(SignUpRequest request) {
         return userRepository.existsByUsernameOrEmail(
                 request.getUsername(),
