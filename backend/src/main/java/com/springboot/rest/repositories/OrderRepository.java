@@ -8,7 +8,9 @@ import java.util.List;
 
 public interface OrderRepository extends MongoRepository<Order, String> {
 
-    @Query("{ 'user.id' : '?0' }")
-    List<Order> findByUserId(String id);
+    @Query("{'$or':  [{'user.id':  ?0}, {'users.id': ?0}]}")
+    List<Order> findByUserId(String userId);
+
+    void deleteByUserId(String userId);
 
 }

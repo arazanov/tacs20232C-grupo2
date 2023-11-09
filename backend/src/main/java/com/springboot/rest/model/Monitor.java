@@ -1,42 +1,38 @@
 package com.springboot.rest.model;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.stereotype.Component;
 
 @Component
+@Document(collection = "monitor")
 public class Monitor {
 
     public Monitor() {
-        this.uniqueUsers = 0;
-        this.ordersCreated = 0;
+        id = "0";
+        userCount = 0;
+        orderCount = 0;
     }
 
-    public static Monitor getInstance() {
-        if (instance == null) instance = new Monitor();
-        return instance;
+    @Id
+    private String id;
+    private int userCount;
+    private int orderCount;
+
+    public void incrementUserCount() {
+        userCount += 1;
     }
 
-    private static Monitor instance = null;
-    private int uniqueUsers;
-    private int ordersCreated;
-
-    public void orderCreated(User user) {
-        ordersCreated++;
-        userInteraction(user);
+    public void incrementOrderCount() {
+        orderCount += 1;
     }
 
-    public void userInteraction(User user) {
-        if(user.neverInteracted()) {
-            user.interact();
-            uniqueUsers++;
-        }
+    public int getUserCount() {
+        return userCount;
     }
 
-    public int getUniqueUsers() {
-        return uniqueUsers;
-    }
-
-    public int getOrdersCreated() {
-        return ordersCreated;
+    public int getOrderCount() {
+        return orderCount;
     }
 
 }

@@ -1,171 +1,119 @@
-import React, {useEffect, useReducer} from 'react';
-import {useNavigate, useParams} from 'react-router-dom';
-import {Button, ButtonGroup, Container, Form, FormGroup, Input, Label, Table, Row, Col} from 'reactstrap';
-import AppNavbar from '../AppNavbar';
+import {useParams} from "react-router";
+import React, {useEffect, useState} from "react";
+import {Button, Container, Form, FormGroup, Input, Label} from "reactstrap";
+import AppNavbar from "../navbar/AppNavbar";
+import {ItemList} from "../items/ItemList";
+import {SuccessMessage} from "./SuccessMessage";
+import {UserList} from "../share-users/UserList";
+import {useNavigate} from "react-router-dom";
 
 export default function OrderEdit() {
     const { id } = useParams();
-    const [order, setOrder] = useReducer((state, action) => {
-        switch (action.type) {
-            case 'set_order':
-                return action.fetchedOrder
-            case 'change_description':
-                return {
-                    ...state,
-                    description: action.newDescription
-                };
-            case 'add_item': {
-                let newItemList = state.items;
-                newItemList.push(action.newItem);
-                return {
-                    ...state,
-                    items: newItemList
-                };
-            }
-            default: console.log('Unknown action: ' + action.type);
-        }
-    },{ description: '', items: [], users: [], closed: null });
-    let currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    const [order, setOrder] = useState({
+        id: '',
+        description: '',
+        closed: false
+    });
+    const [items, setItems] = useState([]);
+    const [users, setUsers] = useState([]);
+    const [success, setSuccess] = useState(false);
+    let token = localStorage.getItem('token');
     const navigate = useNavigate();
 
     useEffect(() => {
-        fetch(`/orders/${id}`, {
-            headers: { 'Authorization': 'Bearer ' + currentUser.token }
-        })
-            .then(response => response.json())
-            .then(data => setOrder({ type: 'set_order', fetchedOrder: data }));
-    }, [id, currentUser]);
+        function fetchConst(path, setter) {
+            fetch("/orders/" + id + path, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    setter(data)
+                });
+        }
 
-    function handleOrderChange(event) {
-        setOrder({ type: 'change_description', newDescription: event.target.value });
-    }
+        fetchConst("", setOrder);
+        fetchConst("/items", setItems);
+        fetchConst("/users", setUsers);
+    }, [id, token]);
 
-    function handleItemChange(e, index) {
-        let updatedOrder = order;
-        updatedOrder.items[index][e.target.name] = e.target.value;
-        setOrder(updatedOrder);
-    }
+    function handleSubmit(e) {
+        e.preventDefault();
 
-    function handleSubmit(event) {
-        event.preventDefault();
-
-        fetch(('/orders/' + id), {
-            method: 'PUT',
+        fetch("/orders/" + id, {
+            method: 'PATCH',
             headers: {
                 'Accept': 'application/json',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
             },
-            body: JSON.stringify(order),
+            body: JSON.stringify({
+                description: order.description
+            })
+        })
+            .then(response => {
+                if (!response.ok) throw new Error(response.statusText);
+            })
+            .then(() => setSuccess(true))
+            .catch(console.log);
+    }
+
+    function createItem() {
+        fetch("/orders/" + id + "/items", {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            }
         })
             .then(response => response.json())
-            .then(data => console.log(data));
-
-        navigate('/orders');
+            .then(data => {
+                navigate("/orders/" + id + "/items/" + data.id);
+            });
     }
 
-    const userList = order.users.map(i => {
-        return (
-            <tr key={i.id}>
-                <td style={{whiteSpace: 'nowrap'}}>{i.username}</td>
-                <td>
-                    <ButtonGroup>
-                        <Button size="sm" color="danger">Eliminar</Button>
-                    </ButtonGroup>
-                </td>
-            </tr>
-        )
-    });
-
-    const itemList = order.items.map((item, index) => {
-        return (
-            <Row key={index}>
-            <Col md={5}>
-                <FormGroup>
-                    <Input name="description" type="text" bsSize="sm" defaultValue={item.description}
-                           onChange={(e) => handleItemChange(e, index)}/>
-                </FormGroup>
-            </Col>
-            <Col md={2}>
-                <FormGroup>
-                    <Input name="quantity" type="number" bsSize="sm" defaultValue={item.quantity}
-                           onChange={(e) => handleItemChange(e, index)}/>
-                </FormGroup>
-            </Col>
-            <Col md={3}>
-                <Button size="sm" color="danger">Eliminar</Button>
-            </Col>
-            </Row>
-        )
-    });
-
-    function addItem() {
-        let item = { description: 'Agregar ítem', quantity: 0 };
-
-        let index = itemList.length;
-        itemList.push(
-            <Row key={index}>
-            <Col md={5}>
-                <FormGroup>
-                    <Input name="description" type="text" bsSize="sm" defaultValue={item.description}
-                           onChange={(e) => handleItemChange(e, index)}/>
-                </FormGroup>
-            </Col>
-            <Col md={2}>
-                <FormGroup>
-                    <Input name="quantity" type="number" bsSize="sm" defaultValue={item.quantity}
-                           onChange={(e) => handleItemChange(e, index)}/>
-                </FormGroup>
-            </Col>
-            <Col md={3}>
-                <Button size="sm" color="danger">Delete</Button>
-            </Col>
-            </Row>
-        )
-    }
-
-    function removeItem() {
-        let updatedItems = order.items;
-        updatedItems.pop();
-        setOrder(updatedItems);
-        itemList.pop();
-    }
-
-    return (
-        <div>
+    return <div>
         <AppNavbar/>
         <Container>
-            <h2 style={{paddingTop: 50, paddingBottom: 20}}>Editar pedido</h2>
-            <Form onSubmit={handleSubmit}>
+            <h2 style={{ paddingTop: 50, paddingBottom: 50 }}>Editar pedido</h2>
+            <Form onSubmit={handleSubmit} style={{paddingBottom:20}}>
                 <FormGroup>
                     <Label for="description">Descripción</Label>
-                    <Input type="text" name="description" id="description" defaultValue={order.description || ''}
-                           onChange={handleOrderChange} autoComplete="description"/>
+                    <Input type="text" id="description" defaultValue={order.description}
+                           onChange={e => {
+                               setSuccess(false);
+                               setOrder({...order, description: e.target.value});
+                           }}/>
                 </FormGroup>
-                <h3 style={{paddingTop: 40, paddingBottom: 20}}>Ítems</h3>
-                {itemList}
-                <FormGroup style={{paddingTop: 20}}>
-                    <Button color="primary" onClick={() => addItem()}>Agregar ítem</Button>{' '}
-                    <Button color="secondary" onClick={() => removeItem()}>Cancelar</Button>
-                </FormGroup>
-                <h3 style={{paddingTop: 40}}>Usuarios</h3>
-                <Table className="mt-4">
-                    <thead>
-                        <tr>
-                            <th width="60%">Nombre de usuario</th>
-                            <th width="40%">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {userList}
-                    </tbody>
-                </Table>
-                <FormGroup style={{paddingTop: 30}}>
-                    <Button color="primary" type="submit">Guardar</Button>{' '}
-                    <Button color="secondary" href="/orders">Cancelar</Button>
+                <SuccessMessage success={success}/>
+                <FormGroup>
+                    <Button color="primary" type="submit">Guardar</Button>
                 </FormGroup>
             </Form>
+            {
+                items.length ?
+                    <ItemList items={items} setItems={setItems} orderId={id}/> :
+                    <div> No hay ítems </div>
+            }
+            <div style={{ paddingTop: 30, paddingBottom: 50 }}>
+                <Button color="primary" onClick={() => createItem()}>Agregar ítem</Button>
+            </div>
+            {
+                users.length ?
+                    <UserList users={users} setUsers={setUsers} orderId={id}/> :
+                    <div> No se compartió con ningún usuario </div>
+            }
+            <div style={{  paddingTop: 30, paddingBottom: 50 }}>
+                <Button color="primary" href={"/orders/" + id + "/users"}>Compartir</Button>
+            </div>
+            <div>
+                <Button color="success" href={"/orders"}>Volver</Button>
+            </div>
         </Container>
     </div>
-    );
-
 }

@@ -1,11 +1,10 @@
 package com.springboot.rest.services;
 
 import com.springboot.rest.model.User;
+import com.springboot.rest.payload.SignUpRequest;
 import com.springboot.rest.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class UserService {
@@ -13,32 +12,38 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    public User saveUser(User user) {
+    public User save(User user) {
         return userRepository.save(user);
     }
 
-    public List<User> getUserList() {
-        return userRepository.findAll();
+    public User findById(String id) {
+        return userRepository.findById(id).orElseThrow();
     }
 
-    public User getUserById(String id) {
-        return userRepository.findById(id).orElse(null);
+    public User findByUsernameOrEmail(String username, String email) {
+        return userRepository.findByUsername(username).orElseGet(() ->
+                userRepository.findByEmail(email).orElseThrow()
+        );
     }
 
-    public User updateUserById(User user) {
-        userRepository.deleteById(user.getId());
-        return userRepository.save(user);
+    public boolean exists(SignUpRequest request) {
+        return userRepository.existsByUsernameOrEmail(
+                request.getUsername(),
+                request.getEmail()
+        );
     }
 
-    public void deleteUserById(String id) {
+    public void updateUser(String id, String username, String email, String password) {
+        User update = findById(id);
+        update.setUsername(username);
+        update.setEmail(email);
+        if (password != null) update.setPassword(password);
+        userRepository.deleteById(id);
+        userRepository.save(update);
+    }
+
+    public void deleteById(String id) {
         userRepository.deleteById(id);
     }
 
-    public boolean existsByUsername(String username) {
-        return userRepository.findByUsername(username).isPresent();
-    }
-
-    public boolean existsByEmail(String email) {
-        return userRepository.findByEmail(email).isPresent();
-    }
 }

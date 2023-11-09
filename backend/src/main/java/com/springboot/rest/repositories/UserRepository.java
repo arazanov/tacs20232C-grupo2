@@ -6,11 +6,13 @@ import org.springframework.data.mongodb.repository.Query;
 
 import java.util.Optional;
 
-public interface UserRepository extends MongoRepository<User,String> {
+public interface UserRepository extends MongoRepository<User, String> {
 
-    @Query("{ 'username': '?0' }")
+    boolean existsByUsernameOrEmail(String username, String email);
+
     Optional<User> findByUsername(String username);
 
-    @Query("{ 'email': '?0' }")
+    @Query("{'email': ?0}")
     Optional<User> findByEmail(String email);
+
 }

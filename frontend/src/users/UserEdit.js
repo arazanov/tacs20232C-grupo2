@@ -1,82 +1,71 @@
-import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
-import { Button, Container, Form, FormGroup, Input, Label } from 'reactstrap';
-import AppNavbar from '../AppNavbar';
+import React, {useEffect, useState} from 'react';
+import {useNavigate} from 'react-router-dom';
+import {UserForm} from "./UserForm";
 
-class UserEdit extends Component {
+export default function UserEdit() {
+    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const navigate = useNavigate();
+    let token = localStorage.getItem('token');
+    const [invalid, setInvalid] = useState(false);
 
-    emptyItem = {
-        name: '',
-        email: ''
-    };
-
-    constructor(props) {
-        super(props);
-        this.state = {
-            item: this.emptyItem
-        };
-        this.handleChange = this.handleChange.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
-    }
-
-    async componentDidMount() {
-        if (this.props.match.params.id !== 'new') {
-            const user = await (await fetch(`/users/${this.props.match.params.id}`)).json();
-            this.setState({item: user});
-        }
-    }
-
-    handleChange(event) {
-        const target = event.target;
-        const value = target.value;
-        const name = target.name;
-        let item = {...this.state.item};
-        item[name] = value;
-        this.setState({item});
-    }
-
-    async handleSubmit(event) {
-        event.preventDefault();
-        const {item} = this.state;
-
-        await fetch('/users' + (item.id ? '/' + item.id : ''), {
-            method: (item.id) ? 'PUT' : 'POST',
+    useEffect(() => {
+        fetch("/user", {
+            method: 'GET',
             headers: {
                 'Accept': 'application/json',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                setUsername(data.username);
+                setEmail(data.email);
+            });
+    }, [token]);
+
+    function handleSubmit(e) {
+        e.preventDefault();
+
+        if (password === '') {
+            setInvalid(true);
+            return;
+        }
+
+        fetch('/users', {
+            method: 'PUT',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
             },
-            body: JSON.stringify(item),
-        });
-        this.props.navigate.push('/users');
+            body: JSON.stringify({
+                username: username,
+                email: email,
+                password: password
+            })
+        }).then(response => {
+            if(!response.ok) throw new Error(response.statusText);
+            return response.json()
+        }).then(data => {
+            localStorage.setItem('token', data.token);
+            navigate(-1);
+        }).catch(console.log);
     }
 
-    render() {
-        const {item} = this.state;
-        const title = <h2>{item.id ? 'Edit User' : 'Add User'}</h2>;
-
-        return <div>
-            <AppNavbar/>
-            <Container>
-                {title}
-                <Form onSubmit={this.handleSubmit}>
-                    <FormGroup>
-                        <Label for="name">Name</Label>
-                        <Input type="text" name="name" id="name" value={item.name || ''}
-                               onChange={this.handleChange} autoComplete="name"/>
-                    </FormGroup>
-                    <FormGroup>
-                        <Label for="email">Email</Label>
-                        <Input type="text" name="email" id="email" value={item.email || ''}
-                               onChange={this.handleChange} autoComplete="email"/>
-                    </FormGroup>
-                    <FormGroup>
-                        <Button color="primary" type="submit">Save</Button>{' '}
-                        <Link to={"/users"}><Button color="secondary">Cancel</Button></Link>
-                    </FormGroup>
-                </Form>
-            </Container>
-        </div>
-    }
-
+    return <UserForm
+        handleSubmit={handleSubmit}
+        user={{
+            username: username,
+            email: email,
+            password: password
+        }}
+        setUsername={setUsername}
+        setEmail={setEmail}
+        setPassword={setPassword}
+        title={"Mi perfil"}
+        invalid={invalid}
+    />;
 }
-export default UserEdit;
