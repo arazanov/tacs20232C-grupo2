@@ -1,7 +1,6 @@
 package com.springboot.rest.services;
 
 import com.springboot.rest.model.User;
-import com.springboot.rest.payload.SignUpRequest;
 import com.springboot.rest.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,10 +29,10 @@ public class UserService {
         return userRepository.count();
     }
 
-    public boolean exists(SignUpRequest request) {
+    public boolean exists(String username, String email) {
         return userRepository.existsByUsernameOrEmail(
-                request.getUsername(),
-                request.getEmail()
+                username,
+                email
         );
     }
 

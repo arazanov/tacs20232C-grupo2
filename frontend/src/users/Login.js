@@ -9,6 +9,8 @@ export default function Login() {
     const [badCredentials, setBadCredentials] = useState(false);
     const navigate = useNavigate();
 
+    localStorage.removeItem('token');
+
     function handleSubmit(e) {
         e.preventDefault();
         fetch('/', {

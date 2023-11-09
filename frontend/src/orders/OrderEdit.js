@@ -111,7 +111,7 @@ export default function OrderEdit() {
             <div style={{  paddingTop: 30, paddingBottom: 50 }}>
                 <Button color="primary" href={"/orders/" + id + "/users"}>Compartir</Button>
             </div>
-            <div>
+            <div style={{  paddingBottom: 50 }}>
                 <Button color="success" href={"/orders"}>Volver</Button>
             </div>
         </Container>

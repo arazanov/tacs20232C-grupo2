@@ -1,6 +1,6 @@
 package com.springboot.rest.controllers;
 
-import com.springboot.rest.model.Monitor;
+import com.springboot.rest.payload.MonitorResponse;
 import com.springboot.rest.services.OrderService;
 import com.springboot.rest.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,13 +14,12 @@ public class MonitorController {
 
     @Autowired
     private OrderService orderService;
-
     @Autowired
     private UserService userService;
 
     @GetMapping
-    public Monitor getMonitor() {
-        return new Monitor(
+    public MonitorResponse getMonitor() {
+        return new MonitorResponse(
                 userService.userCount(),
                 orderService.orderCount()
         );

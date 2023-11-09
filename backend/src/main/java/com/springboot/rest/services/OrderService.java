@@ -2,7 +2,6 @@ package com.springboot.rest.services;
 
 import com.springboot.rest.model.Order;
 import com.springboot.rest.model.User;
-import com.springboot.rest.payload.OrderPatchRequest;
 import com.springboot.rest.repositories.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,33 +37,9 @@ public class OrderService {
         return orderRepository.count();
     }
 
-    private void update(Order order) {
+    public void update(Order order) {
         orderRepository.deleteById(order.getId());
         orderRepository.save(order);
-    }
-
-    public void modify(String id, OrderPatchRequest request, String userId) throws Exception {
-        Order order = findById(id);
-
-        // setDescription
-        if (request.getDescription() != null) {
-            order.setDescription(request.getDescription());
-        }
-
-        // close
-        if (request.isClosed() != null) {
-            if (order.isOwner(userId)) {
-                order.setClosed(request.isClosed());
-            }
-            else throw new Exception("User is not the owner");
-        }
-
-        // share
-        if (request.getUser() != null) {
-            order.addUser(request.getUser());
-        }
-
-        update(order);
     }
 
     public void deleteById(String id) {

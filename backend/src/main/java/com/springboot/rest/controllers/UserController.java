@@ -1,9 +1,7 @@
 package com.springboot.rest.controllers;
 
 import com.springboot.rest.model.User;
-import com.springboot.rest.payload.JwtResponse;
-import com.springboot.rest.payload.LoginRequest;
-import com.springboot.rest.payload.SignUpRequest;
+import com.springboot.rest.payload.UserRequest;
 import com.springboot.rest.security.jwt.JwtUtils;
 import com.springboot.rest.security.services.UserDetailsImpl;
 import com.springboot.rest.services.OrderService;
@@ -29,47 +27,35 @@ import java.util.NoSuchElementException;
 public class UserController {
 
     @Autowired
+    private UserService userService;
+    @Autowired
+    private OrderService orderService;
+    @Autowired
     private AuthenticationManager authenticationManager;
-
     @Autowired
     private JwtUtils jwtUtils;
-
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private OrderService orderService;
-
-    private JwtResponse authenticateUser(String username, String password) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(username, password));
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        return new JwtResponse(jwtUtils.generateJwtToken(userDetails.getUsername()));
-    }
-
     @PostMapping("/")
-    public JwtResponse userLogin(@RequestBody LoginRequest loginRequest) {
+    public JwtResponse userLogin(@RequestBody UserRequest request) {
         return authenticateUser(
-                loginRequest.getUsername(),
-                loginRequest.getPassword()
+                request.getUsername(),
+                request.getPassword()
         );
     }
 
     @PostMapping("/users")
-    public ResponseEntity<?> userSignUp(@RequestBody SignUpRequest signUpRequest) {
-        if (userService.exists(signUpRequest)) {
+    public ResponseEntity<JwtResponse> userSignUp(@RequestBody UserRequest request) {
+        if (userService.exists(request.getUsername(), request.getEmail())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, //409
                     "User already exists");
         }
 
         User user = userService.save(new User(
-                signUpRequest.getUsername(),
-                signUpRequest.getEmail(),
-                passwordEncoder.encode(signUpRequest.getPassword()))
+                request.getUsername(),
+                request.getEmail(),
+                passwordEncoder.encode(request.getPassword()))
         );
 
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
@@ -78,50 +64,37 @@ public class UserController {
                 .toUri();
 
         return ResponseEntity.created(location).body(authenticateUser(
-                signUpRequest.getUsername(),
-                signUpRequest.getPassword()
+                request.getUsername(),
+                request.getPassword()
         ));
-    }
-
-    private String userId() {
-        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder
-                .getContext().getAuthentication().getPrincipal();
-        return userDetails.getId();
     }
 
     @GetMapping("/user")
     @PreAuthorize("hasRole('USER')")
     public User getUserById() {
         String id = userId();
-        try {
-            return userService.findById(id);
-        } catch (NoSuchElementException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    "El usuario con ID " + id + " no se encontró en el sistema");
-        }
+        return findOrThrow(() -> userService.findById(id), id);
     }
 
     @GetMapping("/users")
     @PreAuthorize("hasRole('USER')")
     public User getUserByUsernameOrEmail(@RequestParam String username, @RequestParam String email) {
-        try {
-            return userService.findByUsernameOrEmail(username, email);
-        } catch (NoSuchElementException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    "El usuario " + (username!=null ? username : email) + " no se encontró en el sistema");
-        }
+        return findOrThrow(
+                () -> userService.findByUsernameOrEmail(username, email),
+                (username != null ? username : email)
+        );
     }
 
     @PutMapping("/users")
     @PreAuthorize("hasRole('USER')")
-    public JwtResponse updateUser(@RequestBody SignUpRequest user) {
+    public JwtResponse updateUser(@RequestBody UserRequest request) {
         userService.updateUser(
                 userId(),
-                user.getUsername(),
-                user.getEmail(),
-                passwordEncoder.encode(user.getPassword())
+                request.getUsername(),
+                request.getEmail(),
+                passwordEncoder.encode(request.getPassword())
         );
-        return authenticateUser(user.getUsername(), user.getPassword());
+        return authenticateUser(request.getUsername(), request.getPassword());
     }
 
     @DeleteMapping("/users")
@@ -131,6 +104,37 @@ public class UserController {
         String id = userId();
         userService.deleteById(id);
         orderService.deleteByUserId(id);
+        // TODO borrar items por pedido borrado
+    }
+
+    public record JwtResponse(String token) {
+    }
+
+    private JwtResponse authenticateUser(String username, String password) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(username, password));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        return new JwtResponse(jwtUtils.generateJwtToken(userDetails.username()));
+    }
+
+    private String userId() {
+        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder
+                .getContext().getAuthentication().getPrincipal();
+        return userDetails.id();
+    }
+
+    private interface Finder<T> {
+        T find();
+    }
+
+    private User findOrThrow(Finder<User> finder, String queryParam) {
+        try {
+            return finder.find();
+        } catch (NoSuchElementException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "El usuario " + queryParam + " no se encontró en el sistema");
+        }
     }
 
 }

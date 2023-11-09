@@ -29,95 +29,75 @@ public class OrderController {
 
     @Autowired
     private OrderService orderService;
-
     @Autowired
     private ItemService itemService;
-
     @Autowired
     private UserService userService;
 
-
-    private String userId() {
-        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder
-                .getContext().getAuthentication().getPrincipal();
-        return userDetails.getId();
-    }
-
-    private interface Finder<T> {
-        T findBy(String id);
-    }
-
-    private <T> T getById(Finder<T> finder, String id) {
-        try {
-            return finder.findBy(id);
-        } catch (NoSuchElementException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    "El pedido con ID " + id + " no se encontró en el sistema", e);
-        }
-    }
-
     @GetMapping
     public List<Order> getOrders() {
-        Finder<List<Order>> finder = (userId) -> orderService.findByUserId(userId);
-        return getById(finder, userId());
+        return findOrThrow(orderService::findByUserId, userId());
     }
 
     @GetMapping("/{id}")
     public Order getOrder(@PathVariable String id) {
-        Finder<Order> finder = (orderId) -> orderService.findById(orderId);
-        return getById(finder, id);
+        return findOrThrow(orderService::findById, id);
     }
 
     @GetMapping("/{id}/users")
     public Set<User> getUsers(@PathVariable String id) {
-        Finder<Set<User>> finder = (orderId) -> orderService.findUsersById(orderId);
-        return getById(finder, id);
+        return findOrThrow(orderService::findUsersById, id);
     }
 
     @GetMapping("/{id}/items")
     public List<Item> getItems(@PathVariable String id) {
-        Finder<List<Item>> finder = (orderId) -> itemService.findByOrderId(orderId);
-        return getById(finder, id);
+        return findOrThrow(itemService::findByOrderId, id);
     }
 
     @PostMapping
     public ResponseEntity<Order> createOrder() {
-        String userId = userId();
-        try {
-            Order newOrder = new Order();
+        User user = findOrThrow(userService::findById, userId());
 
-            newOrder.setUser(userService.findById(userId));
-            orderService.save(newOrder);
+        Order newOrder = new Order();
+        newOrder.setUser(user);
+        orderService.save(newOrder);
 
-            URI location = ServletUriComponentsBuilder.fromCurrentRequest()
-                    .replacePath("/{id}")
-                    .buildAndExpand(newOrder.getId())
-                    .toUri();
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .replacePath("/{id}")
+                .buildAndExpand(newOrder.getId())
+                .toUri();
 
-            return ResponseEntity.created(location).body(newOrder);
-
-        } catch (NoSuchElementException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    "El usuario con ID " + userId + " no se encontró en el sistema", e);
-        }
+        return ResponseEntity.created(location).body(newOrder);
     }
 
     @PostMapping("/{id}/items")
     public Item createItem(@PathVariable String id) {
         Item item = new Item();
-        item.setOrder(orderService.findById(id));
+        Order order = findOrThrow(orderService::findById, id);
+        item.setOrder(order);
         return itemService.save(item);
     }
 
     @PatchMapping("/{id}")
     public void modifyOrder(@PathVariable String id, @RequestBody OrderPatchRequest request) {
-        try {
-            orderService.modify(id, request, userId());
-        } catch (NoSuchElementException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        Order order = findOrThrow(orderService::findById, id);
+
+        if (request.description()) {
+            order.setDescription(request.getDescription());
         }
+
+        if (request.closed()) {
+            if (order.isOwner(userId()))
+                order.setClosed(request.isClosed());
+            else throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "User is not the owner");
+        }
+
+        if (request.user()) {
+            order.addUser(request.getUser());
+        }
+
+        orderService.update(order);
     }
 
     @DeleteMapping("/{id}")
@@ -125,6 +105,25 @@ public class OrderController {
     public void deleteOrder(@PathVariable String id) {
         orderService.deleteById(id);
         itemService.deleteByOrderId(id);
+    }
+
+    private String userId() {
+        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder
+                .getContext().getAuthentication().getPrincipal();
+        return userDetails.id();
+    }
+
+    private interface Finder<T> {
+        T findBy(String id);
+    }
+
+    private <T> T findOrThrow(Finder<T> finder, String id) {
+        try {
+            return finder.findBy(id);
+        } catch (NoSuchElementException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "El recurso con ID " + id + " no se encontró en el sistema");
+        }
     }
 
 }

@@ -42,11 +42,18 @@ export default function OrderList() {
                 'Authorization': 'Bearer ' + token
             }
         })
-            .then(response => response.json())
+            .then(response => {
+                if (response.status === 401)
+                    throw new Error(response.statusText);
+                return response.json();
+            })
             .then(data => {
                 setOrders(data);
             })
-            .catch(console.log);
+            .catch(e => {
+                console.log(e);
+                alert("Autenticación incorrecta.");
+            });
     }, [token]);
 
     function remove(id) {

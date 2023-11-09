@@ -9,6 +9,8 @@ export default function SignUp() {
     const [invalid, setInvalid] = useState(false);
     const navigate = useNavigate();
 
+    localStorage.removeItem('token');
+
     function handleSubmit(e) {
         e.preventDefault();
 
