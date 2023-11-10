@@ -7,7 +7,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.stereotype.Component;
 
 @Component
-@Document(collection = "items")
+@Document
 public class Item {
 
     public Item() {
@@ -17,11 +17,12 @@ public class Item {
 
     @Id
     private String id;
+    private String description;
+    private int quantity;
+    private String unit;
     @DBRef
     @JsonIgnore
     private Order order;
-    private String description;
-    private int quantity;
 
     public String getId() {
         return id;
@@ -33,6 +34,10 @@ public class Item {
 
     public int getQuantity() {
         return quantity;
+    }
+
+    public String getUnit() {
+        return unit;
     }
 
     public void setOrder(Order order) {
@@ -47,4 +52,7 @@ public class Item {
         this.quantity = quantity;
     }
 
+    public void setUnit(String unit) {
+        this.unit = unit;
+    }
 }

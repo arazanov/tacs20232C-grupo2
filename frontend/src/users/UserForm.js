@@ -11,17 +11,17 @@ export function UserForm({ handleSubmit, user, setUsername, setEmail, setPasswor
             <Form onSubmit={handleSubmit}>
                 <FormGroup>
                     <Label for="username">Nombre de usuario</Label>
-                    <Input type="text" id="username" defaultValue={user.username} autoComplete="on"
+                    <Input type="text" id="username" defaultValue={user.username} autoComplete="off"
                            onChange={e => setUsername(e.target.value)}/>
                 </FormGroup>
                 <FormGroup>
                     <Label for="email">Email</Label>
-                    <Input type="email" id="email" defaultValue={user.email} autoComplete="on"
+                    <Input type="email" id="email" defaultValue={user.email} autoComplete="off"
                            onChange={e => setEmail(e.target.value)}/>
                 </FormGroup>
                 <FormGroup>
                     <Label for="password">Contraseña</Label>
-                    <Input type="password" id="password" defaultValue={user.password} autoComplete="on"
+                    <Input type="password" id="password" defaultValue={user.password} autoComplete="off"
                            onChange={e => setPassword(e.target.value)}
                            invalid={invalid}/>
                     <FormFeedback valid={!invalid}>Este campo es obligatorio</FormFeedback>

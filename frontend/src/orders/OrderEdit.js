@@ -85,6 +85,7 @@ export default function OrderEdit() {
                 <FormGroup>
                     <Label for="description">Descripción</Label>
                     <Input type="text" id="description" defaultValue={order.description}
+                           autoComplete={"off"}
                            onChange={e => {
                                setSuccess(false);
                                setOrder({...order, description: e.target.value});

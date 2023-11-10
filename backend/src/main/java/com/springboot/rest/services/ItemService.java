@@ -29,6 +29,7 @@ public class ItemService {
         Item update = findById(id);
         update.setDescription(item.getDescription());
         update.setQuantity(item.getQuantity());
+        update.setUnit(item.getUnit());
         itemRepository.deleteById(id);
         itemRepository.save(update);
     }

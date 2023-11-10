@@ -15,14 +15,9 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public User findById(String id) {
-        return userRepository.findById(id).orElseThrow();
-    }
-
     public User findByUsernameOrEmail(String username, String email) {
-        return userRepository.findByUsername(username).orElseGet(() ->
-                userRepository.findByEmail(email).orElseThrow()
-        );
+        return userRepository.findByUsername(username)
+                .or(() -> userRepository.findByEmail(email)).orElseThrow();
     }
 
     public long userCount() {
@@ -37,7 +32,7 @@ public class UserService {
     }
 
     public void updateUser(String id, String username, String email, String password) {
-        User update = findById(id);
+        User update = userRepository.findById(id).orElseThrow();
         update.setUsername(username);
         update.setEmail(email);
         if (password != null) update.setPassword(password);

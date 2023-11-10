@@ -52,7 +52,9 @@ function UserFound({ found, user, orderId, token, success, setSuccess }) {
                 </Button>
             </CardBody>
         </Card>
-        <SuccessMessage success={success}></SuccessMessage>
+        <div style={{ paddingTop: 30 }}>
+            <SuccessMessage success={success}></SuccessMessage>
+        </div>
     </Container>;
 
 }

@@ -5,12 +5,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
-import org.springframework.context.ApplicationContext;
+import org.springframework.data.mongodb.config.EnableMongoAuditing;
 
 @SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
+@EnableMongoAuditing(auditorAwareRef = "auditorAware")
 public class SpringBootRestApplication extends SpringBootServletInitializer {
-
-    private static ApplicationContext applicationContext;
 
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
@@ -18,15 +17,7 @@ public class SpringBootRestApplication extends SpringBootServletInitializer {
     }
 
     public static void main(String[] args) {
-        applicationContext = SpringApplication.run(SpringBootRestApplication.class, args);
-        //checkBeansPresence("userRepository", "passwordEncoder");
+        SpringApplication.run(SpringBootRestApplication.class, args);
     }
 
-    // test para ver que las annotations (@) estén bien
-    private static void checkBeansPresence(String... beans) {
-        for (String beanName : beans) {
-            System.out.println("Is " + beanName + " in ApplicationContext: " +
-                    applicationContext.containsBean(beanName));
-        }
-    }
 }

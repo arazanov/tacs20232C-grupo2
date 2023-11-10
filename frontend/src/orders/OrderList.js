@@ -53,8 +53,9 @@ export default function OrderList() {
             .catch(e => {
                 console.log(e);
                 alert("Autenticación incorrecta.");
+                navigate("/");
             });
-    }, [token]);
+    }, [token, navigate]);
 
     function remove(id) {
         fetch("/orders/" + id, {

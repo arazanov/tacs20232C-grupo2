@@ -7,8 +7,10 @@ import {useNavigate} from "react-router-dom";
 export default function ItemEdit() {
     const { id } = useParams();
     const [item, setItem] = useState({
+        id: '',
         description: '',
-        quantity: null
+        quantity: null,
+        unit: ''
     });
     const navigate = useNavigate();
 
@@ -64,6 +66,15 @@ export default function ItemEdit() {
                         <Input type="number" id="quantity" defaultValue={item.quantity}
                                onChange={e => setItem({
                                    ...item, quantity: e.target.value
+                               })}/>
+                    </Col>
+                </FormGroup>
+                <FormGroup row>
+                    <Label for="unit" sm={2}>Unidad</Label>
+                    <Col sm={10}>
+                        <Input type="text" id="unit" defaultValue={item.unit} autoComplete={"off"}
+                               onChange={e => setItem({
+                                   ...item, unit: e.target.value
                                })}/>
                     </Col>
                 </FormGroup>

@@ -1,9 +1,8 @@
 package com.springboot.rest.controllers;
 
 import com.springboot.rest.model.User;
-import com.springboot.rest.payload.UserRequest;
 import com.springboot.rest.security.jwt.JwtUtils;
-import com.springboot.rest.security.services.UserDetailsImpl;
+import com.springboot.rest.security.services.CustomUserDetails;
 import com.springboot.rest.services.OrderService;
 import com.springboot.rest.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -39,24 +39,21 @@ public class UserController {
 
     @PostMapping("/")
     public JwtResponse userLogin(@RequestBody UserRequest request) {
-        return authenticateUser(
-                request.getUsername(),
-                request.getPassword()
-        );
+        return authenticateUser(request.username(), request.password());
     }
 
     @PostMapping("/users")
     public ResponseEntity<JwtResponse> userSignUp(@RequestBody UserRequest request) {
-        if (userService.exists(request.getUsername(), request.getEmail())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, //409
+        if (userService.exists(request.username(), request.email())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
                     "User already exists");
         }
 
-        User user = userService.save(new User(
-                request.getUsername(),
-                request.getEmail(),
-                passwordEncoder.encode(request.getPassword()))
-        );
+        User user = new User();
+        user.setUsername(request.username());
+        user.setEmail(request.email());
+        user.setPassword(passwordEncoder.encode((request.password())));
+        user = userService.save(user);
 
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
@@ -64,16 +61,15 @@ public class UserController {
                 .toUri();
 
         return ResponseEntity.created(location).body(authenticateUser(
-                request.getUsername(),
-                request.getPassword()
+                request.username(),
+                request.password()
         ));
     }
 
     @GetMapping("/user")
     @PreAuthorize("hasRole('USER')")
-    public User getUserById() {
-        String id = userId();
-        return findOrThrow(() -> userService.findById(id), id);
+    public User getCurrentUser(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        return userDetails.getUser();
     }
 
     @GetMapping("/users")
@@ -87,21 +83,23 @@ public class UserController {
 
     @PutMapping("/users")
     @PreAuthorize("hasRole('USER')")
-    public JwtResponse updateUser(@RequestBody UserRequest request) {
+    public JwtResponse updateUser(@RequestBody UserRequest request,
+                                  @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
         userService.updateUser(
-                userId(),
-                request.getUsername(),
-                request.getEmail(),
-                passwordEncoder.encode(request.getPassword())
+                userDetails.id(),
+                request.username(),
+                request.email(),
+                passwordEncoder.encode(request.password())
         );
-        return authenticateUser(request.getUsername(), request.getPassword());
+        return authenticateUser(request.username(), request.password());
     }
 
     @DeleteMapping("/users")
     @PreAuthorize("hasRole('USER')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteUser() {
-        String id = userId();
+    public void deleteUser(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        String id = userDetails.id();
         userService.deleteById(id);
         orderService.deleteByUserId(id);
         // TODO borrar items por pedido borrado
@@ -110,18 +108,15 @@ public class UserController {
     public record JwtResponse(String token) {
     }
 
+    public record UserRequest(String username, String email, String password) {
+    }
+
     private JwtResponse authenticateUser(String username, String password) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(username, password));
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        return new JwtResponse(jwtUtils.generateJwtToken(userDetails.username()));
-    }
-
-    private String userId() {
-        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder
-                .getContext().getAuthentication().getPrincipal();
-        return userDetails.id();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        return new JwtResponse(jwtUtils.generateJwtToken(userDetails.getUsername()));
     }
 
     private interface Finder<T> {

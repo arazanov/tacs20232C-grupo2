@@ -1,6 +1,5 @@
 package com.springboot.rest.controllers;
 
-import com.springboot.rest.payload.MonitorResponse;
 import com.springboot.rest.services.OrderService;
 import com.springboot.rest.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +22,9 @@ public class MonitorController {
                 userService.userCount(),
                 orderService.orderCount()
         );
+    }
+
+    public record MonitorResponse(long userCount, long orderCount) {
     }
 
 }

@@ -21,7 +21,8 @@ export function ItemList({ items, orderId, setItems }) {
         <thead>
         <tr>
             <th width="30%">Ítem</th>
-            <th width="30%">Cantidad</th>
+            <th width="15%">Cantidad</th>
+            <th width="15%">Unidad</th>
             <th width="40%">Acciones</th>
         </tr>
         </thead>
@@ -31,6 +32,7 @@ export function ItemList({ items, orderId, setItems }) {
                 return <tr key={item.id}>
                     <td style={{whiteSpace: 'nowrap'}}>{item.description}</td>
                     <td>{item.quantity}</td>
+                    <td>{item.unit}</td>
                     <td>
                         <ButtonGroup>
                             <Button size="sm" color="primary"

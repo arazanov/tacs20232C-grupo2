@@ -3,16 +3,14 @@ package com.springboot.rest.controllers;
 import com.springboot.rest.model.Item;
 import com.springboot.rest.model.Order;
 import com.springboot.rest.model.User;
-import com.springboot.rest.payload.OrderPatchRequest;
-import com.springboot.rest.security.services.UserDetailsImpl;
+import com.springboot.rest.security.services.CustomUserDetails;
 import com.springboot.rest.services.ItemService;
 import com.springboot.rest.services.OrderService;
-import com.springboot.rest.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -31,12 +29,10 @@ public class OrderController {
     private OrderService orderService;
     @Autowired
     private ItemService itemService;
-    @Autowired
-    private UserService userService;
 
     @GetMapping
-    public List<Order> getOrders() {
-        return findOrThrow(orderService::findByUserId, userId());
+    public List<Order> getOrders(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        return findOrThrow(orderService::findByUserId, userDetails.id());
     }
 
     @GetMapping("/{id}")
@@ -56,11 +52,7 @@ public class OrderController {
 
     @PostMapping
     public ResponseEntity<Order> createOrder() {
-        User user = findOrThrow(userService::findById, userId());
-
-        Order newOrder = new Order();
-        newOrder.setUser(user);
-        orderService.save(newOrder);
+        Order newOrder = orderService.save(new Order());
 
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .replacePath("/{id}")
@@ -79,22 +71,24 @@ public class OrderController {
     }
 
     @PatchMapping("/{id}")
-    public void modifyOrder(@PathVariable String id, @RequestBody OrderPatchRequest request) {
+    public void modifyOrder(@PathVariable String id, @RequestBody OrderPatchRequest request,
+                            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
         Order order = findOrThrow(orderService::findById, id);
 
-        if (request.description()) {
-            order.setDescription(request.getDescription());
+        if (request.description() != null) {
+            order.setDescription(request.description());
         }
 
-        if (request.closed()) {
-            if (order.isOwner(userId()))
-                order.setClosed(request.isClosed());
+        if (request.closed() != null) {
+            if (order.isOwner(userDetails.id()))
+                order.setClosed(request.closed());
             else throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST, "User is not the owner");
         }
 
-        if (request.user()) {
-            order.addUser(request.getUser());
+        if (request.user() != null) {
+            order.addUser(request.user());
         }
 
         orderService.update(order);
@@ -107,10 +101,7 @@ public class OrderController {
         itemService.deleteByOrderId(id);
     }
 
-    private String userId() {
-        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder
-                .getContext().getAuthentication().getPrincipal();
-        return userDetails.id();
+    public record OrderPatchRequest(String description, Boolean closed, User user) {
     }
 
     private interface Finder<T> {

@@ -1,11 +1,13 @@
 package com.springboot.rest.security;
 
+import com.springboot.rest.model.User;
 import com.springboot.rest.security.jwt.AuthEntryPointJwt;
 import com.springboot.rest.security.jwt.AuthTokenFilter;
-import com.springboot.rest.security.services.UserDetailsServiceImpl;
+import com.springboot.rest.security.services.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -25,10 +27,15 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 public class WebSecurityConfig {
 
     @Autowired
-    private UserDetailsServiceImpl userDetailsService;
+    private CustomUserDetailsService userDetailsService;
 
     @Autowired
     private AuthEntryPointJwt unauthorizedHandler;
+
+    @Bean
+    public AuditorAware<User> auditorAware(){
+        return new SpringSecurityAuditorAware();
+    }
 
     @Bean
     public AuthTokenFilter authenticationJwtTokenFilter() {
