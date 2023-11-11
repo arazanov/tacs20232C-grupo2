@@ -27,9 +27,14 @@ public class ItemService {
 
     public void update(String id, Item item) {
         Item update = findById(id);
+        if (!item.isUpToDate(update.getVersion()))
+            throw new RuntimeException("Item is not up to date");
+
+        update.incrementVersion();
         update.setDescription(item.getDescription());
         update.setQuantity(item.getQuantity());
         update.setUnit(item.getUnit());
+
         itemRepository.deleteById(id);
         itemRepository.save(update);
     }

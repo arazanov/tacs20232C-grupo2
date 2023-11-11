@@ -71,27 +71,29 @@ public class OrderController {
     }
 
     @PatchMapping("/{id}")
-    public void modifyOrder(@PathVariable String id, @RequestBody OrderPatchRequest request,
+    public void modifyOrder(@PathVariable String id, @RequestBody OrderRequest request,
                             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         Order order = findOrThrow(orderService::findById, id);
 
         if (request.description() != null) {
-            order.setDescription(request.description());
+            if (!order.isUpToDate(request.version))
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Order not up to date");
+            order.incrementVersion();
+            orderService.changeDescription(order, request.description());
         }
 
         if (request.closed() != null) {
-            if (order.isOwner(userDetails.id()))
-                order.setClosed(request.closed());
-            else throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "User is not the owner");
+            if (order.isOwner(userDetails.id())) {
+                orderService.changeStatus(order, request.closed());
+            } else {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User is not the owner");
+            }
         }
 
         if (request.user() != null) {
-            order.addUser(request.user());
+            orderService.shareOrder(order, request.user());
         }
-
-        orderService.update(order);
     }
 
     @DeleteMapping("/{id}")
@@ -101,7 +103,7 @@ public class OrderController {
         itemService.deleteByOrderId(id);
     }
 
-    public record OrderPatchRequest(String description, Boolean closed, User user) {
+    public record OrderRequest(int version, String description, Boolean closed, User user) {
     }
 
     private interface Finder<T> {

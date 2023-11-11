@@ -37,9 +37,26 @@ public class OrderService {
         return orderRepository.count();
     }
 
-    public void update(Order order) {
+    private interface Updater {
+        void apply(Order order);
+    }
+
+    private void update(Order order, Updater updater) {
+        updater.apply(order);
         orderRepository.deleteById(order.getId());
         orderRepository.save(order);
+    }
+
+    public void changeDescription(Order order, String description) {
+        update(order, o -> o.setDescription(description));
+    }
+
+    public void changeStatus(Order order, Boolean status) {
+        update(order, o -> o.setClosed(status));
+    }
+
+    public void shareOrder(Order order, User user) {
+        update(order, o -> o.addUser(user));
     }
 
     public void deleteById(String id) {

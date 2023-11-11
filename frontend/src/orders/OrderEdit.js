@@ -11,6 +11,7 @@ export default function OrderEdit() {
     const { id } = useParams();
     const [order, setOrder] = useState({
         id: '',
+        version: null,
         description: '',
         closed: false
     });
@@ -52,14 +53,20 @@ export default function OrderEdit() {
                 'Authorization': 'Bearer ' + token
             },
             body: JSON.stringify({
+                version: order.version,
                 description: order.description
             })
         })
             .then(response => {
-                if (!response.ok) throw new Error(response.statusText);
+                if (response.status === 409)
+                    throw new Error(response.statusText);
             })
             .then(() => setSuccess(true))
-            .catch(console.log);
+            .catch(e => {
+                console.log(e);
+                alert("Pedido desactualizado, recargar página.");
+                window.location.reload();
+            });
     }
 
     function createItem() {

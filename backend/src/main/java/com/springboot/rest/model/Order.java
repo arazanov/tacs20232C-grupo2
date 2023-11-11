@@ -15,6 +15,7 @@ import java.util.Set;
 public class Order {
 
     public Order() {
+        this.version = 0;
         this.description = "Agregar descripción";
         this.closed = false;
         this.users = new HashSet<>();
@@ -22,6 +23,7 @@ public class Order {
 
     @Id
     private String id;
+    private int version;
     private String description;
     private boolean closed;
 
@@ -42,6 +44,22 @@ public class Order {
     @Transient
     private boolean owned;
 
+    public void addUser(User user) {
+        users.add(user);
+    }
+
+    public int getVersion() {
+        return version;
+    }
+
+    public boolean isUpToDate(int version) {
+        return this.version == version;
+    }
+
+    public void incrementVersion() {
+        version += 1;
+    }
+
     public boolean isOwner(String userId) {
         return userId.equals(user.getId());
     }
@@ -50,16 +68,8 @@ public class Order {
         return owned;
     }
 
-    public void setOwned(String userId) {
-        this.owned = this.user.getId().equals(userId);
-    }
-
     public Set<User> getUsers() {
         return users;
-    }
-
-    public void addUser(User user) {
-        users.add(user);
     }
 
     public String getId() {
@@ -72,6 +82,10 @@ public class Order {
 
     public boolean isClosed() {
         return closed;
+    }
+
+    public void setOwned(String userId) {
+        this.owned = this.user.getId().equals(userId);
     }
 
     public void setDescription(String description) {

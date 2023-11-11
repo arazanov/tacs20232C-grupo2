@@ -3,8 +3,10 @@ package com.springboot.rest.controllers;
 import com.springboot.rest.model.Item;
 import com.springboot.rest.services.ItemService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/items/{id}")
@@ -21,7 +23,11 @@ public class ItemController {
 
     @PutMapping
     public void updateItem(@PathVariable String id, @RequestBody Item item) {
-        itemService.update(id, item);
+        try {
+            itemService.update(id, item);
+        } catch (RuntimeException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
+        }
     }
 
     @DeleteMapping

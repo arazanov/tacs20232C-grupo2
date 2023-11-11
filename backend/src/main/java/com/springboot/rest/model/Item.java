@@ -11,21 +11,36 @@ import org.springframework.stereotype.Component;
 public class Item {
 
     public Item() {
+        this.version = 0;
         this.description = "Agregar descripción";
         this.quantity = 0;
     }
 
     @Id
     private String id;
+    private int version;
     private String description;
     private int quantity;
     private String unit;
+
     @DBRef
     @JsonIgnore
     private Order order;
 
     public String getId() {
         return id;
+    }
+
+    public int getVersion() {
+        return version;
+    }
+
+    public boolean isUpToDate(int version) {
+        return this.version == version;
+    }
+
+    public void incrementVersion() {
+        version += 1;
     }
 
     public String getDescription() {
@@ -40,10 +55,6 @@ public class Item {
         return unit;
     }
 
-    public void setOrder(Order order) {
-        this.order = order;
-    }
-
     public void setDescription(String description) {
         this.description = description;
     }
@@ -55,4 +66,9 @@ public class Item {
     public void setUnit(String unit) {
         this.unit = unit;
     }
+
+    public void setOrder(Order order) {
+        this.order = order;
+    }
+
 }

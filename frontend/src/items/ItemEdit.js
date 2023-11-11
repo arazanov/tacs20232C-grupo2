@@ -8,6 +8,7 @@ export default function ItemEdit() {
     const { id } = useParams();
     const [item, setItem] = useState({
         id: '',
+        version: null,
         description: '',
         quantity: null,
         unit: ''
@@ -42,7 +43,12 @@ export default function ItemEdit() {
             },
             body: JSON.stringify(item)
         }).then(response => {
-            if (response.ok) navigate(-1);
+            if (!response.ok) throw new Error(response.statusText);
+            navigate(-1);
+        }).catch(e => {
+            console.log(e);
+            alert("Ítem desactualizado, recargar página.");
+            window.location.reload();
         })
     }
 
