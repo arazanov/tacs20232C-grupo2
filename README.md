@@ -55,9 +55,9 @@ o compartir el pedido.
 
 ```json
 {
-  "description": string,
-  "closed": boolean,
-  "user": User
+  "description": "string",
+  "closed": false,
+  "user": {}
 }
 ```
 
@@ -98,9 +98,9 @@ para requests simultáneas.
 
 ```json
 {
-  "description": string,
-  "quantity": int,
-  "unit": string
+  "description": "string",
+  "quantity": 1,
+  "unit": "string"
 }
 ```
 
@@ -132,8 +132,8 @@ usuario como el mail que se usó al momento de registrarse.
 
 ```json
 {
-  "username": string,
-  "password": string
+  "username": "string",
+  "password": "string"
 }
 ```
 
@@ -157,9 +157,9 @@ PUT /users
 
 ```json
 {
-  "username": string,
-  "email": string,
-  "password": string
+  "username": "string",
+  "email": "string",
+  "password": "string"
 }
 ```
 
