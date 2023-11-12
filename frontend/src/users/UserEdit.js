@@ -1,14 +1,27 @@
-import React, {useEffect, useState} from 'react';
-import {useNavigate} from 'react-router-dom';
+import {useEffect, useState} from "react";
 import {UserForm} from "./UserForm";
+import {useNavigate} from "react-router-dom";
 
 export default function UserEdit() {
-    const [username, setUsername] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const navigate = useNavigate();
     let token = localStorage.getItem('token');
-    const [invalid, setInvalid] = useState(false);
+    const navigate = useNavigate();
+    const [user, setUser] = useState({
+        username: '',
+        email: '',
+        password: ''
+    });
+
+    const request = () => {
+        return {
+            method: 'PUT',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify(user)
+        };
+    };
 
     useEffect(() => {
         fetch("/user", {
@@ -19,53 +32,18 @@ export default function UserEdit() {
                 'Authorization': 'Bearer ' + token
             }
         })
-            .then(response => response.json())
-            .then(data => {
-                setUsername(data.username);
-                setEmail(data.email);
-            });
-    }, [token]);
-
-    function handleSubmit(e) {
-        e.preventDefault();
-
-        if (password === '') {
-            setInvalid(true);
-            return;
-        }
-
-        fetch('/users', {
-            method: 'PUT',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + token
-            },
-            body: JSON.stringify({
-                username: username,
-                email: email,
-                password: password
+            .then(response => {
+                if(response.status === 401) throw new Error("No autorizado");
+                return response.json();
             })
-        }).then(response => {
-            if(!response.ok) throw new Error(response.statusText);
-            return response.json()
-        }).then(data => {
-            localStorage.setItem('token', data.token);
-            navigate(-1);
-        }).catch(console.log);
-    }
+            .then(setUser)
+            .catch(e => {
+                alert(e);
+                navigate("/");
+            });
+    }, [token, navigate]);
 
-    return <UserForm
-        handleSubmit={handleSubmit}
-        user={{
-            username: username,
-            email: email,
-            password: password
-        }}
-        setUsername={setUsername}
-        setEmail={setEmail}
-        setPassword={setPassword}
-        title={"Mi perfil"}
-        invalid={invalid}
-    />;
+    return <UserForm request={request} nav={-1} enableDelete={true} title={'Editar perfil'}
+                     user={user} setUser={setUser}/>;
+
 }

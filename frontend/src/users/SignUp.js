@@ -1,59 +1,25 @@
-import {useState} from "react";
-import {useNavigate} from "react-router-dom";
 import {UserForm} from "./UserForm";
+import {useState} from "react";
 
 export default function SignUp() {
-    const [username, setUsername] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [invalid, setInvalid] = useState(false);
-    const navigate = useNavigate();
+    const [user, setUser] = useState({
+        username: '',
+        email: '',
+        password: ''
+    });
 
-    localStorage.removeItem('token');
-
-    function handleSubmit(e) {
-        e.preventDefault();
-
-        if (password === '') {
-            setInvalid(true);
-            return;
-        }
-
-        fetch('/users', {
+    const request = () => {
+        return {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                username: username,
-                email: email,
-                password: password
-            }),
-        })
-            .then(response => {
-                if (!response.ok) throw new Error(response.statusText);
-                return response.json();
-            })
-            .then(data => {
-                localStorage.setItem('token', data.token);
-                navigate("/orders");
-            })
-            .catch(console.log);
-    }
+            body: JSON.stringify(user)
+        };
+    };
 
-    return <UserForm
-        handleSubmit={handleSubmit}
-        user={{
-            username: username,
-            email: email,
-            password: password
-        }}
-        setUsername={setUsername}
-        setEmail={setEmail}
-        setPassword={setPassword}
-        title={"Crear usuario"}
-        invalid={invalid}
-    />
+    return <UserForm request={request} enableDelete={false} nav={'/orders'} title={'Registrarse'}
+                     user={user} setUser={setUser}/>;
 
 }

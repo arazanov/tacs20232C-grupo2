@@ -44,12 +44,10 @@ export default function OrderList() {
         })
             .then(response => {
                 if (response.status === 401)
-                    throw new Error(response.statusText);
+                    throw new Error("Unauthorized user");
                 return response.json();
             })
-            .then(data => {
-                setOrders(data);
-            })
+            .then(setOrders)
             .catch(e => {
                 console.log(e);
                 alert("Autenticación incorrecta.");

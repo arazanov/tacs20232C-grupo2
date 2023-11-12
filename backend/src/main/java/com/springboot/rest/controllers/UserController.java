@@ -44,10 +44,7 @@ public class UserController {
 
     @PostMapping("/users")
     public ResponseEntity<JwtResponse> userSignUp(@RequestBody UserRequest request) {
-        if (userService.exists(request.username(), request.email())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,
-                    "User already exists");
-        }
+        exists(request);
 
         User user = new User();
         user.setUsername(request.username());
@@ -74,10 +71,10 @@ public class UserController {
 
     @GetMapping("/users")
     @PreAuthorize("hasRole('USER')")
-    public User getUserByUsernameOrEmail(@RequestParam String username, @RequestParam String email) {
+    public User getUserByUsernameOrEmail(@RequestParam String username) {
         return findOrThrow(
-                () -> userService.findByUsernameOrEmail(username, email),
-                (username != null ? username : email)
+                () -> userService.findByUsernameOrEmail(username),
+                username
         );
     }
 
@@ -86,12 +83,15 @@ public class UserController {
     public JwtResponse updateUser(@RequestBody UserRequest request,
                                   @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
+        exists(request);
+
         userService.updateUser(
                 userDetails.id(),
                 request.username(),
                 request.email(),
                 passwordEncoder.encode(request.password())
         );
+
         return authenticateUser(request.username(), request.password());
     }
 
@@ -117,6 +117,13 @@ public class UserController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         return new JwtResponse(jwtUtils.generateJwtToken(userDetails.getUsername()));
+    }
+
+    private void exists(UserRequest request) {
+        if (userService.exists(request.username(), request.email())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "User already exists");
+        }
     }
 
     private interface Finder<T> {

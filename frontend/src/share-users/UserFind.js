@@ -10,14 +10,15 @@ import {
     CardText,
     CardTitle,
     Container,
-    Form,
+    Form, FormFeedback,
     FormGroup,
     Input,
     Label
 } from "reactstrap";
 import {SuccessMessage} from "../orders/SuccessMessage";
 
-function UserFound({ found, user, orderId, token, success, setSuccess }) {
+function UserFound({ found, user, orderId, token }) {
+    const [success, setSuccess] = useState(false);
 
     function share() {
         fetch("/orders/" + orderId, {
@@ -59,10 +60,6 @@ function UserFound({ found, user, orderId, token, success, setSuccess }) {
 
 }
 
-function UserNotFound({ failure }) {
-    if (failure) return <p style={{color: "red"}}> No se encontró al usuario </p>
-}
-
 export default function UserFind() {
     const [user, setUser] = useState({
         id: '',
@@ -72,13 +69,12 @@ export default function UserFind() {
     const navigate = useNavigate();
     const { id } = useParams();
     const [found, setFound] = useState(false);
-    const [success, setSuccess] = useState(false);
     const [failure, setFailure] = useState(false);
     let token = localStorage.getItem('token');
 
     function handleSubmit(e) {
         e.preventDefault();
-        fetch("/users?username="+user.username+"&email="+user.email, {
+        fetch("/users?username="+user.username, {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
@@ -97,6 +93,12 @@ export default function UserFind() {
         });
     }
 
+    function handleChange(e) {
+        setUser({...user, username: e.target.value});
+        setFound(false);
+        setFailure(false);
+    }
+
     return <div>
         <AppNavbar/>
         <Container>
@@ -105,28 +107,17 @@ export default function UserFind() {
                 <FormGroup>
                     <Label for="username">Nombre de usuario</Label>
                     <Input type="text" id="username" defaultValue={user.username} autoComplete="username"
-                           onChange={e => {
-                               setUser({...user, username: e.target.value});
-                               setFound(false);
-                               setSuccess(false);
-                           }}/>
+                           onChange={handleChange} invalid={failure}/>
+                    <FormFeedback valid={!failure}>No se encontró al usuario</FormFeedback>
                 </FormGroup>
-                <FormGroup>
-                    <Label for="email">Email</Label>
-                    <Input type="email" id="email" defaultValue={user.email} autoComplete="email"
-                           onChange={e => {
-                               setUser({...user, email: e.target.value});
-                               setFound(false);
-                               setSuccess(false);
-                           }}/>
-                </FormGroup>
-                <UserNotFound failure={ failure }></UserNotFound>
                 <FormGroup style={{paddingTop: 50}}>
                     <Button color="primary" type="submit">Buscar</Button>{' '}
-                    <Button color="secondary" onClick={() => navigate(-1)}>Volver</Button>
+                    <Button color="secondary" onClick={() => navigate("/orders/" + id)}>
+                        Volver
+                    </Button>
                 </FormGroup>
             </Form>
         </Container>
-        <UserFound found={found} user={user} orderId={id} token={token} success={success} setSuccess={setSuccess}/>
+        <UserFound found={found} user={user} orderId={id} token={token}/>
     </div>;
 }

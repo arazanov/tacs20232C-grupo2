@@ -17,6 +17,7 @@ public class User {
     private String id;
     @Indexed(unique = true)
     private String username;
+    @Indexed(unique = true)
     private String email;
     @JsonIgnore
     private String password;
