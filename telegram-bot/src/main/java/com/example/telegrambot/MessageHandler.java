@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.HashMap;
 public class MessageHandler {
     private final HashMap<Long,Long> userSessions = new HashMap<>();
+    private final HashMap<Long,String> userTokens = new HashMap<>();
     private final HashMap<Long,UserState> userState = new HashMap<>();
     private final HashMap<Long,HashMap<String,String>> cacheData = new HashMap<>();
 
@@ -21,26 +22,22 @@ public class MessageHandler {
 
         System.out.println("Processing command " + command[0]);
 
-        if(command[0].equals("/login")){
-            System.out.println("Login command found.");
-            userState.put(chatId,UserState.WAITING_ID);
-            return "Por favor introduzca su ID:";
+
+
+        switch (command[0]){
+            case "/signUp": return signUp(chatId);
+            case "/login": return login(chatId);
+
         }
-        if(userState.get(chatId)==UserState.WAITING_ID) {
-            JsonNode user = new UserApi().getUserById(message);
-            if(user==null){
-                System.out.println("Couldnt find user.");
-                userState.remove(chatId);
-                userSessions.remove(chatId);
-                cacheData.remove(chatId);
-                return "No se pudo realizar el login";
-            }
-            System.out.println("Found user");
-            long userId = Long.valueOf(user.get("id").asInt());
-            userSessions.put(chatId,userId);
-            userState.put(chatId,UserState.LOGGED_IN);
-            return "Inicio de sesion realizado.";
+
+        switch (userState.get(chatId)){
+            case WAITING_USERNAME_SIGNUP: return waitUsernameSignUp(chatId,command[0]);
+            case WAITING_EMAIL_SIGNUP: return waitEmailSignUp(chatId,command[0]);
+            case WAITING_PASSWORD_SIGNUP: return waitPasswordSignUp(chatId,command[0]);
+            case WAITING_ID: return waitUsername(chatId,command[0]);
+            case WAITING_PASSWORD: return waitPassword(chatId,command[0]);
         }
+
 
         System.out.println(userSessions.get(chatId));
         if(userSessions.get(chatId)==null) return "Por favor, primero iniciar sesion. /login";
@@ -74,6 +71,71 @@ public class MessageHandler {
                 "\n/crearPedido" +
                 "\n/logout";
     }
+
+    private String login(long chatId){
+        userTokens.remove(chatId);
+        System.out.println("Login command found.");
+        userState.put(chatId,UserState.WAITING_ID);
+        return "Por favor introduzca su username:";
+    }
+
+
+    private String signUp(long chatId){
+        userTokens.remove(chatId);
+        System.out.println("SignUp command found.");
+        userState.put(chatId,UserState.WAITING_USERNAME_SIGNUP);
+        return "Por favor introduzca un username:";
+    }
+
+
+
+
+
+    private String waitUsernameSignUp(long chatId,String message){
+        cacheData.put(chatId, new HashMap<>());
+        cacheData.get(chatId).put("username", message);
+        userState.put(chatId, UserState.WAITING_EMAIL_SIGNUP);
+        return "Por favor introduzca un email";
+    }
+
+    private String waitEmailSignUp(long chatId,String message){
+        cacheData.get(chatId).put("email", message);
+        userState.put(chatId, UserState.WAITING_PASSWORD_SIGNUP);
+        return "Por favor introduzca una contraseña";
+    }
+
+    private String waitPasswordSignUp(long chatId,String message){
+        String username = cacheData.get(chatId).get("username");
+        String email = cacheData.get(chatId).get("email");
+        cacheData.remove(chatId);
+        userState.remove(chatId);
+        String loginToken = new UserApi().userSignUp(username,email,message);
+        if(loginToken!=null){
+            return "SignUp exitoso, ahora puedes iniciar sesion.";
+        }
+        return "El signUp no se pudo efectuar de forma correcta.";
+    }
+
+    private String waitUsername(long chatId,String message){
+        cacheData.put(chatId, new HashMap<>());
+        cacheData.get(chatId).put("username", message);
+        userState.put(chatId, UserState.WAITING_PASSWORD);
+        return "Por favor introduzca su contraseña";
+    }
+
+    private String waitPassword(long chatId,String message){
+        String username = cacheData.get(chatId).get("username");
+        cacheData.remove(chatId);
+        userState.remove(chatId);
+        String loginToken = new UserApi().userLogin(username,message);
+        if(loginToken!=null){
+            userTokens.put(chatId,loginToken);
+            return "Login exitoso";
+        }
+        return "El usuario o contraseña es incorrecto.";
+    }
+
+
 
     private String cerrar(long userId,String[] commands){
         try {

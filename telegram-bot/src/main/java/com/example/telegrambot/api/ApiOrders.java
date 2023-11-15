@@ -16,7 +16,7 @@ public class ApiOrders {
     public boolean addItemApi(String pedidoId,String userId,String body){
         try {
             // URL de la API a la que deseas hacer la solicitud PATCH
-            String apiUrl = "http://localhost:8080/orders/"+pedidoId+"/"+userId; // Reemplaza 123 con el valor de ID correcto
+            String apiUrl = "http://backend:8080/orders/"+pedidoId+"/"+userId; // Reemplaza 123 con el valor de ID correcto
 
             // Cuerpo de la solicitud PATCH como una cadena JSON
             String jsonBody = body;
@@ -56,7 +56,7 @@ public class ApiOrders {
     public boolean mySharePatch(String id,String body){
         try {
             // URL de la API a la que deseas hacer la solicitud PATCH
-            String apiUrl = "http://localhost:8080/orders/"+id+"/"; // Reemplaza 123 con el valor de ID correcto
+            String apiUrl = "http://backend:8080/orders/"+id+"/"; // Reemplaza 123 con el valor de ID correcto
 
             // Cuerpo de la solicitud PATCH como una cadena JSON
             String jsonBody = body;
@@ -100,7 +100,7 @@ public class ApiOrders {
     public boolean closeOrderApi(String orderId,String userId,String body){
         try {
             // URL de la API a la que deseas hacer la solicitud PATCH
-            String myUrl = "http://localhost:8080/orders/" +orderId+"/"+userId;
+            String myUrl = "http://backend:8080/orders/" +orderId+"/"+userId;
             String apiUrl = myUrl; // Reemplaza 123 con el valor de ID correcto
 
             System.out.println(myUrl);
@@ -145,7 +145,7 @@ public class ApiOrders {
     public boolean createOrdersByUserId(String id) {
         try {
             // Crear una URL para la solicitud HTTP
-            URL url = new URL("http://localhost:8080/orders/" + id);
+            URL url = new URL("http://backend:8080/orders/" + id);
 
             // Abrir una conexión HTTP
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -177,7 +177,7 @@ public class ApiOrders {
     public JsonNode getOrderById(String id) {
         try {
             // Crear una URL para la solicitud HTTP
-            String myUrl = "http://localhost:8080/orders/" + id;
+            String myUrl = "http://backend:8080/orders/" + id;
             URL url = new URL(myUrl);
 
             System.out.println(myUrl);
@@ -232,7 +232,7 @@ public class ApiOrders {
     public JsonNode getOrdersByUserId(String id) {
         try {
             // Crear una URL para la solicitud HTTP
-            URL url = new URL("http://localhost:8080/user/" + id + "/orders");
+            URL url = new URL("http://backend:8080/user/" + id + "/orders");
 
             // Abrir una conexión HTTP
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
