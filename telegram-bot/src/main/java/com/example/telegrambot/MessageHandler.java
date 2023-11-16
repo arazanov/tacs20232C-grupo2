@@ -42,30 +42,35 @@ public class MessageHandler {
 
         System.out.println(1);
 
-        if(userTokens.get(chatId)==null) return "Por favor, primero iniciar sesion. /login";
+        if(userTokens.get(chatId)==null) return "Por favor haz /login , o si no tienes cuenta /signUp";
         System.out.println(2);
         String userToken=userTokens.get(chatId);
         System.out.println(3);
         String[] commandsParts = command[0].split("_");
         System.out.println(4);
         switch (commandsParts[0]){
-            case "/verPedidos": return verPedidos(userToken,commandsParts);
-            case "/verUsuario": return verUsuario(userToken,commandsParts);
-            case "/verPedido": return verPedido(userToken,commandsParts);
+            case "/verPedidos": return verPedidos(userToken,commandsParts,chatId);
+            case "/verUsuario": return verUsuario(userToken,commandsParts,chatId);
+            case "/verPedido": return verPedido(userToken,commandsParts,chatId);
             case "/crearPedido": return crearPedido(userToken,commandsParts,chatId);
             case "/logout": return logout(chatId,commandsParts);
-            case "/compartirPedido": return compartirPedido(chatId,commandsParts);
-            case "/agregarItemAPedido": return agregarItemAPedido(userToken,commandsParts,chatId);
-            case "/cerrar": return cerrar(userToken,commandsParts);
+            case "/compartirPedido": return compartirPedido(chatId,commandsParts);//TODO que funcione el compartir
+            case "/agregarItemAPedido": return agregarItemAPedido(userToken,commandsParts,chatId);//TODO cantidad y desc iniciales funcionar
+            case "/cerrar": return cerrar(userToken,commandsParts,chatId);
+            //case "/verItem": return verItem(userToken,commandsParts,chatId);
+            //case "/sumarItem": return verItem(userToken,commandsParts,chatId);
+            //case "/restarItem": return verItem(userToken,commandsParts,chatId);
+            //case "/cambiarNombrePedido": return verItem(userToken,commandsParts,chatId);
+            //case "/cambiarDescipcionItem": return verItem(userToken,commandsParts,chatId);
         }
         System.out.println(5);
         if(userState.get(chatId)!=null) {
             switch (userState.get(chatId)) {
-                case WAITING_ORDER_NAME: responseOrderName();
-                case WAITING_ITEM_QUANTITY:return resseItemQuantity(userToken,chatId,message);
-                case WAITING_ITEM_DESCRIPTION:;
-                case WAITING_SHARE_ID
-                    return responseShareId(chatId, command);
+                case WAITING_ORDER_NAME: return responseOrderName(userToken,message,chatId);
+                case WAITING_ITEM_QUANTITY:return responseItemQuantity(userToken,chatId,message);
+                case WAITING_ITEM_DESCRIPTION:return responseItemDescription(userToken,chatId,message);
+                case WAITING_SHARE_ID:
+                    return responseShareId(userToken, message,chatId);
             }
         }
         System.out.println(6);
@@ -78,6 +83,7 @@ public class MessageHandler {
 
     private String login(long chatId){
         userTokens.remove(chatId);
+        reset(chatId);
         System.out.println("Login command found.");
         userState.put(chatId,UserState.WAITING_ID);
         return "Por favor introduzca su username:";
@@ -86,6 +92,7 @@ public class MessageHandler {
 
     private String signUp(long chatId){
         userTokens.remove(chatId);
+        reset(chatId);
         System.out.println("SignUp command found.");
         userState.put(chatId,UserState.WAITING_USERNAME_SIGNUP);
         return "Por favor introduzca un username:";
@@ -110,8 +117,7 @@ public class MessageHandler {
     private String waitPasswordSignUp(long chatId,String message){
         String username = cacheData.get(chatId).get("username");
         String email = cacheData.get(chatId).get("email");
-        cacheData.remove(chatId);
-        userState.remove(chatId);
+        reset(chatId);
         String loginToken = new UserApi().userSignUp(username,email,message);
         if(loginToken!=null){
             return "SignUp exitoso, ahora puedes iniciar sesion.";
@@ -128,8 +134,7 @@ public class MessageHandler {
 
     private String waitPassword(long chatId,String message){
         String username = cacheData.get(chatId).get("username");
-        cacheData.remove(chatId);
-        userState.remove(chatId);
+        reset(chatId);
         String loginToken = new UserApi().userLogin(username,message);
         if(loginToken!=null){
             userTokens.put(chatId,loginToken);
@@ -140,8 +145,8 @@ public class MessageHandler {
 
 
 
-    private String cerrar(String token,String[] commands){
-
+    private String cerrar(String token,String[] commands,long chatId){
+        reset(chatId);
         boolean response =new ApiOrders().closeOrderApi(commands[1],token);
         if(response) return "Pedido cerrado";
         return "No se pudo cerrar el pedido";
@@ -152,14 +157,12 @@ public class MessageHandler {
         try {
              qty = Integer.valueOf(message);
         } catch (Exception e){
-            userState.remove(chatId);
-            cacheData.remove(chatId);
+            reset(chatId);
             return "Esta no es una cantidad posible";
         }
 
         String itemID = cacheData.get(chatId).get("itemId");
-        cacheData.remove(chatId);
-        userState.remove(chatId);
+        reset(chatId);
         Boolean response = new ItemsApi().patchItemQuantity(userToken,itemID,qty);
         if(response){
             return "Cantidad actualizada correctamente.";
@@ -176,13 +179,13 @@ public class MessageHandler {
             userState.put(chatId,UserState.WAITING_ITEM_QUANTITY);
             return "Descripcion actualizada correctamente, por favor escriba cuantos items de estos desea:";
         }
-        cacheData.remove(chatId);
-        userState.remove(chatId);
+        reset(chatId);
         return "La descripcion no pudo ser actualizada.";
 
     }
 
     private String agregarItemAPedido(String token,String[] message,long chatId){
+        reset(chatId);
         String pedidoId;
         try {
             pedidoId = message[1];
@@ -202,23 +205,21 @@ public class MessageHandler {
 
 
     private String logout(long chatId,String[] message){
-        userState.remove(chatId);
         userSessions.remove(chatId);
-        cacheData.remove(chatId);
+        reset(chatId);
         return "Logout realizado.";
     }
-    private String responseShareId(String token,String[] message,long chatId){
-        userState.remove(chatId);
-
+    private String responseShareId(String token,String message,long chatId){
 
         String pedidoId = cacheData.get(chatId).get("pedidoId");
-        Boolean response = new ApiOrders().shareOrderApi(pedidoId,token,message[0]);
-        cacheData.remove(chatId);
+        Boolean response = new ApiOrders().shareOrderApi(pedidoId,token,message);
+        reset(chatId);
         if(response) return "Se a compartido el pedido con exito";
         return "No se a logrado compartir el pedido";
     }
 
-    private String verUsuario(String token,String[] message){
+    private String verUsuario(String token,String[] message,long chatId){
+        reset(chatId);
         JsonNode jsonNode = new UserApi().getUserById(token);
 
         String mssg="User id: "+jsonNode.get("id").asText()+ "\n User name: "+jsonNode.get("username").asText();
@@ -226,7 +227,8 @@ public class MessageHandler {
         return mssg;
     }
 
-    private String verPedidos(String token,String[] message){
+    private String verPedidos(String token,String[] message,long chatId){
+        reset(chatId);
         JsonNode jsonNode= new ApiOrders().getOrdersByUserId(token);
         int orders_qty = jsonNode.size();
         String mmsg = "Mis Pedidos son";
@@ -238,6 +240,7 @@ public class MessageHandler {
         return mmsg;
     }
     private String compartirPedido(long chatId,String[] message){
+        reset(chatId);
         String pedidoId;
         try {
             pedidoId = message[1];
@@ -250,7 +253,8 @@ public class MessageHandler {
         return "Introduzca el username del usuario a compartir";
     }
 
-    private String verPedido(String token,String[] message){
+    private String verPedido(String token,String[] message,long chatId){
+        reset(chatId);
         System.out.println("/verPedido command processing");
         String pedidoId;
         try {
@@ -263,14 +267,14 @@ public class MessageHandler {
         System.out.println(1);
         if(pedido!=null){
             System.out.println(1);
-            String pedidoText = "Pedido id "+pedidoId+":";
+            String pedidoText = "Pedido:"+pedido.get("description").asText()+":";
             System.out.println(1);
             JsonNode items = new ItemsApi().getOrderItems(pedidoId,token);
             System.out.println(1);
             for(int j = 0;j<items.size();j++){
                 System.out.println(1);
                 JsonNode item = items.get(j);
-                pedidoText += "\n"+item.get("quantity").asText()+" "+item.get("description").asText();
+                pedidoText += "\n"+item.get("quantity").asText()+" "+item.get("description").asText()+"/verItem_"+item.get("id").asText();
             }
             System.out.println(1);
             if (pedido.get("closed").asBoolean()){
@@ -281,6 +285,7 @@ public class MessageHandler {
             System.out.println(1);
             pedidoText+="\n/compartirPedido_"+pedidoId;
             pedidoText+="\n/agregarItemAPedido_"+pedidoId;
+            System.out.println(pedido.get("owned").asBoolean());
             if(pedido.get("owned").asBoolean()){
                 System.out.println(1);
                 pedidoText+="\n/cerrar_"+pedidoId;
@@ -310,6 +315,7 @@ public class MessageHandler {
     }
 
     private String crearPedido(String userToken,String[] message,long chatId){
+        reset(chatId);
         JsonNode response = new ApiOrders().createOrdersByUserId(userToken);
         if(response!=null){
             userState.put(chatId,UserState.WAITING_ORDER_NAME);
@@ -320,10 +326,12 @@ public class MessageHandler {
         return "La orden no pudo ser creada con exito.";
     }
 
+
+
+
     private String responseOrderName(String userToken,String message,long chatId){
         String orderId = cacheData.get(chatId).get("orderID");
-        userState.remove(chatId);
-        cacheData.remove(chatId);
+        reset(chatId);
         Boolean response = new ApiOrders().patchOrderName(userToken,orderId,message);
         if(response){
             return "Nombre actualizado correctamente";
@@ -332,5 +340,10 @@ public class MessageHandler {
     }
 
 
+
+    private void reset(long chatId){
+        userState.remove(chatId);
+        cacheData.remove(chatId);
+    }
 
 }

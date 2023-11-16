@@ -45,7 +45,7 @@ public class RestfulTest {
     @InjectMocks
     private UserService userService;
 
-    private final String BASE_URL = "http://localhost:8080/";
+    private final String BASE_URL = "http://backend:8080/";
     private CloseableHttpClient client;
     private Gson gson = new GsonBuilder().serializeSpecialFloatingPointValues().serializeNulls().setPrettyPrinting().create();
 
