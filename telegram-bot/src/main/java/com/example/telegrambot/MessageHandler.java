@@ -6,6 +6,7 @@ import com.example.telegrambot.api.UserApi;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.catalina.User;
 
 import java.util.HashMap;
 public class MessageHandler {
@@ -57,10 +58,10 @@ public class MessageHandler {
             case "/compartirPedido": return compartirPedido(chatId,commandsParts);//TODO que funcione el compartir
             case "/agregarItemAPedido": return agregarItemAPedido(userToken,commandsParts,chatId);//TODO cantidad y desc iniciales funcionar
             case "/cerrar": return cerrar(userToken,commandsParts,chatId);
-            //case "/verItem": return verItem(userToken,commandsParts,chatId);
+            //case "/editarItem": return editarItem(userToken,commandsParts,chatId);
             //case "/sumarItem": return verItem(userToken,commandsParts,chatId);
             //case "/restarItem": return verItem(userToken,commandsParts,chatId);
-            //case "/cambiarNombrePedido": return verItem(userToken,commandsParts,chatId);
+            case "/cambiarNombreAPedido": return cambiarNombrePedido(userToken,commandsParts,chatId);
             //case "/cambiarDescipcionItem": return verItem(userToken,commandsParts,chatId);
         }
         System.out.println(5);
@@ -69,8 +70,7 @@ public class MessageHandler {
                 case WAITING_ORDER_NAME: return responseOrderName(userToken,message,chatId);
                 case WAITING_ITEM_QUANTITY:return responseItemQuantity(userToken,chatId,message);
                 case WAITING_ITEM_DESCRIPTION:return responseItemDescription(userToken,chatId,message);
-                case WAITING_SHARE_ID:
-                    return responseShareId(userToken, message,chatId);
+                case WAITING_SHARE_ID: return responseShareId(userToken, message,chatId);
             }
         }
         System.out.println(6);
@@ -210,12 +210,26 @@ public class MessageHandler {
         return "Logout realizado.";
     }
     private String responseShareId(String token,String message,long chatId){
-
+        JsonNode user = new UserApi().getUserByUsername(token,message);
         String pedidoId = cacheData.get(chatId).get("pedidoId");
-        Boolean response = new ApiOrders().shareOrderApi(pedidoId,token,message);
         reset(chatId);
-        if(response) return "Se a compartido el pedido con exito";
-        return "No se a logrado compartir el pedido";
+
+        if(user!=null){
+            String userBody = "";
+            try {
+                ObjectMapper objectMapper = new ObjectMapper();
+                userBody =  "{\"user\":"+objectMapper.writeValueAsString(user)+"}";
+            } catch (JsonProcessingException e) {
+            e.printStackTrace();
+                return "No se a logrado compartir el pedido";
+            }
+
+            Boolean response = new ApiOrders().shareOrderApi(pedidoId,token,userBody);
+
+            if(response) return "Se a compartido el pedido con exito";
+            return "No se a logrado compartir el pedido";
+        }
+        return "El usuario no a sido encontrado";
     }
 
     private String verUsuario(String token,String[] message,long chatId){
@@ -253,6 +267,24 @@ public class MessageHandler {
         return "Introduzca el username del usuario a compartir";
     }
 
+    private String editarItem(String token,String[] message,long chatId){
+        reset(chatId);
+        String itemId;
+        try {
+            itemId = message[1];
+        } catch (Exception e ){
+            return "La sintaxis de editarItem es: /editarItem_ItemID";
+        }
+        JsonNode item = new ItemsApi().getItemById(itemId,token);
+        if(item!=null){
+            String itemText = "Item:"+item.get("description").asText()+".";
+            itemText+="Cantidad: "
+
+        }
+        return "El item no pudo ser editado."
+    }
+
+
     private String verPedido(String token,String[] message,long chatId){
         reset(chatId);
         System.out.println("/verPedido command processing");
@@ -274,7 +306,7 @@ public class MessageHandler {
             for(int j = 0;j<items.size();j++){
                 System.out.println(1);
                 JsonNode item = items.get(j);
-                pedidoText += "\n"+item.get("quantity").asText()+" "+item.get("description").asText()+"/verItem_"+item.get("id").asText();
+                pedidoText += "\n"+item.get("quantity").asText()+" "+item.get("description").asText()+" /editarItem_"+item.get("id").asText();
             }
             System.out.println(1);
             if (pedido.get("closed").asBoolean()){
@@ -285,6 +317,7 @@ public class MessageHandler {
             System.out.println(1);
             pedidoText+="\n/compartirPedido_"+pedidoId;
             pedidoText+="\n/agregarItemAPedido_"+pedidoId;
+            pedidoText+="\n/cambiarNombreAPedido_"+pedidoId;
             System.out.println(pedido.get("owned").asBoolean());
             if(pedido.get("owned").asBoolean()){
                 System.out.println(1);
@@ -326,6 +359,26 @@ public class MessageHandler {
         return "La orden no pudo ser creada con exito.";
     }
 
+
+    private String cambiarNombrePedido(String userToken,String[] message,long chatId){
+        reset(chatId);
+        String pedidoId;
+        try {
+            pedidoId = message[1];
+        } catch (Exception e ){
+            return "La sintaxis de cambiarNombrePedido es: /cambiarNombrePedido_PedidoID";
+        }
+        JsonNode pedido =  new ApiOrders().getOrderById(pedidoId,userToken);
+
+        if (pedido!=null){
+            userState.put(chatId,UserState.WAITING_ORDER_NAME);
+            cacheData.put(chatId, new HashMap<>());
+            cacheData.get(chatId).put("orderID",pedidoId);
+            return "Introduce el nuevo nombre del pedido";
+        }
+        return "No puedes cambiarle el nombre a este pedido";
+
+    }
 
 
 
