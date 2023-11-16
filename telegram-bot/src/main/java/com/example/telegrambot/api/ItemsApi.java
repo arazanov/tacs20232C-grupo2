@@ -5,25 +5,31 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.*;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.ProtocolException;
 import java.net.URL;
-import java.util.stream.Collectors;
 
-public class UserApi {
+public class ItemsApi {
 
     String myUrl ="http://backend:8080";
 
-    public String userLogin(String username,String password) {
+    public boolean patchItemDescription(String token,String itemId,String description){return true;}
+
+    public boolean patchItemQuantity(String token,String itemId,Integer qty){
+        return true;
+        /*
         try {
-            // Crear una URL para la solicitud HTTP
-            URL url = new URL(myUrl+"/");
+            // URL de la API a la que deseas hacer la solicitud PATCH
+            String url = myUrl+"/orders/" +orderId;
+            String apiUrl = url; // Reemplaza 123 con el valor de ID correcto
 
-            String body = "{\"username\":\""+username+"\", \"password\":\""+password+"\"}";
+            System.out.println(url);
 
+            // Cuerpo de la solicitud PATCH como una cadena JSON
+            String jsonBody = "{\"closed\": true}";
+
+            // Tipo de contenido del cuerpo de la solicitud
             MediaType mediaType = MediaType.parse("application/json");
 
             // Crear un cliente OkHttpClient
@@ -31,8 +37,9 @@ public class UserApi {
 
             // Construir la solicitud PATCH con el cuerpo
             Request request = new Request.Builder()
-                    .url(url)
-                    .post(RequestBody.create(mediaType, body))
+                    .url(apiUrl)
+                    .patch(RequestBody.create(mediaType, jsonBody))
+                    .addHeader("Authorization", "Bearer "+token)
                     .build();
 
             // Realizar la solicitud PATCH
@@ -41,55 +48,43 @@ public class UserApi {
             // Verificar el código de respuesta
             if (response.isSuccessful()) {
                 // La solicitud PATCH fue exitosa
-                System.out.println("Solicitud POST exitosa.");
-
-                String responseBody = response.body().string();
-
-
-
-                ObjectMapper objectMapper = new ObjectMapper();
-                String token = objectMapper.readTree(responseBody).get("token").asText();
-
-                // Imprimir el token obtenido
-                System.out.println("Token obtenido: " + token);
-
-
-                return token;
+                System.out.println("Solicitud PATCH exitosa.");
+                return true;
             } else {
                 // La solicitud PATCH no fue exitosa
-                System.out.println("La solicitud POST no fue exitosa. Código de respuesta: " + response.code());
-                return null;
+                System.out.println("La solicitud PATCH no fue exitosa. Código de respuesta: " + response.code());
+                return false;
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return null;
+            return false;
         }
+        */
 
     }
 
-    public String userSignUp(String username,String email,String password) {
+
+
+
+
+
+
+    public JsonNode addItemApi(String pedidoId, String token){
         try {
-            // Crear una URL para la solicitud HTTP
-            URL url = new URL(myUrl+"/users");
+            // URL de la API a la que deseas hacer la solicitud PATCH
+            String apiUrl = myUrl+"/orders/"+pedidoId+"/items"; // Reemplaza 123 con el valor de ID correcto
 
-
-            String body = "{" +
-                    "\"username\":\""+username+"\"," +
-                    "\"email\":\""+email+"\"," +
-                    " \"password\":\""+password+"\"" +
-                    "}";
-
-            System.out.println(body);
-
-
+            // Tipo de contenido del cuerpo de la solicitud
             MediaType mediaType = MediaType.parse("application/json");
 
             // Crear un cliente OkHttpClient
             OkHttpClient client = new OkHttpClient();
 
+            // Construir la solicitud PATCH con el cuerpo
             Request request = new Request.Builder()
-                    .url(url)
-                    .post(RequestBody.create(mediaType, body))
+                    .url(apiUrl)
+                    .post(RequestBody.create(mediaType, ""))
+                    .addHeader("Authorization", "Bearer "+token)
                     .build();
 
             // Realizar la solicitud PATCH
@@ -100,18 +95,18 @@ public class UserApi {
                 // La solicitud PATCH fue exitosa
                 System.out.println("Solicitud POST exitosa.");
 
+                // Leer el cuerpo de la respuesta como String
                 String responseBody = response.body().string();
 
+                // Convertir el cuerpo de la respuesta a un JsonNode
+                ObjectMapper mapper = new ObjectMapper();
+                JsonNode jsonResponse = mapper.readTree(responseBody);
 
+                // Realizar acciones con el JsonNode según sea necesario
+                // Por ejemplo, mostrar la respuesta
+                System.out.println("Respuesta JSON: " + jsonResponse);
 
-                ObjectMapper objectMapper = new ObjectMapper();
-                String token = objectMapper.readTree(responseBody).get("token").asText();
-
-                // Imprimir el token obtenido
-                System.out.println("Token obtenido: " + token);
-
-
-                return token;
+                return jsonResponse;
             } else {
                 // La solicitud PATCH no fue exitosa
                 System.out.println("La solicitud POST no fue exitosa. Código de respuesta: " + response.code());
@@ -124,17 +119,22 @@ public class UserApi {
 
     }
 
-    public JsonNode getUserById(String token) {
+
+
+    public JsonNode getOrderItems(String pedidoId,String token){
         try {
-            // Crear una URL para la solicitud HTTP
-            URL url = new URL(myUrl+"/user");
+            // URL de la API a la que deseas hacer la solicitud PATCH
+            String apiUrl = myUrl+"/orders/"+pedidoId+"/items";
+            URL url = new URL(apiUrl);
 
             // Abrir una conexión HTTP
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             // Configurar el método de solicitud (GET, POST, etc.)
 
             connection.setRequestMethod("GET");
+
             connection.setRequestProperty("Authorization", "Bearer " + token);
+
             int responseCode = connection.getResponseCode();
             // Leer la respuesta
 
@@ -167,10 +167,12 @@ public class UserApi {
                 System.out.println("La solicitud HTTP no fue exitosa.");
                 return null;
             }
-        } catch (IOException e) {
+
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
+
     }
 
 }
