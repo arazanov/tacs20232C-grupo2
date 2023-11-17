@@ -15,6 +15,44 @@ public class apiCalls {
 
     String myUrl ="http://backend:8080";
 
+    public boolean put(String token,String path,String body){
+        try {
+            // URL de la API a la que deseas hacer la solicitud PATCH
+            String apiUrl = myUrl+path; // Reemplaza 123 con el valor de ID correcto
+
+            // Tipo de contenido del cuerpo de la solicitud
+            MediaType mediaType = MediaType.parse("application/json");
+
+            // Crear un cliente OkHttpClient
+            OkHttpClient client = new OkHttpClient();
+
+            // Construir la solicitud PATCH con el cuerpo
+            Request request = new Request.Builder()
+                    .url(apiUrl)
+                    .put(RequestBody.create(mediaType, body))
+                    .addHeader("Authorization", "Bearer "+token)
+                    .build();
+
+            // Realizar la solicitud PATCH
+            Response response = client.newCall(request).execute();
+
+            // Verificar el código de respuesta
+            if (response.isSuccessful()) {
+                // La solicitud PATCH fue exitosa
+                System.out.println("Solicitud PUT exitosa.");
+
+                return true;
+            } else {
+                // La solicitud PATCH no fue exitosa
+                System.out.println("La solicitud PUT no fue exitosa. Código de respuesta: " + response.code());
+                return false;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public boolean patch(String token,String path,String body){
         try {
             // URL de la API a la que deseas hacer la solicitud PATCH

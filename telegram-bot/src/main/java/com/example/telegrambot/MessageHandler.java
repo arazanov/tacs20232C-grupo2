@@ -58,16 +58,18 @@ public class MessageHandler {
             case "/compartirPedido": return compartirPedido(chatId,commandsParts);//TODO que funcione el compartir
             case "/agregarItemAPedido": return agregarItemAPedido(userToken,commandsParts,chatId);//TODO cantidad y desc iniciales funcionar
             case "/cerrar": return cerrar(userToken,commandsParts,chatId);
+            case "/cambiarNombreAPedido": return cambiarNombrePedido(userToken,commandsParts,chatId);
             //case "/editarItem": return editarItem(userToken,commandsParts,chatId);
             //case "/sumarItem": return verItem(userToken,commandsParts,chatId);
             //case "/restarItem": return verItem(userToken,commandsParts,chatId);
-            case "/cambiarNombreAPedido": return cambiarNombrePedido(userToken,commandsParts,chatId);
             //case "/cambiarDescipcionItem": return verItem(userToken,commandsParts,chatId);
+            //case "/cambiarUnidadItem": return verItem(userToken,commandsParts,chatId);
         }
         System.out.println(5);
         if(userState.get(chatId)!=null) {
             switch (userState.get(chatId)) {
                 case WAITING_ORDER_NAME: return responseOrderName(userToken,message,chatId);
+                case WAITING_ITEM_UNIT: return responseItemUnit(userToken,chatId,message);
                 case WAITING_ITEM_QUANTITY:return responseItemQuantity(userToken,chatId,message);
                 case WAITING_ITEM_DESCRIPTION:return responseItemDescription(userToken,chatId,message);
                 case WAITING_SHARE_ID: return responseShareId(userToken, message,chatId);
@@ -153,17 +155,16 @@ public class MessageHandler {
     }
 
     private String responseItemQuantity(String userToken, long chatId,String message){
+        String itemID = cacheData.get(chatId).get("itemId");
+        reset(chatId);
         int qty;
         try {
              qty = Integer.valueOf(message);
         } catch (Exception e){
-            reset(chatId);
+
             return "Esta no es una cantidad posible";
         }
-
-        String itemID = cacheData.get(chatId).get("itemId");
-        reset(chatId);
-        Boolean response = new ItemsApi().patchItemQuantity(userToken,itemID,qty);
+        Boolean response = new ItemsApi().putItemQuantity(userToken,itemID,qty);
         if(response){
             return "Cantidad actualizada correctamente.";
         }
@@ -171,13 +172,23 @@ public class MessageHandler {
     }
 
 
-    private String responseItemDescription(String userToken, long chatId,String message){
-
+    private String responseItemUnit(String userToken, long chatId,String message){
         String itemId = cacheData.get(chatId).get("itemID");
-        Boolean response = new ItemsApi().patchItemDescription(userToken,itemId,message);
+        Boolean response = new ItemsApi().putItemUnit(userToken,itemId,message);
         if(response){
             userState.put(chatId,UserState.WAITING_ITEM_QUANTITY);
-            return "Descripcion actualizada correctamente, por favor escriba cuantos items de estos desea:";
+            return "Unidad actualizada correctamente.\nPor favor escriba la cantidad deseada:";
+        }
+        reset(chatId);
+        return "La unidad no pudo ser actualizada.";
+    }
+
+    private String responseItemDescription(String userToken, long chatId,String message){
+        String itemId = cacheData.get(chatId).get("itemID");
+        Boolean response = new ItemsApi().putItemDescription(userToken,itemId,message);
+        if(response){
+            userState.put(chatId,UserState.WAITING_ITEM_UNIT);
+            return "Descripcion actualizada correctamente.\nPor favor escriba la unidad deseada:";
         }
         reset(chatId);
         return "La descripcion no pudo ser actualizada.";
@@ -198,7 +209,7 @@ public class MessageHandler {
             userState.put(chatId,UserState.WAITING_ITEM_DESCRIPTION);
             cacheData.put(chatId, new HashMap<>());
             cacheData.get(chatId).put("itemID",respuesta.get("id").asText());
-            return "Se a creado el item de forma correcta, elija una descripcion para el item";
+            return "Se a creado el item de forma correcta.\nElija una descripcion para el item:";
         }
         return "No puedes agregar items a este pedido.";
     }
@@ -247,7 +258,7 @@ public class MessageHandler {
         int orders_qty = jsonNode.size();
         String mmsg = "Mis Pedidos son";
         for (int i =0;i<orders_qty;i++){
-            String id = jsonNode.get(i).get("id").asText();
+            String id = jsonNode.get(i).get("description").asText();
             mmsg += "\n Pedido: " + id +" /verPedido_"+id;
         }
 
@@ -277,11 +288,16 @@ public class MessageHandler {
         }
         JsonNode item = new ItemsApi().getItemById(itemId,token);
         if(item!=null){
-            String itemText = "Item:"+item.get("description").asText()+".";
-            itemText+="Cantidad: "
-
+            String itemText = "Item: "+item.get("description").asText()+".\n";
+            itemText+="/cambiarDescipcionItem_"+itemId+"\n\n";
+            itemText+="Cantidad: "+item.get("quantity").asText()+".\n";
+            itemText+="/sumarItem_"+itemId+"\n";
+            itemText+="/restarItem_"+itemId+"\n\n";
+            itemText+="Unidad: "+item.get("unit").asText()+".\n";
+            itemText+="/cambiarUnidadItem_"+itemId+"\n\n";
+            return itemText;
         }
-        return "El item no pudo ser editado."
+        return "El item no pudo ser editado.";
     }
 
 
@@ -299,14 +315,14 @@ public class MessageHandler {
         System.out.println(1);
         if(pedido!=null){
             System.out.println(1);
-            String pedidoText = "Pedido:"+pedido.get("description").asText()+":";
+            String pedidoText = "Pedido: "+pedido.get("description").asText()+".";
             System.out.println(1);
             JsonNode items = new ItemsApi().getOrderItems(pedidoId,token);
             System.out.println(1);
             for(int j = 0;j<items.size();j++){
                 System.out.println(1);
                 JsonNode item = items.get(j);
-                pedidoText += "\n"+item.get("quantity").asText()+" "+item.get("description").asText()+" /editarItem_"+item.get("id").asText();
+                pedidoText += "\n"+item.get("quantity").asText()+" "+item.get("unit").asText()+" de "+item.get("description").asText()+"\n/editarItem_"+item.get("id").asText();
             }
             System.out.println(1);
             if (pedido.get("closed").asBoolean()){

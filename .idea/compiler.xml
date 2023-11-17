@@ -1,23 +1,116 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="CompilerConfiguration">
-    <annotationProcessing>
-      <profile name="Maven default annotation processors profile" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <module name="backend" />
-        <module name="telegram-bot" />
-      </profile>
-    </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="tp-tacs" target="1.8" />
-    </bytecodeTargetLevel>
-  </component>
-  <component name="JavacSettings">
-    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="backend" options="-parameters" />
-      <module name="telegram-bot" options="-parameters" />
-    </option>
-  </component>
-</project>
+no service timestamps log datetime msec
+no service timestamps debug datetime msec
+no service password-encryption
+!
+hostname Router5
+!
+!
+!
+enable secret 5 $1$mERr$NGWzcYUiBH/i5DS7.B7pT0
+!
+!
+!
+!
+!
+!
+no ip cef
+no ipv6 cef
+!
+!
+!
+!
+crypto isakmp policy 111
+ encr aes 256
+ authentication pre-share
+ group 5
+ lifetime 900
+!
+crypto isakmp key utnba address 60.60.60.1
+!
+!
+!
+crypto ipsec transform-set 500 ah-sha-hmac esp-3des
+!
+crypto map mapa-a 111 ipsec-isakmp 
+ set peer 60.60.60.1
+ set security-association lifetime seconds 900
+ set transform-set 500 
+ match address 101
+!
+!
+!
+!
+!
+!
+spanning-tree mode pvst
+!
+!
+!
+!
+!
+!
+interface FastEthernet0/0
+ ip address 192.168.100.1 255.255.255.0
+ duplex auto
+ speed auto
+!
+interface FastEthernet0/1
+ ip address 192.168.111.1 255.255.255.0
+ duplex auto
+ speed auto
+!
+interface Serial0/0/0
+ no ip address
+ clock rate 2000000
+ shutdown
+!
+interface Serial0/0/1
+ no ip address
+ clock rate 2000000
+ shutdown
+!
+interface Serial0/1/0
+ ip address 55.44.0.1 255.255.255.252
+!
+interface Serial0/1/1
+ ip address 55.55.0.1 255.255.255.252
+ clock rate 2000000
+ crypto map mapa-a
+!
+interface Vlan1
+ no ip address
+ shutdown
+!
+router rip
+ version 2
+ network 55.0.0.0
+ network 192.168.100.0
+ network 192.168.111.0
+!
+ip classless
+!
+ip flow-export version 9
+!
+!
+access-list 101 permit ip host 192.168.111.111 172.18.18.0 0.0.0.63
+access-list 101 permit ip host 192.168.100.100 172.18.18.0 0.0.0.63
+!
+!
+!
+!
+!
+!
+line con 0
+ password frba
+!
+line aux 0
+!
+line vty 0
+ password utn
+ login
+line vty 1 4
+ login
+!
+!
+!
+end

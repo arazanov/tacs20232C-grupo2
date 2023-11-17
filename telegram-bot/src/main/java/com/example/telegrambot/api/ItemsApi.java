@@ -2,6 +2,7 @@ package com.example.telegrambot.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import okhttp3.*;
 
 import java.io.BufferedReader;
@@ -15,60 +16,57 @@ public class ItemsApi extends apiCalls{
 
     String myUrl ="http://backend:8080";
 
-    public boolean patchItemDescription(String token,String itemId,String description){return true;}
+    public boolean putItemDescription(String token,String itemId,String description){
+        JsonNode item = getItemById(itemId,token);
+        if(item==null) return false;
+        if(item instanceof ObjectNode) {
+            ObjectNode objectNode = (ObjectNode) item;
+            objectNode.put("description", description);
+            return putItem(token,objectNode);
+        }else return false;
+    }
 
-    public boolean patchItemQuantity(String token,String itemId,Integer qty){
-        return true;
-        /*
-        try {
-            // URL de la API a la que deseas hacer la solicitud PATCH
-            String url = myUrl+"/orders/" +orderId;
-            String apiUrl = url; // Reemplaza 123 con el valor de ID correcto
+    public boolean putItemUnit(String token,String itemId,String unit){
+        JsonNode item = getItemById(itemId,token);
+        if(item==null) return false;
+        if(item instanceof ObjectNode) {
+            ObjectNode objectNode = (ObjectNode) item;
+            objectNode.put("unit", unit);
+            return putItem(token,objectNode);
+        }else return false;
+    }
 
-            System.out.println(url);
-
-            // Cuerpo de la solicitud PATCH como una cadena JSON
-            String jsonBody = "{\"closed\": true}";
-
-            // Tipo de contenido del cuerpo de la solicitud
-            MediaType mediaType = MediaType.parse("application/json");
-
-            // Crear un cliente OkHttpClient
-            OkHttpClient client = new OkHttpClient();
-
-            // Construir la solicitud PATCH con el cuerpo
-            Request request = new Request.Builder()
-                    .url(apiUrl)
-                    .patch(RequestBody.create(mediaType, jsonBody))
-                    .addHeader("Authorization", "Bearer "+token)
-                    .build();
-
-            // Realizar la solicitud PATCH
-            Response response = client.newCall(request).execute();
-
-            // Verificar el código de respuesta
-            if (response.isSuccessful()) {
-                // La solicitud PATCH fue exitosa
-                System.out.println("Solicitud PATCH exitosa.");
-                return true;
-            } else {
-                // La solicitud PATCH no fue exitosa
-                System.out.println("La solicitud PATCH no fue exitosa. Código de respuesta: " + response.code());
-                return false;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-        */
+    public boolean putItemModQty(String token,String itemId,Integer qty){
+        JsonNode item = getItemById(itemId,token);
+        if(item==null) return false;
+        if(item instanceof ObjectNode) {
+            ObjectNode objectNode = (ObjectNode) item;
+            objectNode.put("quantity", objectNode.get("quantity").asInt()-qty);
+            return putItem(token,objectNode);
+        }else return false;
 
     }
 
+    public boolean putItemQuantity(String token,String itemId,Integer qty){
+        JsonNode item = getItemById(itemId,token);
+        if(item==null) return false;
+        if(item instanceof ObjectNode) {
+            ObjectNode objectNode = (ObjectNode) item;
+            objectNode.put("quantity", qty);
+            return putItem(token,objectNode);
+        }else return false;
+    }
 
-
-
-
-
+    private boolean putItem(String token,ObjectNode item){
+        try {
+            String id = item.get("id").asText();
+                ObjectMapper objectMapper = new ObjectMapper();
+                String body = objectMapper.writeValueAsString(item);
+                return super.put(token,"/items/"+id,body);
+        }catch (Exception e){
+            return false;
+        }
+    }
 
     public JsonNode addItemApi(String pedidoId, String token){
         return super.post(token,"/orders/"+pedidoId+"/items");
