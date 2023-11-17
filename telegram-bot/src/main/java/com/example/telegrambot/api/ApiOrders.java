@@ -1,4 +1,6 @@
 package com.example.telegrambot.api;
+import com.example.telegrambot.UserData;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -27,9 +29,27 @@ public class ApiOrders extends apiCalls{
         return super.patch(token,"/orders/"+orderId,"{\"closed\": true}");
     }
 
-    public boolean shareOrderApi(String orderId,String token,String message){
-        return super.patch(token,"/orders/"+orderId,message);
+    public boolean shareOrderApi(String orderId,String token,String user){
+        JsonNode userShare = new UserApi().getUserByUsername(token,user);
+
+        if(userShare!=null) {
+            String userBody = "";
+            try {
+                ObjectMapper objectMapper = new ObjectMapper();
+                userBody = "{\"user\":" + objectMapper.writeValueAsString(user) + "}";
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+                return false;
+            }
+
+            return super.patch(token,"/orders/"+orderId,userBody);
+
+        }
+        return false;
+
+
     }
+
 
 
 

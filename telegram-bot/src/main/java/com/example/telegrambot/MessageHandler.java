@@ -13,6 +13,8 @@ public class MessageHandler {
     private final HashMap<Long,Long> userSessions = new HashMap<>();
     private final HashMap<Long,String> userTokens = new HashMap<>();
     private final HashMap<Long,UserState> userState = new HashMap<>();
+
+    private final HashMap<Long,UserData> userDatas = new HashMap<>();
     private final HashMap<Long,HashMap<String,String>> cacheData = new HashMap<>();
 
     public MessageHandler(){}
@@ -30,51 +32,51 @@ public class MessageHandler {
             case "/signUp": return signUp(chatId);
             case "/login": return login(chatId);
         }
+        UserData userData = userDatas.get(chatId);
 
-        if(userState.get(chatId)!=null){
-            switch (userState.get(chatId)){
-                case WAITING_USERNAME_SIGNUP: return waitUsernameSignUp(chatId,command[0]);
-                case WAITING_EMAIL_SIGNUP: return waitEmailSignUp(chatId,command[0]);
-                case WAITING_PASSWORD_SIGNUP: return waitPasswordSignUp(chatId,command[0]);
-                case WAITING_ID: return waitUsername(chatId,command[0]);
-                case WAITING_PASSWORD: return waitPassword(chatId,command[0]);
-            }
+        if(userData==null) return "Por favor haz /login , o si no tienes cuenta /signUp (2)";
+
+        UserState actualState = userData.getState();
+
+        userData.setState(UserState.LOGOUT);
+        switch (actualState){
+            case WAITING_USERNAME_SIGNUP: return waitUsernameSignUp(userData,command[0]);
+            case WAITING_EMAIL_SIGNUP: return waitEmailSignUp(userData,command[0]);
+            case WAITING_PASSWORD_SIGNUP: return waitPasswordSignUp(userData,command[0]);
+            case WAITING_ID: return waitUsername(userData,command[0]);
+            case WAITING_PASSWORD: return waitPassword(userData,command[0]);
         }
 
-        System.out.println(1);
+        if(!actualState.isLogin(actualState)) return "Por favor haz /login , o si no tienes cuenta /signUp (1)";
 
-        if(userTokens.get(chatId)==null) return "Por favor haz /login , o si no tienes cuenta /signUp";
-        System.out.println(2);
-        String userToken=userTokens.get(chatId);
-        System.out.println(3);
         String[] commandsParts = command[0].split("_");
-        System.out.println(4);
+
+        userData.setState(UserState.LOGIN);
         switch (commandsParts[0]){
-            case "/verPedidos": return verPedidos(userToken,commandsParts,chatId);
-            case "/verUsuario": return verUsuario(userToken,commandsParts,chatId);
-            case "/verPedido": return verPedido(userToken,commandsParts,chatId);
-            case "/crearPedido": return crearPedido(userToken,commandsParts,chatId);
-            case "/logout": return logout(chatId,commandsParts);
-            case "/compartirPedido": return compartirPedido(chatId,commandsParts);//TODO que funcione el compartir
-            case "/agregarItemAPedido": return agregarItemAPedido(userToken,commandsParts,chatId);//TODO cantidad y desc iniciales funcionar
-            case "/cerrar": return cerrar(userToken,commandsParts,chatId);
-            case "/cambiarNombreAPedido": return cambiarNombrePedido(userToken,commandsParts,chatId);
-            //case "/editarItem": return editarItem(userToken,commandsParts,chatId);
-            //case "/sumarItem": return verItem(userToken,commandsParts,chatId);
-            //case "/restarItem": return verItem(userToken,commandsParts,chatId);
-            //case "/cambiarDescipcionItem": return verItem(userToken,commandsParts,chatId);
-            //case "/cambiarUnidadItem": return verItem(userToken,commandsParts,chatId);
+            case "/verPedidos": return verPedidos(userData,commandsParts);
+            case "/verUsuario": return verUsuario(userData,commandsParts);
+            case "/verPedido": return verPedido(userData,commandsParts);
+            case "/crearPedido": return crearPedido(userData,commandsParts);
+            case "/logout": return logout(userData,commandsParts);
+            case "/compartirPedido": return compartirPedido(userData,commandsParts);//TODO que funcione el compartir
+            case "/agregarItemAPedido": return agregarItemAPedido(userData,commandsParts);//TODO cantidad y desc iniciales funcionar
+            case "/cerrar": return cerrar(userData,commandsParts);
+            case "/cambiarNombreAPedido": return cambiarNombrePedido(userData,commandsParts);
+            case "/editarItem": return editarItem(userData,commandsParts);
+            //case "/sumarItem": return verItem(userData,commandsParts);
+            //case "/restarItem": return verItem(userData,commandsParts);
+            //case "/cambiarDescipcionItem": return verItem(userData,commandsParts);
+            //case "/cambiarUnidadItem": return verItem(userData,commandsParts);
         }
         System.out.println(5);
-        if(userState.get(chatId)!=null) {
-            switch (userState.get(chatId)) {
-                case WAITING_ORDER_NAME: return responseOrderName(userToken,message,chatId);
-                case WAITING_ITEM_UNIT: return responseItemUnit(userToken,chatId,message);
-                case WAITING_ITEM_QUANTITY:return responseItemQuantity(userToken,chatId,message);
-                case WAITING_ITEM_DESCRIPTION:return responseItemDescription(userToken,chatId,message);
-                case WAITING_SHARE_ID: return responseShareId(userToken, message,chatId);
+        switch (actualState) {
+            case WAITING_ORDER_NAME: return responseOrderName(userData,message);
+            case WAITING_ITEM_UNIT: return responseItemUnit(userData,message);
+            case WAITING_ITEM_QUANTITY:return responseItemQuantity(userData,message);
+            case WAITING_ITEM_DESCRIPTION:return responseItemDescription(userData,message);
+            case WAITING_SHARE_ID: return responseShareId(userData,message);
             }
-        }
+
         System.out.println(6);
         return "Por favor ingrese uno de los siguientes comandos: " +
                 "\n/verPedidos" +
@@ -84,79 +86,97 @@ public class MessageHandler {
     }
 
     private String login(long chatId){
-        userTokens.remove(chatId);
-        reset(chatId);
+        //userTokens.remove(chatId);
+        //reset(chatId);
         System.out.println("Login command found.");
-        userState.put(chatId,UserState.WAITING_ID);
+        //userState.put(chatId,UserState.WAITING_ID);
+        UserData userData = new UserData(chatId);
+        userData.setState(UserState.WAITING_ID);
+        userDatas.put(chatId,userData);
         return "Por favor introduzca su username:";
     }
 
 
     private String signUp(long chatId){
-        userTokens.remove(chatId);
-        reset(chatId);
+        //userTokens.remove(chatId);
+        //reset(chatId);
         System.out.println("SignUp command found.");
-        userState.put(chatId,UserState.WAITING_USERNAME_SIGNUP);
+        UserData userData = new UserData(chatId);
+        userData.setState(UserState.WAITING_USERNAME_SIGNUP);
+        userDatas.put(chatId,userData);
+        //userState.put(userDatas,new UserData(chatId));
         return "Por favor introduzca un username:";
     }
 
 
 
 
-    private String waitUsernameSignUp(long chatId,String message){
+    private String waitUsernameSignUp(UserData user,String message){
+        /*
         cacheData.put(chatId, new HashMap<>());
         cacheData.get(chatId).put("username", message);
         userState.put(chatId, UserState.WAITING_EMAIL_SIGNUP);
+
+         */
+        user.setUsername(message);
+        user.setState(UserState.WAITING_EMAIL_SIGNUP);
         return "Por favor introduzca un email";
     }
 
-    private String waitEmailSignUp(long chatId,String message){
-        cacheData.get(chatId).put("email", message);
-        userState.put(chatId, UserState.WAITING_PASSWORD_SIGNUP);
+    private String waitEmailSignUp(UserData user,String message){
+        //cacheData.get(chatId).put("email", message);
+        //userState.put(chatId, UserState.WAITING_PASSWORD_SIGNUP);
+        user.setMail(message);
+        user.setState(UserState.WAITING_PASSWORD_SIGNUP);
         return "Por favor introduzca una contraseña";
     }
 
-    private String waitPasswordSignUp(long chatId,String message){
-        String username = cacheData.get(chatId).get("username");
-        String email = cacheData.get(chatId).get("email");
-        reset(chatId);
-        String loginToken = new UserApi().userSignUp(username,email,message);
+    private String waitPasswordSignUp(UserData user,String message){
+        //String username = cacheData.get(chatId).get("username");
+        //String email = cacheData.get(chatId).get("email");
+        //reset(chatId);
+        String loginToken = new UserApi().userSignUp(user.getUsername(),user.getMail(),message);
+        user.setState(UserState.LOGOUT);
         if(loginToken!=null){
             return "SignUp exitoso, ahora puedes iniciar sesion.";
         }
         return "El signUp no se pudo efectuar de forma correcta.";
     }
 
-    private String waitUsername(long chatId,String message){
-        cacheData.put(chatId, new HashMap<>());
-        cacheData.get(chatId).put("username", message);
-        userState.put(chatId, UserState.WAITING_PASSWORD);
+    private String waitUsername(UserData user,String message){
+        //cacheData.put(chatId, new HashMap<>());
+        //cacheData.get(chatId).put("username", message);
+        //userState.put(chatId, UserState.WAITING_PASSWORD);
+        user.setUsername(message);
+        user.setState(UserState.WAITING_PASSWORD);
         return "Por favor introduzca su contraseña";
     }
 
-    private String waitPassword(long chatId,String message){
-        String username = cacheData.get(chatId).get("username");
-        reset(chatId);
-        String loginToken = new UserApi().userLogin(username,message);
-        if(loginToken!=null){
-            userTokens.put(chatId,loginToken);
+    private String waitPassword(UserData user,String message){
+        //String username = cacheData.get(chatId).get("username");
+        //reset(chatId);
+        String loginToken = new UserApi().userLogin(user.getUsername(),message);
+        if((loginToken!=null) && (loginToken!="") && (loginToken!=" ")){
+            user.setToken(loginToken);
+            user.setState(UserState.LOGIN);
             return "Login exitoso";
         }
+        user.setState(UserState.LOGOUT);
         return "El usuario o contraseña es incorrecto.";
     }
 
 
 
-    private String cerrar(String token,String[] commands,long chatId){
-        reset(chatId);
-        boolean response =new ApiOrders().closeOrderApi(commands[1],token);
+    private String cerrar(UserData user,String[] message){
+        //reset(chatId);
+        boolean response =new ApiOrders().closeOrderApi(user.getPedidoId(),user.getToken());
         if(response) return "Pedido cerrado";
         return "No se pudo cerrar el pedido";
     }
 
-    private String responseItemQuantity(String userToken, long chatId,String message){
-        String itemID = cacheData.get(chatId).get("itemId");
-        reset(chatId);
+    private String responseItemQuantity(UserData user,String message){
+        //String itemID = cacheData.get(chatId).get("itemId");
+        //reset(chatId);
         int qty;
         try {
              qty = Integer.valueOf(message);
@@ -164,7 +184,7 @@ public class MessageHandler {
 
             return "Esta no es una cantidad posible";
         }
-        Boolean response = new ItemsApi().putItemQuantity(userToken,itemID,qty);
+        Boolean response = new ItemsApi().putItemQuantity(user.getToken(),user.getItemId(),qty);
         if(response){
             return "Cantidad actualizada correctamente.";
         }
@@ -172,101 +192,89 @@ public class MessageHandler {
     }
 
 
-    private String responseItemUnit(String userToken, long chatId,String message){
-        String itemId = cacheData.get(chatId).get("itemID");
-        Boolean response = new ItemsApi().putItemUnit(userToken,itemId,message);
+    private String responseItemUnit(UserData user,String message){
+        //String itemId = cacheData.get(chatId).get("itemID");
+        Boolean response = new ItemsApi().putItemUnit(user.getToken(),user.getItemId(),message);
         if(response){
-            userState.put(chatId,UserState.WAITING_ITEM_QUANTITY);
+            //userState.put(chatId,UserState.WAITING_ITEM_QUANTITY);
+            user.setState(UserState.WAITING_ITEM_QUANTITY);
             return "Unidad actualizada correctamente.\nPor favor escriba la cantidad deseada:";
         }
-        reset(chatId);
         return "La unidad no pudo ser actualizada.";
     }
 
-    private String responseItemDescription(String userToken, long chatId,String message){
-        String itemId = cacheData.get(chatId).get("itemID");
-        Boolean response = new ItemsApi().putItemDescription(userToken,itemId,message);
+    private String responseItemDescription(UserData user,String message){
+        //String itemId = cacheData.get(chatId).get("itemID");
+        Boolean response = new ItemsApi().putItemDescription(user.getToken(),user.getItemId(),message);
         if(response){
-            userState.put(chatId,UserState.WAITING_ITEM_UNIT);
+            //userState.put(chatId,UserState.WAITING_ITEM_UNIT);
+            user.setState(UserState.WAITING_ITEM_UNIT);
             return "Descripcion actualizada correctamente.\nPor favor escriba la unidad deseada:";
         }
-        reset(chatId);
+        //reset(chatId);
         return "La descripcion no pudo ser actualizada.";
-
     }
 
-    private String agregarItemAPedido(String token,String[] message,long chatId){
-        reset(chatId);
+    private String agregarItemAPedido(UserData user,String[] message){
+        /*reset(chatId);
         String pedidoId;
         try {
             pedidoId = message[1];
         } catch (Exception e ){
             return "La sintaxis de agregarItemAPedido es: /agregarItemAPedido_PedidoID";
-        }
-        JsonNode respuesta= new ItemsApi().addItemApi(pedidoId,token);
+        }*/
+        JsonNode respuesta= new ItemsApi().addItemApi(user.getPedidoId(),user.getToken());
 
         if(respuesta!=null){
-            userState.put(chatId,UserState.WAITING_ITEM_DESCRIPTION);
-            cacheData.put(chatId, new HashMap<>());
-            cacheData.get(chatId).put("itemID",respuesta.get("id").asText());
+
+            user.setItemId(respuesta.get("id").asText());
+            user.setState(UserState.WAITING_ITEM_DESCRIPTION);
+            //userState.put(chatId,UserState.WAITING_ITEM_DESCRIPTION);
+            //cacheData.put(chatId, new HashMap<>());
+            //cacheData.get(chatId).put("itemID",respuesta.get("id").asText());
             return "Se a creado el item de forma correcta.\nElija una descripcion para el item:";
         }
         return "No puedes agregar items a este pedido.";
     }
 
 
-    private String logout(long chatId,String[] message){
-        userSessions.remove(chatId);
-        reset(chatId);
+    private String logout(UserData user,String[] message){
+        //userSessions.remove(chatId);
+        //reset(chatId);
+        userDatas.remove(user.getChatId());
         return "Logout realizado.";
     }
-    private String responseShareId(String token,String message,long chatId){
-        JsonNode user = new UserApi().getUserByUsername(token,message);
-        String pedidoId = cacheData.get(chatId).get("pedidoId");
-        reset(chatId);
-
-        if(user!=null){
-            String userBody = "";
-            try {
-                ObjectMapper objectMapper = new ObjectMapper();
-                userBody =  "{\"user\":"+objectMapper.writeValueAsString(user)+"}";
-            } catch (JsonProcessingException e) {
-            e.printStackTrace();
-                return "No se a logrado compartir el pedido";
-            }
-
-            Boolean response = new ApiOrders().shareOrderApi(pedidoId,token,userBody);
-
-            if(response) return "Se a compartido el pedido con exito";
-            return "No se a logrado compartir el pedido";
-        }
-        return "El usuario no a sido encontrado";
+    private String responseShareId(UserData user,String message){
+        Boolean response = new ApiOrders().shareOrderApi(user.getPedidoId(),user.getToken(),message);
+        if(response) return "Se a compartido el pedido con exito";
+        return "No se a logrado compartir el pedido";
     }
 
-    private String verUsuario(String token,String[] message,long chatId){
-        reset(chatId);
-        JsonNode jsonNode = new UserApi().getUserById(token);
+    private String verUsuario(UserData user,String[] message){
+        //reset(chatId);
+        JsonNode jsonNode = new UserApi().getUserById(user.getToken());
 
         String mssg="User id: "+jsonNode.get("id").asText()+ "\n User name: "+jsonNode.get("username").asText();
 
         return mssg;
     }
 
-    private String verPedidos(String token,String[] message,long chatId){
-        reset(chatId);
-        JsonNode jsonNode= new ApiOrders().getOrdersByUserId(token);
+    private String verPedidos(UserData user,String[] message){
+        //reset(chatId);
+        JsonNode jsonNode= new ApiOrders().getOrdersByUserId(user.getToken());
         int orders_qty = jsonNode.size();
         String mmsg = "Mis Pedidos son";
         for (int i =0;i<orders_qty;i++){
-            String id = jsonNode.get(i).get("description").asText();
-            mmsg += "\n Pedido: " + id +" /verPedido_"+id;
+            String nombre = jsonNode.get(i).get("description").asText();
+            String id = jsonNode.get(i).get("id").asText();
+            mmsg += "\n Pedido: " + nombre +"\n/verPedido_"+id;
         }
 
         return mmsg;
     }
-    private String compartirPedido(long chatId,String[] message){
-        reset(chatId);
-        String pedidoId;
+    private String compartirPedido(UserData user,String[] message){
+        //reset(chatId);
+        /*String pedidoId;
         try {
             pedidoId = message[1];
         } catch (Exception e ){
@@ -275,34 +283,37 @@ public class MessageHandler {
         userState.put(chatId,UserState.WAITING_SHARE_ID);
         cacheData.put(chatId,new HashMap<>());
         cacheData.get(chatId).put("pedidoId",pedidoId);
+        */
+        user.setState(UserState.WAITING_SHARE_ID);
         return "Introduzca el username del usuario a compartir";
     }
 
-    private String editarItem(String token,String[] message,long chatId){
-        reset(chatId);
+    private String editarItem(UserData user,String[] message){
+        //reset(chatId);
         String itemId;
         try {
             itemId = message[1];
         } catch (Exception e ){
             return "La sintaxis de editarItem es: /editarItem_ItemID";
         }
-        JsonNode item = new ItemsApi().getItemById(itemId,token);
+        JsonNode item = new ItemsApi().getItemById(itemId,user.getToken());
         if(item!=null){
+            user.setItemId(itemId);
             String itemText = "Item: "+item.get("description").asText()+".\n";
-            itemText+="/cambiarDescipcionItem_"+itemId+"\n\n";
+            itemText+="/cambiarDescipcionItem\n\n";
             itemText+="Cantidad: "+item.get("quantity").asText()+".\n";
-            itemText+="/sumarItem_"+itemId+"\n";
-            itemText+="/restarItem_"+itemId+"\n\n";
+            itemText+="/sumarItem\n";
+            itemText+="/restarItem\n\n";
             itemText+="Unidad: "+item.get("unit").asText()+".\n";
-            itemText+="/cambiarUnidadItem_"+itemId+"\n\n";
+            itemText+="/cambiarUnidadItem\n\n";
             return itemText;
         }
         return "El item no pudo ser editado.";
     }
 
 
-    private String verPedido(String token,String[] message,long chatId){
-        reset(chatId);
+    private String verPedido(UserData user,String[] message){
+        //reset(chatId);
         System.out.println("/verPedido command processing");
         String pedidoId;
         try {
@@ -311,13 +322,14 @@ public class MessageHandler {
             return "La sintaxis de verPedido es: /verPedido_PedidoID";
         }
         System.out.println(1);
-        JsonNode pedido =  new ApiOrders().getOrderById(pedidoId,token);
+        JsonNode pedido =  new ApiOrders().getOrderById(pedidoId,user.getToken());
         System.out.println(1);
         if(pedido!=null){
+            user.setPedidoId(pedidoId);
             System.out.println(1);
             String pedidoText = "Pedido: "+pedido.get("description").asText()+".";
             System.out.println(1);
-            JsonNode items = new ItemsApi().getOrderItems(pedidoId,token);
+            JsonNode items = new ItemsApi().getOrderItems(pedidoId,user.getToken());
             System.out.println(1);
             for(int j = 0;j<items.size();j++){
                 System.out.println(1);
@@ -331,13 +343,14 @@ public class MessageHandler {
                 return pedidoText;
             }
             System.out.println(1);
-            pedidoText+="\n/compartirPedido_"+pedidoId;
-            pedidoText+="\n/agregarItemAPedido_"+pedidoId;
-            pedidoText+="\n/cambiarNombreAPedido_"+pedidoId;
+            pedidoText+="\n";
+            pedidoText+="\n/compartirPedido";
+            pedidoText+="\n/agregarItemAPedido";
+            pedidoText+="\n/cambiarNombreAPedido";
             System.out.println(pedido.get("owned").asBoolean());
             if(pedido.get("owned").asBoolean()){
                 System.out.println(1);
-                pedidoText+="\n/cerrar_"+pedidoId;
+                pedidoText+="\n/cerrar";
             }
             System.out.println(1);
             return pedidoText;
@@ -346,50 +359,38 @@ public class MessageHandler {
         return "No se puede acceder al pedido";
     }
 
-    private boolean isAdmin(long userId,JsonNode pedido){
-        return Long.valueOf(pedido.get("user").get("id").asInt()) == userId;
-    }
-
-    private JsonNode testAcces(long userId,String pedidoId){
-        JsonNode jsonNode= new ApiOrders().getOrdersByUserId(String.valueOf(userId));
-        int orders_qty = jsonNode.size();
-        for (int i =0;i<orders_qty;i++){
-            JsonNode pedido = jsonNode.get(i);
-            String id = pedido.get("id").asText();
-            if (id.equals(pedidoId)){
-                return pedido;
-            }
-        }
-        return null;
-    }
-
-    private String crearPedido(String userToken,String[] message,long chatId){
-        reset(chatId);
-        JsonNode response = new ApiOrders().createOrdersByUserId(userToken);
+    private String crearPedido(UserData user,String[] message){
+        //reset(chatId);
+        JsonNode response = new ApiOrders().createOrdersByUserId(user.getToken());
         if(response!=null){
-            userState.put(chatId,UserState.WAITING_ORDER_NAME);
-            cacheData.put(chatId, new HashMap<>());
-            cacheData.get(chatId).put("orderID",response.get("id").asText());
+            //userState.put(chatId,UserState.WAITING_ORDER_NAME);
+            //cacheData.put(chatId, new HashMap<>());
+            //cacheData.get(chatId).put("orderID",response.get("id").asText());
+            user.setState(UserState.WAITING_ORDER_NAME);
+            user.setPedidoId(response.get("id").asText());
             return "Orden creada con exito, elija un nombre para su orden:";
         }
         return "La orden no pudo ser creada con exito.";
     }
 
 
-    private String cambiarNombrePedido(String userToken,String[] message,long chatId){
-        reset(chatId);
+    private String cambiarNombrePedido(UserData user,String[] message){
+        /*reset(chatId);
         String pedidoId;
         try {
             pedidoId = message[1];
         } catch (Exception e ){
             return "La sintaxis de cambiarNombrePedido es: /cambiarNombrePedido_PedidoID";
         }
-        JsonNode pedido =  new ApiOrders().getOrderById(pedidoId,userToken);
+
+         */
+        JsonNode pedido =  new ApiOrders().getOrderById(user.getPedidoId(),user.getToken());
 
         if (pedido!=null){
-            userState.put(chatId,UserState.WAITING_ORDER_NAME);
-            cacheData.put(chatId, new HashMap<>());
-            cacheData.get(chatId).put("orderID",pedidoId);
+            //userState.put(chatId,UserState.WAITING_ORDER_NAME);
+            //cacheData.put(chatId, new HashMap<>());
+            //cacheData.get(chatId).put("orderID",pedidoId);
+            user.setState(UserState.WAITING_ORDER_NAME);
             return "Introduce el nuevo nombre del pedido";
         }
         return "No puedes cambiarle el nombre a este pedido";
@@ -398,21 +399,14 @@ public class MessageHandler {
 
 
 
-    private String responseOrderName(String userToken,String message,long chatId){
-        String orderId = cacheData.get(chatId).get("orderID");
-        reset(chatId);
-        Boolean response = new ApiOrders().patchOrderName(userToken,orderId,message);
+    private String responseOrderName(UserData user,String message){
+        //String orderId = cacheData.get(chatId).get("orderID");
+        //reset(chatId);
+        Boolean response = new ApiOrders().patchOrderName(user.getToken(),user.getPedidoId(),message);
         if(response){
             return "Nombre actualizado correctamente";
         }
         return "El nombre no pudo ser actualizado.";
-    }
-
-
-
-    private void reset(long chatId){
-        userState.remove(chatId);
-        cacheData.remove(chatId);
     }
 
 }

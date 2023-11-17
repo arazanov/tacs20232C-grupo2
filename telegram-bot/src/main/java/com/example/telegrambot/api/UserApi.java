@@ -20,7 +20,11 @@ public class UserApi extends apiCalls{
 
 
     public String userLogin(String username,String password) {
-        return super.post("","/","{\"username\":\""+username+"\", \"password\":\""+password+"\"}").get("token").asText();
+        JsonNode json = super.post("","/","{\"username\":\""+username+"\", \"password\":\""+password+"\"}");
+        if (json!=null){
+            return json.get("token").asText();
+        }
+        return null;
     }
 
     public String userSignUp(String username,String email,String password) {
