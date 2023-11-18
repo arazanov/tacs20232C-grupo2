@@ -41,7 +41,7 @@ public class ItemsApi extends apiCalls{
         if(item==null) return false;
         if(item instanceof ObjectNode) {
             ObjectNode objectNode = (ObjectNode) item;
-            objectNode.put("quantity", objectNode.get("quantity").asInt()-qty);
+            objectNode.put("quantity", objectNode.get("quantity").asInt()+qty);
             return putItem(token,objectNode);
         }else return false;
 
