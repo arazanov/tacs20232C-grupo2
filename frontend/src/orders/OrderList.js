@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {Button, ButtonGroup, Container, Table} from 'reactstrap';
 import AppNavbar from '../navbar/AppNavbar';
 import {useNavigate} from "react-router-dom";
+import {useAuth} from "../AuthContext";
 
 function List({ orders, handleChange, remove }) {
     return orders.map(order => {
@@ -30,7 +31,7 @@ function List({ orders, handleChange, remove }) {
 
 export default function OrderList() {
     const [orders, setOrders] = useState([]);
-    let token = localStorage.getItem('token');
+    const { token } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -76,9 +77,7 @@ export default function OrderList() {
                 'Content-Type': 'application/json',
                 'Authorization': 'Bearer ' + token
             },
-            body: JSON.stringify({
-                closed: order.closed
-            })
+            body: JSON.stringify({ closed: order.closed })
         }).then(response => {
             if(response.ok)
                 setOrders(orders.map(o => o.id === order.id ? order : o));
@@ -96,9 +95,7 @@ export default function OrderList() {
             }
         })
             .then(response => response.json())
-            .then(data => {
-                navigate("/orders/" + data.id);
-            });
+            .then(data => { navigate("/orders/" + data.id); });
     }
 
     return (

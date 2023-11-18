@@ -6,6 +6,7 @@ import {ItemList} from "../items/ItemList";
 import {SuccessMessage} from "./SuccessMessage";
 import {UserList} from "../share-users/UserList";
 import {useNavigate} from "react-router-dom";
+import {useAuth} from "../AuthContext";
 
 export default function OrderEdit() {
     const { id } = useParams();
@@ -18,7 +19,7 @@ export default function OrderEdit() {
     const [items, setItems] = useState([]);
     const [users, setUsers] = useState([]);
     const [success, setSuccess] = useState(false);
-    let token = localStorage.getItem('token');
+    const { token } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -31,16 +32,22 @@ export default function OrderEdit() {
                     'Authorization': 'Bearer ' + token
                 }
             })
-                .then(response => response.json())
-                .then(data => {
-                    setter(data)
-                });
+                .then(response => {
+                    if (response.status === 401) {
+                        console.log(token);
+                        alert("No autorizado");
+                        navigate("/");
+                    }
+                    return response.json();
+                })
+                .then(data => { setter(data); });
         }
 
         fetchConst("", setOrder);
         fetchConst("/items", setItems);
         fetchConst("/users", setUsers);
-    }, [id, token]);
+
+    }, [id, token, navigate]);
 
     function handleSubmit(e) {
         e.preventDefault();

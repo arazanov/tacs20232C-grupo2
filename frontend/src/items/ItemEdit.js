@@ -3,6 +3,7 @@ import {useParams} from "react-router";
 import AppNavbar from "../navbar/AppNavbar";
 import {Button, Col, Container, Form, FormGroup, Input, Label} from "reactstrap";
 import {useNavigate} from "react-router-dom";
+import {useAuth} from "../AuthContext"
 
 export default function ItemEdit() {
     const { id } = useParams();
@@ -14,9 +15,9 @@ export default function ItemEdit() {
         unit: ''
     });
     const navigate = useNavigate();
+    const { token } = useAuth();
 
     useEffect(() => {
-        let token = localStorage.getItem('token');
         fetch('/items/' + id, {
             method: 'GET',
             headers: {
@@ -29,11 +30,10 @@ export default function ItemEdit() {
             .then(data => {
                 setItem(data);
             });
-    }, [id]);
+    }, [id, token]);
 
     function handleSubmit(e) {
         e.preventDefault();
-        let token = localStorage.getItem('token');
         fetch('/items/' + id, {
             method: 'PUT',
             headers: {

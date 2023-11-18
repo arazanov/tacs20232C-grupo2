@@ -16,6 +16,7 @@ import {
     Label
 } from "reactstrap";
 import {SuccessMessage} from "../orders/SuccessMessage";
+import {useAuth} from "../AuthContext";
 
 function UserFound({ found, user, orderId, token }) {
     const [success, setSuccess] = useState(false);
@@ -70,7 +71,7 @@ export default function UserFind() {
     const { id } = useParams();
     const [found, setFound] = useState(false);
     const [failure, setFailure] = useState(false);
-    let token = localStorage.getItem('token');
+    let { token } = useAuth();
 
     function handleSubmit(e) {
         e.preventDefault();

@@ -1,15 +1,29 @@
-import { useState } from 'react';
-import { Button, Container, Form, FormGroup, Input, Label } from 'reactstrap';
+import {useEffect, useState} from 'react';
+import {Button, Container, Form, FormGroup, Input, Label} from 'reactstrap';
 import AppNavbar from '../navbar/AppNavbar';
-import { Link, useNavigate } from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
+import {useAuth} from "../AuthContext";
 
 export default function Login() {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
+    const [user, setUser] = useState({
+        username: "",
+        password: ""
+    });
     const [badCredentials, setBadCredentials] = useState(false);
     const navigate = useNavigate();
+    const { setToken } = useAuth();
 
-    localStorage.removeItem('token');
+    useEffect(() => {
+        setToken(null);
+    }, [setToken]);
+
+    function setUsername(e) {
+        setUser({ ...user, username: e.target.value });
+    }
+
+    function setPassword(e) {
+        setUser({ ...user, password: e.target.value });
+    }
 
     function handleSubmit(e) {
         e.preventDefault();
@@ -19,29 +33,25 @@ export default function Login() {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                username: username,
-                password: password
-            }),
+            body: JSON.stringify(user),
         })
             .then(response => {
-                if (response.status === 401) {
+                if (response.status === 401)
                     throw new Error(response.statusText);
-                }
                 return response.json();
             })
             .then(data => {
                 setBadCredentials(false);
-                localStorage.setItem('token', data.token);
+                setToken(data.token);
                 navigate("/orders");
             })
-            .catch((e) => {
+            .catch(e => {
                 console.log(e);
                 setBadCredentials(true);
             });
     }
 
-    function BadCredentialsMessage({ badCredentials }) {
+    function BadCredentialsMessage({badCredentials}) {
         if (badCredentials)
             return <p style={{color: "red"}}>
                 Nombre de usuario o contraseña incorrecto </p>;
@@ -54,13 +64,13 @@ export default function Login() {
             <Form onSubmit={handleSubmit}>
                 <FormGroup>
                     <Label for="username">Nombre de usuario</Label>
-                    <Input type="text" id="username" defaultValue={username} autoComplete={"on"}
-                           onChange={e => setUsername(e.target.value)}/>
+                    <Input type="text" id="username" defaultValue={user.username} autoComplete={"on"}
+                           onChange={setUsername}/>
                 </FormGroup>
                 <FormGroup>
                     <Label for="password">Constraseña</Label>
-                    <Input type="password" id="password" defaultValue={password}
-                           onChange={e => setPassword(e.target.value)}/>
+                    <Input type="password" id="password" defaultValue={user.password}
+                           onChange={setPassword}/>
                 </FormGroup>
                 <BadCredentialsMessage badCredentials={badCredentials}/>
                 <FormGroup style={{paddingTop: 50}}>
@@ -71,6 +81,5 @@ export default function Login() {
                 Registrarse
             </Link>
         </Container>
-    </div>;
-
+    </div>
 }

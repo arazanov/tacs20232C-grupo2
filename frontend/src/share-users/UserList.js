@@ -1,10 +1,11 @@
 import {Button, ButtonGroup, Table} from "reactstrap";
 import React from "react";
+import {useAuth} from "../AuthContext";
 
 export function UserList({ users, orderId, setUsers }) {
+    const { token } = useAuth();
 
     function remove(id) {
-        let token = localStorage.getItem('token');
         fetch("/orders/" + orderId + "/users/" + id, {
             method: 'DELETE',
             headers: {

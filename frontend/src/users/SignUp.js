@@ -1,7 +1,9 @@
 import {UserForm} from "./UserForm";
 import {useState} from "react";
+import {useAuth} from "../AuthContext";
 
 export default function SignUp() {
+    const { setToken } = useAuth();
     const [user, setUser] = useState({
         username: '',
         email: '',
@@ -19,7 +21,7 @@ export default function SignUp() {
         };
     };
 
-    return <UserForm request={request} enableDelete={false} nav={'/orders'} title={'Registrarse'}
-                     user={user} setUser={setUser}/>;
+    return <UserForm request={request} nav={'/orders'} title={'Registrarse'}
+                     user={user} setUser={setUser} setToken={setToken}/>;
 
 }
