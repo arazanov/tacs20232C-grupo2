@@ -36,7 +36,7 @@ public class ApiOrders extends apiCalls{
             String userBody = "";
             try {
                 ObjectMapper objectMapper = new ObjectMapper();
-                userBody = "{\"user\":" + objectMapper.writeValueAsString(user) + "}";
+                userBody = "{\"user\":" + objectMapper.writeValueAsString(userShare) + "}";
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
                 return false;

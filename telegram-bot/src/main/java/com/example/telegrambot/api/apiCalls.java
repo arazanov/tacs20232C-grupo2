@@ -63,6 +63,7 @@ public class apiCalls {
 
             // Cuerpo de la solicitud PATCH como una cadena JSON
             String jsonBody = body;
+            System.out.println(body);
 
             // Tipo de contenido del cuerpo de la solicitud
             MediaType mediaType = MediaType.parse("application/json");
@@ -185,6 +186,8 @@ public class apiCalls {
                     // Parsea el cuerpo de la respuesta como JSON utilizando Jackson
                     ObjectMapper objectMapper = new ObjectMapper();
                     JsonNode jsonResponse = objectMapper.readTree(response.toString());
+
+                    System.out.println(response.toString());
 
                     return jsonResponse;
 

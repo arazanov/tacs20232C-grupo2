@@ -61,6 +61,8 @@ public class MessageHandler {
         userData.setState(UserState.LOGIN);
         if(isCommand) {
             switch (commandsParts[0]) {
+                case "/signUp": return signUp(userData);
+                case "/login": return login(userData);
                 case "/verPedidos":
                     return verPedidos(userData);
                 case "/verUsuario":
@@ -90,7 +92,7 @@ public class MessageHandler {
                 case "/cambiarUnidadItem":
                     return cambiarUnidadItem(userData);
                 default:
-                    return "";
+                    return "El comando seleccionado no existe.";
             }
         }
         System.out.println(5);
@@ -159,7 +161,7 @@ public class MessageHandler {
     }
 
     private String cambiarUnidadItem(UserData user){
-        user.setState(UserState.MOD_ITEM_DESC);
+        user.setState(UserState.MOD_ITEM_UNIT);
         return "Introduzca la nueva unidad del item:";
     }
 
@@ -181,8 +183,12 @@ public class MessageHandler {
 
     private UserData getOrCreate(long chatId){
         UserData userData = userDatas.get(chatId);
-        if(userData!=null) return userData;
-        return new UserData(chatId);
+        if(userData==null){
+            userData = new UserData(chatId);
+            userDatas.put(chatId,userData);
+        }
+
+        return userData;
     }
 
 
@@ -344,7 +350,7 @@ public class MessageHandler {
 
     private String verPedido(UserData user,String pedidoId){
         JsonNode pedido =  new ApiOrders().getOrderById(pedidoId,user.getToken());
-        System.out.println(1);
+
         if(pedido!=null){
             user.setPedidoId(pedidoId);
             System.out.println(1);
@@ -358,7 +364,7 @@ public class MessageHandler {
                 pedidoText += "\n"+item.get("quantity").asText()+" ";
 
                 String unit = item.get("unit").asText();
-                if(unit!=){
+                if(unit!=null){
                     pedidoText += unit+" de ";
                 }
 

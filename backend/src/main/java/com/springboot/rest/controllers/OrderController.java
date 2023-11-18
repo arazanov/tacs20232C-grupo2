@@ -36,8 +36,10 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
-    public Order getOrder(@PathVariable String id) {
-        return findOrThrow(orderService::findById, id);
+    public Order getOrder(@AuthenticationPrincipal CustomUserDetails userDetails,@PathVariable String id) {
+        Order order=findOrThrow(orderService::findById, id);
+        order.setOwned(userDetails.id());
+        return order;
     }
 
     @GetMapping("/{id}/users")
