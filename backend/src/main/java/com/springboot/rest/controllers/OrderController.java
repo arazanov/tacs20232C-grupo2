@@ -64,8 +64,11 @@ public class OrderController {
 
     @PostMapping("/{id}/items")
     public Item createItem(@PathVariable String id) {
-        Item item = new Item();
         Order order = findOrThrow(orderService::findById, id);
+        if (order.isClosed()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Order closed");
+        }
+        Item item = new Item();
         item.setOrder(order);
         return itemService.save(item);
     }
@@ -77,6 +80,8 @@ public class OrderController {
         Order order = findOrThrow(orderService::findById, id);
 
         if (request.description() != null) {
+            if (order.isClosed())
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Order closed");
             if (!order.isUpToDate(request.version))
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Order not up to date");
             order.incrementVersion();
@@ -94,6 +99,8 @@ public class OrderController {
         }
 
         if (request.user() != null) {
+            if (order.isClosed())
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Order closed");
             order.addUser(request.user());
             orderService.update(order);
         }

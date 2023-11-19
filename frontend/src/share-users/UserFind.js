@@ -18,7 +18,7 @@ import {
 import {SuccessMessage} from "../orders/SuccessMessage";
 import {useAuth} from "../AuthContext";
 
-function UserFound({ found, user, orderId, token }) {
+function UserFound({found, user, orderId, token, navigate}) {
     const [success, setSuccess] = useState(false);
 
     function share() {
@@ -33,7 +33,14 @@ function UserFound({ found, user, orderId, token }) {
                 user: user
             })
         }).then(response => {
-            if(response.ok) setSuccess(true);
+            if (response.ok)
+                setSuccess(true);
+            if (response.status === 401)
+                throw new Error(response.statusText);
+        }).catch(e => {
+            console.log(e);
+            alert("Pedido cerrado");
+            navigate("/orders");
         });
     }
 
@@ -54,7 +61,7 @@ function UserFound({ found, user, orderId, token }) {
                 </Button>
             </CardBody>
         </Card>
-        <div style={{ paddingTop: 30 }}>
+        <div style={{paddingTop: 30}}>
             <SuccessMessage success={success}></SuccessMessage>
         </div>
     </Container>;
@@ -68,14 +75,14 @@ export default function UserFind() {
         email: ''
     });
     const navigate = useNavigate();
-    const { id } = useParams();
+    const {id} = useParams();
     const [found, setFound] = useState(false);
     const [failure, setFailure] = useState(false);
-    let { token } = useAuth();
+    let {token} = useAuth();
 
     function handleSubmit(e) {
         e.preventDefault();
-        fetch("/users?username="+user.username, {
+        fetch("/users?username=" + user.username, {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
@@ -119,6 +126,6 @@ export default function UserFind() {
                 </FormGroup>
             </Form>
         </Container>
-        <UserFound found={found} user={user} orderId={id} token={token}/>
+        <UserFound found={found} user={user} orderId={id} token={token} navigate={navigate}/>
     </div>;
 }

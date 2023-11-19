@@ -55,6 +55,10 @@ public class Item {
         return unit;
     }
 
+    public boolean isClosed() {
+        return order.isClosed();
+    }
+
     public void setDescription(String description) {
         this.description = description;
     }

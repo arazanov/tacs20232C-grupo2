@@ -9,7 +9,7 @@ import {useNavigate} from "react-router-dom";
 import {useAuth} from "../AuthContext";
 
 export default function OrderEdit() {
-    const { id } = useParams();
+    const {id} = useParams();
     const [order, setOrder] = useState({
         id: '',
         version: null,
@@ -19,7 +19,7 @@ export default function OrderEdit() {
     const [items, setItems] = useState([]);
     const [users, setUsers] = useState([]);
     const [success, setSuccess] = useState(false);
-    const { token } = useAuth();
+    const {token} = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -40,7 +40,9 @@ export default function OrderEdit() {
                     }
                     return response.json();
                 })
-                .then(data => { setter(data); });
+                .then(data => {
+                    setter(data);
+                });
         }
 
         fetchConst("", setOrder);
@@ -65,14 +67,20 @@ export default function OrderEdit() {
             })
         })
             .then(response => {
-                if (response.status === 409)
+                if (response.status === 409 || response.status === 401)
                     throw new Error(response.statusText);
             })
             .then(() => setSuccess(true))
             .catch(e => {
                 console.log(e);
-                alert("Pedido desactualizado, recargar página.");
-                window.location.reload();
+                if (e.message.includes("Conflict")) {
+                    alert("Pedido desactualizado, recargar página.");
+                    window.location.reload();
+                }
+                if (e.message.includes("Unauthorized")) {
+                    alert("Pedido cerrado");
+                    navigate("/orders");
+                }
             });
     }
 
@@ -85,17 +93,26 @@ export default function OrderEdit() {
                 'Authorization': 'Bearer ' + token
             }
         })
-            .then(response => response.json())
+            .then(response => {
+                if (response.status === 401)
+                    throw new Error(response.statusText);
+                return response.json();
+            })
             .then(data => {
                 navigate("/orders/" + id + "/items/" + data.id);
+            })
+            .catch(e => {
+                console.log(e);
+                alert("Pedido cerrado");
+                navigate("/orders");
             });
     }
 
     return <div>
         <AppNavbar/>
         <Container>
-            <h2 style={{ paddingTop: 50, paddingBottom: 50 }}>Editar pedido</h2>
-            <Form onSubmit={handleSubmit} style={{paddingBottom:20}}>
+            <h2 style={{paddingTop: 50, paddingBottom: 50}}>Editar pedido</h2>
+            <Form onSubmit={handleSubmit} style={{paddingBottom: 20}}>
                 <FormGroup>
                     <Label for="description">Descripción</Label>
                     <Input type="text" id="description" defaultValue={order.description}
@@ -115,7 +132,7 @@ export default function OrderEdit() {
                     <ItemList items={items} setItems={setItems} orderId={id}/> :
                     <div> No hay ítems </div>
             }
-            <div style={{ paddingTop: 30, paddingBottom: 50 }}>
+            <div style={{paddingTop: 30, paddingBottom: 50}}>
                 <Button color="primary" onClick={() => createItem()}>Agregar ítem</Button>
             </div>
             {
@@ -123,10 +140,10 @@ export default function OrderEdit() {
                     <UserList users={users} setUsers={setUsers} orderId={id}/> :
                     <div> No se compartió con ningún usuario </div>
             }
-            <div style={{  paddingTop: 30, paddingBottom: 50 }}>
+            <div style={{paddingTop: 30, paddingBottom: 50}}>
                 <Button color="primary" href={"/orders/" + id + "/users"}>Compartir</Button>
             </div>
-            <div style={{  paddingBottom: 50 }}>
+            <div style={{paddingBottom: 50}}>
                 <Button color="success" href={"/orders"}>Volver</Button>
             </div>
         </Container>
