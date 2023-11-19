@@ -80,19 +80,22 @@ public class OrderController {
             if (!order.isUpToDate(request.version))
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Order not up to date");
             order.incrementVersion();
-            orderService.changeDescription(order, request.description());
+            order.setDescription(request.description());
+            orderService.update(order);
         }
 
         if (request.closed() != null) {
             if (order.isOwner(userDetails.id())) {
-                orderService.changeStatus(order, request.closed());
+                order.setClosed(request.closed());
+                orderService.update(order);
             } else {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User is not the owner");
             }
         }
 
         if (request.user() != null) {
-            orderService.shareOrder(order, request.user());
+            order.addUser(request.user());
+            orderService.update(order);
         }
     }
 
@@ -101,6 +104,14 @@ public class OrderController {
     public void deleteOrder(@PathVariable String id) {
         orderService.deleteById(id);
         itemService.deleteByOrderId(id);
+    }
+
+    @DeleteMapping("/{id}/users/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void removeUser(@PathVariable String id, @PathVariable String userId) {
+        Order order = findOrThrow(orderService::findById, id);
+        order.removeUser(userId);
+        orderService.update(order);
     }
 
     public record OrderRequest(int version, String description, Boolean closed, User user) {
