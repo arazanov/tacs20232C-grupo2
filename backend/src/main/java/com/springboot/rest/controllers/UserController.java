@@ -3,6 +3,7 @@ package com.springboot.rest.controllers;
 import com.springboot.rest.model.User;
 import com.springboot.rest.security.jwt.JwtUtils;
 import com.springboot.rest.security.services.CustomUserDetails;
+import com.springboot.rest.services.ItemService;
 import com.springboot.rest.services.OrderService;
 import com.springboot.rest.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,8 @@ public class UserController {
     @Autowired
     private OrderService orderService;
     @Autowired
+    private ItemService itemService;
+    @Autowired
     private AuthenticationManager authenticationManager;
     @Autowired
     private JwtUtils jwtUtils;
@@ -44,7 +47,9 @@ public class UserController {
 
     @PostMapping("/users")
     public ResponseEntity<JwtResponse> userSignUp(@RequestBody UserRequest request) {
-        exists(request);
+        if (userService.existsByUsernameOrEmail(request.username(), request.email())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "User already exists");
+        }
 
         User user = new User();
         user.setUsername(request.username());
@@ -83,16 +88,25 @@ public class UserController {
     public JwtResponse updateUser(@RequestBody UserRequest request,
                                   @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        exists(request);
+        User update = userDetails.getUser();
 
-        userService.updateUser(
-                userDetails.id(),
-                request.username(),
-                request.email(),
-                passwordEncoder.encode(request.password())
-        );
+        String newUsername = request.username();
+        String newEmail = request.email();
 
-        return authenticateUser(request.username(), request.password());
+        if (!newUsername.equals(userDetails.getUsername()) && userService.existsByUsername(newUsername) ||
+                !newEmail.equals(userDetails.getEmail()) && userService.existsByEmail(newEmail)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "User already exists");
+        }
+
+        String newPassword = request.password();
+
+        update.setUsername(newUsername);
+        update.setEmail(newEmail);
+        if (newPassword != null)
+            update.setPassword(passwordEncoder.encode(newPassword));
+
+        userService.updateUser(update);
+        return new JwtResponse(jwtUtils.generateJwtToken(newUsername));
     }
 
     @DeleteMapping("/users")
@@ -101,8 +115,11 @@ public class UserController {
     public void deleteUser(@AuthenticationPrincipal CustomUserDetails userDetails) {
         String id = userDetails.id();
         userService.deleteById(id);
+        orderService.findByUserId(id).forEach(o -> {
+            itemService.deleteByOrderId(o.getId());
+            o.removeUser(id);
+        });
         orderService.deleteByUserId(id);
-        // TODO borrar items por pedido borrado
     }
 
     public record JwtResponse(String token) {
@@ -119,15 +136,9 @@ public class UserController {
         return new JwtResponse(jwtUtils.generateJwtToken(userDetails.getUsername()));
     }
 
-    private void exists(UserRequest request) {
-        if (userService.exists(request.username(), request.email())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,
-                    "User already exists");
-        }
-    }
-
     private interface Finder<T> {
         T find();
+
     }
 
     private User findOrThrow(Finder<User> finder, String queryParam) {

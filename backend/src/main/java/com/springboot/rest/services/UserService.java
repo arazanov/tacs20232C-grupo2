@@ -16,28 +16,28 @@ public class UserService {
     }
 
     public User findByUsernameOrEmail(String username) {
-        return userRepository.findByUsername(username)
-                .or(() -> userRepository.findByEmail(username)).orElseThrow();
+        return userRepository.findByUsernameOrEmail(username).orElseThrow();
     }
 
     public long userCount() {
         return userRepository.count();
     }
 
-    public boolean exists(String username, String email) {
-        return userRepository.existsByUsernameOrEmail(
-                username,
-                email
-        );
+    public boolean existsByUsernameOrEmail(String username, String email) {
+        return userRepository.existsByUsernameOrEmail(username, email);
     }
 
-    public void updateUser(String id, String username, String email, String password) {
-        User update = userRepository.findById(id).orElseThrow();
-        update.setUsername(username);
-        update.setEmail(email);
-        if (password != null) update.setPassword(password);
-        userRepository.deleteById(id);
-        userRepository.save(update);
+    public boolean existsByUsername(String username) {
+        return userRepository.existsByUsername(username);
+    }
+
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
+    public void updateUser(User user) {
+        userRepository.deleteById(user.getId());
+        userRepository.save(user);
     }
 
     public void deleteById(String id) {

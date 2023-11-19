@@ -3,9 +3,8 @@ import {Button, Container, Form, FormFeedback, FormGroup, Input, Label} from "re
 import {useNavigate} from "react-router-dom";
 import {useState} from "react";
 
-export function UserForm({ request, nav, title, user, setUser, setToken, children }) {
+export function UserForm({ title, user, setUser, handleSubmit, children }) {
     const navigate = useNavigate();
-    const [invalidPassword, setInvalidPassword] = useState(false);
     const [invalidUsername, setInvalidUsername] = useState(false);
 
     function setUsername(e) {
@@ -19,33 +18,15 @@ export function UserForm({ request, nav, title, user, setUser, setToken, childre
     }
 
     function setPassword(e) {
-        setInvalidPassword(false);
         setUser({ ...user, password: e.target.value });
     }
 
-    function handleSubmit(e) {
+    function trySubmit(e) {
         e.preventDefault();
-
-        if (user.password === '') {
-            setInvalidPassword(true);
-            return;
-        }
-
-        fetch('/users', request())
-            .then(response => {
-                if (response.status === 409) {
-                    throw new Error(response.statusText);
-                }
-                return response.json();
-            })
-            .then(data => {
-                setToken(data.token);
-                navigate(nav);
-            })
-            .catch(e => {
-                setInvalidUsername(true);
-                console.log(e);
-            });
+        handleSubmit().catch((err) => {
+            setInvalidUsername(true);
+            console.log(err);
+        });
     }
 
     return <div>
@@ -54,26 +35,25 @@ export function UserForm({ request, nav, title, user, setUser, setToken, childre
 
             <h2 style={{paddingTop: 50, paddingBottom: 50}}>{title}</h2>
 
-            <Form onSubmit={handleSubmit}>
+            <Form onSubmit={trySubmit}>
                 <FormGroup>
                     <Label for="username">Nombre de usuario</Label>
                     <Input type="text" id="username" defaultValue={user.username} autoComplete="off"
                            onChange={setUsername} invalid={invalidUsername}/>
-                    <FormFeedback valid={!invalidUsername}>Ya existe el nombre de usuario o contraseña</FormFeedback>
+                    <FormFeedback valid={!invalidUsername}>Ya existe el nombre de usuario o email</FormFeedback>
                 </FormGroup>
 
                 <FormGroup>
                     <Label for="email">Email</Label>
                     <Input type="email" id="email" defaultValue={user.email} autoComplete="off"
                            onChange={setEmail} invalid={invalidUsername}/>
-                    <FormFeedback valid={!invalidUsername}>Ya existe el nombre de usuario o contraseña</FormFeedback>
+                    <FormFeedback valid={!invalidUsername}>Ya existe el nombre de usuario o email</FormFeedback>
                 </FormGroup>
 
                 <FormGroup>
                     <Label for="password">Contraseña</Label>
                     <Input type="password" id="password" defaultValue={user.password} autoComplete="off"
-                           onChange={setPassword} invalid={invalidPassword}/>
-                    <FormFeedback valid={!invalidPassword}>Este campo es obligatorio</FormFeedback>
+                           onChange={setPassword}/>
                 </FormGroup>
 
                 <FormGroup style={{paddingTop: 50}}>

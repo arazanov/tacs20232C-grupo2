@@ -5,25 +5,13 @@ import {Button} from "reactstrap";
 import {useAuth} from "../AuthContext";
 
 export default function UserEdit() {
-    let { token, setToken } = useAuth();
+    let {token, setToken} = useAuth();
     const navigate = useNavigate();
     const [user, setUser] = useState({
         username: '',
         email: '',
         password: ''
     });
-
-    const request = () => {
-        return {
-            method: 'PUT',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + token
-            },
-            body: JSON.stringify(user)
-        };
-    };
 
     useEffect(() => {
         fetch("/user", {
@@ -35,7 +23,7 @@ export default function UserEdit() {
             }
         })
             .then(response => {
-                if(response.status === 401)
+                if (response.status === 401)
                     throw new Error("No autorizado");
                 return response.json();
             })
@@ -46,6 +34,26 @@ export default function UserEdit() {
             });
     }, [token, navigate]);
 
+    const handleSubmit = () => fetch('/users', {
+        method: 'PUT',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify(user)
+    })
+        .then(response => {
+            if (response.status === 409) {
+                throw new Error("Invalid username");
+            }
+            return response.json();
+        })
+        .then(data => {
+            setToken(data.token);
+            navigate(-1);
+        });
+
     function remove() {
         fetch('/users', {
             method: 'DELETE',
@@ -54,11 +62,10 @@ export default function UserEdit() {
                 'Content-Type': 'application/json',
                 'Authorization': 'Bearer ' + token
             }
-        }).then(() => { navigate('/'); })
+        }).then(() => navigate('/'));
     }
 
-    return <UserForm request={request} nav={-1} title={'Editar perfil'}
-                     user={user} setUser={setUser} setToken={setToken}>
+    return <UserForm title={'Editar perfil'} user={user} setUser={setUser} handleSubmit={handleSubmit}>
         <Button color="danger" onClick={() => remove()}>Eliminar</Button>
     </UserForm>;
 
