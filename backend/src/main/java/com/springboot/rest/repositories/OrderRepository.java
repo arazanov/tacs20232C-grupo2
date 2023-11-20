@@ -11,6 +11,7 @@ public interface OrderRepository extends MongoRepository<Order, String> {
     @Query("{'$or':  [{'user.id':  ?0}, {'users.id': ?0}]}")
     List<Order> findByUserId(String userId);
 
+    @Query("{'user.id': ?0}")
     void deleteByUserId(String userId);
 
 }

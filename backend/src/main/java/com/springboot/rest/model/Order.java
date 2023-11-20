@@ -48,6 +48,10 @@ public class Order {
         users.add(user);
     }
 
+    public void removeUser(String userId) {
+        users.stream().filter(u -> u.getId().equals(userId)).findFirst().ifPresent(users::remove);
+    }
+
     public int getVersion() {
         return version;
     }

@@ -7,19 +7,20 @@ import Login from "./users/Login";
 import SignUp from "./users/SignUp";
 import ItemEdit from "./items/ItemEdit";
 import UserFind from "./share-users/UserFind";
+import AuthProvider from "./AuthContext";
 
 export default function App() {
-    return (
-        <BrowserRouter>
+    return <BrowserRouter>
+        <AuthProvider>
             <Routes>
-                <Route path="/" element={ <Login/> }/>
-                <Route path="/signup" element={ <SignUp/> }/>
-                <Route path="/profile" element={ <UserEdit/> }/>
-                <Route path="/orders" element={ <OrderList/> }/>
-                <Route path="/orders/:id" element={ <OrderEdit/> }/>
-                <Route path="/orders/:id/users" element={ <UserFind/> }/>
-                <Route path="/orders/:orderId/items/:id" element={ <ItemEdit/> }/>
+                <Route path="/profile" element={<UserEdit/>}/>
+                <Route path="/orders" element={<OrderList/>}/>
+                <Route path="/orders/:id" element={<OrderEdit/>}/>
+                <Route path="/orders/:id/users" element={<UserFind/>}/>
+                <Route path="/orders/:orderId/items/:id" element={<ItemEdit/>}/>
+                <Route path="/" element={<Login/>}/>
+                <Route path="/signup" element={<SignUp/>}/>
             </Routes>
-        </BrowserRouter>
-    );
+        </AuthProvider>
+    </BrowserRouter>
 }

@@ -22,12 +22,20 @@ public class ItemController {
     }
 
     @PutMapping
-    public void updateItem(@PathVariable String id, @RequestBody Item item) {
-        try {
-            itemService.update(id, item);
-        } catch (RuntimeException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
-        }
+    public void updateItem(@PathVariable String id, @RequestBody Item update) {
+        Item item = itemService.findById(id);
+
+        if (item.isClosed())
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Order is closed");
+
+        if (!update.isUpToDate(item.getVersion()))
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Item is not up to date");
+
+        item.incrementVersion();
+        item.setDescription(update.getDescription());
+        item.setQuantity(update.getQuantity());
+        item.setUnit(update.getUnit());
+        itemService.update(item);
     }
 
     @DeleteMapping
