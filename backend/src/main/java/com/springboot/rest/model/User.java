@@ -13,6 +13,7 @@ import java.util.Objects;
 public class User {
 
     public User() {
+        this.active = false;
     }
 
     @Id
@@ -23,6 +24,7 @@ public class User {
     private String email;
     @JsonIgnore
     private String password;
+    private boolean active;
 
     public String getId() {
         return id;
@@ -40,6 +42,10 @@ public class User {
         return password;
     }
 
+    public boolean isActive() {
+        return active;
+    }
+
     public void setUsername(String username) {
         this.username = username;
     }
@@ -50,6 +56,10 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
     @Override

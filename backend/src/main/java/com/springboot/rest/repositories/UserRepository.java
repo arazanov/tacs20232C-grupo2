@@ -17,4 +17,6 @@ public interface UserRepository extends MongoRepository<User, String> {
     @Query("{'$or': [{'username': ?0}, {'email': ?0}]}")
     Optional<User> findByUsernameOrEmail(String username);
 
+    int countAllByActiveIsTrue();
+
 }

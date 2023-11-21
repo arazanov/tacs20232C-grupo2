@@ -6,6 +6,7 @@ import com.springboot.rest.model.User;
 import com.springboot.rest.security.services.CustomUserDetails;
 import com.springboot.rest.services.ItemService;
 import com.springboot.rest.services.OrderService;
+import com.springboot.rest.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +30,8 @@ public class OrderController {
     private OrderService orderService;
     @Autowired
     private ItemService itemService;
+    @Autowired
+    private UserService userService;
 
     @GetMapping
     public List<Order> getOrders(@AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -53,7 +56,13 @@ public class OrderController {
     }
 
     @PostMapping
-    public ResponseEntity<Order> createOrder() {
+    public ResponseEntity<Order> createOrder(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        if (!userDetails.isActive()) {
+            User user = userDetails.getUser();
+            user.setActive(true);
+            userService.updateUser(user);
+        }
+
         Order newOrder = orderService.save(new Order());
 
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
@@ -80,6 +89,12 @@ public class OrderController {
                             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         Order order = findOrThrow(orderService::findById, id);
+
+        if (!userDetails.isActive()) {
+            User user = userDetails.getUser();
+            user.setActive(true);
+            userService.updateUser(user);
+        }
 
         if (request.description() != null) {
             if (order.isClosed())

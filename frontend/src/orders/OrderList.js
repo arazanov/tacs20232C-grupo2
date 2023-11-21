@@ -20,7 +20,8 @@ function List({ orders, handleChange, remove }) {
                     })} disabled={!order.owned}>
                         {order.closed ? "Abrir" : "Cerrar"}
                     </Button>
-                    <Button size="sm" color="danger" onClick={() => remove(order.id)}>
+                    <Button size="sm" color="danger" onClick={() => remove(order.id)}
+                            disabled={!order.owned}>
                         Eliminar
                     </Button>
                 </ButtonGroup>

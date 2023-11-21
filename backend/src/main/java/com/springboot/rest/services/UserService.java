@@ -20,7 +20,7 @@ public class UserService {
     }
 
     public long userCount() {
-        return userRepository.count();
+        return userRepository.countAllByActiveIsTrue();
     }
 
     public boolean existsByUsernameOrEmail(String username, String email) {

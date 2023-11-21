@@ -31,6 +31,10 @@ public class CustomUserDetails implements UserDetails {
         return user.getEmail();
     }
 
+    public boolean isActive() {
+        return user.isActive();
+    }
+
     @Override
     public String getUsername() {
         return user.getUsername();

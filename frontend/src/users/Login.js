@@ -110,7 +110,7 @@ export default function Login() {
         <Container style={{paddingTop: 80}}>
             <Row className="justify-content-md-center">
                 <Col className="text-center">
-                    <Card style={{width: '18rem', height: "14rem", display: "inline-block"}}>
+                    <Card style={{width: '18rem', height: "14rem", display: "inline-block", marginBottom: "10px"}}>
                         <CardBody>
                             <CardTitle tag="h5">{monitor.userCount}</CardTitle>
                             <CardSubtitle className="mb-2 text-muted" tag="h6">
@@ -140,7 +140,6 @@ export default function Login() {
                         />
                     </Card>
                 </Col>
-
             </Row>
         </Container>
     </div>
