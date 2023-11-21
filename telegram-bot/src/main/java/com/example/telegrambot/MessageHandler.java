@@ -140,7 +140,7 @@ public class MessageHandler {
     }
 
     private String start(){
-        String startMessage = "Bienvenido a Pedidos Compartidos!\nLa mejor aplicacion para hacer organizar tus pedidos.\n\n";
+        String startMessage = "Bienvenido a Empanadas APP!\nLa mejor aplicacion para hacer organizar tus pedidos.\n\n";
         startMessage+=showStats();
         return startMessage;
     }
