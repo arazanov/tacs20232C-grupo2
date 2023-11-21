@@ -2,7 +2,6 @@ version: '3'
 services:
   telegram-bot:
     build: telegram-bot
-    image: empanadapp.azurecr.io/telegram-bot
     ports:
       - "8081:8081"
   backend:
