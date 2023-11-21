@@ -2,6 +2,7 @@ package com.example.telegrambot;
 
 import com.example.telegrambot.api.ApiOrders;
 import com.example.telegrambot.api.ItemsApi;
+import com.example.telegrambot.api.MonitorApi;
 import com.example.telegrambot.api.UserApi;
 import com.example.telegrambot.conversationThreads.ItemManage;
 import com.example.telegrambot.conversationThreads.PedidosManage;
@@ -31,10 +32,7 @@ public class MessageHandler {
 
         System.out.println("Processing command " + command[0]);
 
-
         UserData userData = userManage.getOrCreate(chatId);
-
-
 
         String[] commandsParts = command[0].split("_");
 
@@ -47,10 +45,12 @@ public class MessageHandler {
 
             if(isCommand){
                 switch (command[0]){
-                    case "/start": return userManage.notLoggedResponse(userData,start());
+                    case "/stats": return showStats();
+                    case "/start": return userManage.defaultMessage(userData,start());
                     case "/signUp": return userManage.signUp(userData);
-                    case "/login": return userManage.login(userData);
-                    default: return userManage.notLoggedResponse(userData,"Comando no reconocido.");
+                    case "/logIn": return userManage.login(userData);
+                    case "/verComandos": return  userManage.verComandos(userData);
+                    default: return userManage.defaultMessage(userData,"Comando no reconocido.");
                 }
             }
             switch (actualState){
@@ -59,7 +59,7 @@ public class MessageHandler {
                 case WAITING_PASSWORD_SIGNUP: return userManage.waitPasswordSignUp(userData,message);
                 case WAITING_ID: return userManage.waitUsername(userData,message);
                 case WAITING_PASSWORD: return userManage.waitPassword(userData,message);
-                default: return userManage.notLoggedResponse(userData,"No has iniciado sesion aun.");
+                default: return userManage.defaultMessage(userData,"No has iniciado sesion aun.");
             }
 
         }
@@ -67,24 +67,24 @@ public class MessageHandler {
         userData.setState(UserState.LOGIN);
         if(isCommand) {
             switch (commandsParts[0]) {
+                case "/stats":
+                    return showStats();
                 case "/start":
-                    return userManage.loggedResponse(userData,start());
-                case "/logout":
+                    return userManage.defaultMessage(userData,start());
+                case "/logOut":
                     return userManage.logout(userData);
                 case "/signUp":
                     return userManage.signUp(userData);
-                case "/login":
+                case "/logIn":
                     return userManage.login(userData);
                 case "/verUsuario":
                     return userManage.verUsuario(userData);
-                case "/verPedidos":
+                case "/verPedidos","/volverAPedidos":
                     return pedidosManage.verPedidos(userData);
                 case "/verPedido":
                     return pedidosManage.verPedido(userData, commandsParts[1]);
                 case "/volverAPedido":
                     return pedidosManage.verPedido(userData, userData.getPedidoId());
-                case "/volverAPedidos":
-                    return pedidosManage.verPedidos(userData);
                 case "/crearPedido":
                     return pedidosManage.crearPedido(userData);
                 case "/editarItem":
@@ -108,9 +108,9 @@ public class MessageHandler {
                 case "/cambiarUnidadItem":
                     return itemManage.cambiarUnidadItem(userData);
                 case "/verComandos":
-                    return userManage.loggedResponse(userData,"");
+                    return userManage.verComandos(userData);
                 default:
-                    return userManage.loggedResponse(userData,"El comando seleccionado no existe.");
+                    return userManage.defaultMessage(userData,"El comando seleccionado no existe.");
             }
         }
 
@@ -135,13 +135,24 @@ public class MessageHandler {
             case MOD_ITEM_UNIT:
                 return itemManage.responseUnitItem(userData,message);
             default:
-                return userManage.loggedResponse(userData,"Perdona, no entiendo que me quieres decir.");
+                return userManage.defaultMessage(userData,"Perdona, no puedo entenderte.");
             }
     }
 
     private String start(){
-        String startMessage = "Bienvenido a Pedidos Compartidos!\nLa mejor aplicacion para hacer organizar tus pedidos.";
+        String startMessage = "Bienvenido a Pedidos Compartidos!\nLa mejor aplicacion para hacer organizar tus pedidos.\n\n";
+        startMessage+=showStats();
         return startMessage;
+    }
+
+    public String showStats(){
+        JsonNode stats = new MonitorApi().getMonitor();
+        String userCount = stats.get("userCount").asText();
+        String orderCount = stats.get("orderCount").asText();
+        String response = "";
+        response+="Usuarios activos: "+userCount+"\n";
+        response+="Pedidos creados: "+orderCount+"\n";
+        return response;
     }
 
 

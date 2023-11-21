@@ -14,6 +14,7 @@ https://www.tacs-utn.com.ar/
    - [Usuarios](#usuarios)
 4. [Diagrama de objetos](#dominio)
 5. [Wireframes](#wireframes)
+6. [Bot de Telegram](#bot-de-telegram)
 
 ## Build
 
@@ -200,3 +201,57 @@ Pedido Abierto Invitado:
 Pedido Cerrado Admin:
 
 ![wireframe de login](/diagramas/wireframes/pedido_cerrado_admin.jpg)
+
+## Bot de telegram
+
+Para utilizar el bot de telegram primero debes crear un bot de telegram.
+
+Puedes ver como crear un bot de telegram en el siguiente link:
+
+[Como crear y obtener el token de tu bot de telegram](https://core.telegram.org/bots/tutorial#obtain-your-bot-token)
+
+Luego debes modificar el archivo:
+
+telegram-bot->src->main->resources->application.properties
+
+```properties
+bot.token = BOT_TOKEN
+bot.username = BOT_USERNAME
+```
+
+Ahora cuando corras el bot de telegram ya podras escribirle y recibir respustas de tu bot creado.
+
+### Algunos de los comandos disponibles que ofrece nuestro bot de pedidos:
+```
+/logIn (Inicia Sesion)
+
+/signUp (Crea una cuenta)
+
+/start (Ver mensaje de bienvenida)
+
+/stats (Ver estadisticas de la aplicacion)
+
+/verComandos (Lista todos los comandos disponibles)
+
+/logOut (Cierra sesion)
+
+/verUsuario (Ver informacion del usuario actual)
+
+/verPedidos (Lista todos los pedidos a los que tienes acceso)
+
+/crearPedido (Crea nuevo pedido)
+
+/sumarItem (Suma N unidades al item accedido)
+
+/restarItem (Resta N unidades al item accedido)
+
+/cambiarDescipcionItem (Cambia la descripcion del item accedido)
+
+/cambiarUnidadItem (Cambia la unidad del item accedido)
+
+/volverAPedido (Vuelve a la vista del pedido del item accedido)
+
+/cambiarNombreAPedido (Cambiar nombre de pedido accedido)
+
+/agregarItemAPedido (Crea nuevo item en el pedido accedido)
+```

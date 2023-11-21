@@ -2,6 +2,9 @@ package com.example.telegrambot;
 
 import org.apache.catalina.User;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class UserData {
     public String token;
     public long chatid;
@@ -50,6 +53,34 @@ public class UserData {
         boolean answer =  this.state.isLogin(this.state);
         System.out.println(answer);
         return answer;
+    }
+
+    public List<String> availableCommands(){
+        List<String> availables = new ArrayList<>();
+        availables.add("/logIn (Inicia Sesion).");
+        availables.add("/signUp (Crea una cuenta).");
+        availables.add("/start (Ver mensaje de bienvenida).");
+        availables.add("/stats (Ver estadisticas de la aplicacion).");
+        availables.add("/verComandos (Lista todos los comandos disponibles).");
+        if (this.isLogin()){
+            availables.add("/logOut (Cierra sesion).");
+            availables.add("/verUsuario (Ver informacion del usuario actual).");
+            availables.add("/verPedidos (Lista todos los pedidos a los que tienes acceso).");
+            availables.add("/crearPedido (Crea nuevo pedido).");
+        }
+        if (this.getItemId()!=null){
+            availables.add("/sumarItem (Suma N unidades al item accedido).");
+            availables.add("/restarItem (Resta N unidades al item accedido).");
+            availables.add("/cambiarDescipcionItem (Cambia la descripcion del item accedido).");
+            availables.add("/cambiarUnidadItem (Cambia la unidad del item accedido).");
+            availables.add("/volverAPedido (Vuelve a la vista del pedido del item accedido).");
+        }else {
+            if(this.getPedidoId()!=null){
+                availables.add("/cambiarNombreAPedido (Cambiar nombre de pedido accedido).");
+                availables.add("/agregarItemAPedido (Crea nuevo item en el pedido accedido).");
+            }
+        }
+        return availables;
     }
 
     public String getMail() {

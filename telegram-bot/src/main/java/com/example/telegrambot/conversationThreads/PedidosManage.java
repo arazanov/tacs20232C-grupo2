@@ -19,7 +19,7 @@ public class PedidosManage {
                 pedidoText+="\nItems:";
                 for(int j = 0;j<itemsQty;j++){
                     JsonNode item = items.get(j);
-                    pedidoText += "\n"+item.get("quantity").asText()+" ";
+                    pedidoText += "\n\t• "+item.get("quantity").asText()+" ";
 
                     String unit = item.get("unit").asText();
                     if(unit!=null){
@@ -37,16 +37,17 @@ public class PedidosManage {
                 if(pedido.get("owned").asBoolean()){
                     pedidoText+="\n/abrirPedido";
                 }
+                pedidoText+="\n/verComandos";
                 pedidoText+="\n/volverAPedidos";
                 return pedidoText;
             }
-            pedidoText+="\n";
-            pedidoText+="\n/compartirPedido";
+            pedidoText+="\n\n/compartirPedido";
             pedidoText+="\n/agregarItemAPedido";
             pedidoText+="\n/cambiarNombreAPedido";
             if(pedido.get("owned").asBoolean()){
                 pedidoText+="\n/cerrarPedido";
             }
+            pedidoText+="\n/verComandos";
             pedidoText+="\n/volverAPedidos";
             return pedidoText;
         }
@@ -97,10 +98,10 @@ public class PedidosManage {
             for (int i =0;i<orders_qty;i++){
                 String nombre = jsonNode.get(i).get("description").asText();
                 String id = jsonNode.get(i).get("id").asText();
-                mmsg += "\n Pedido: " + nombre +"\n/verPedido_"+id;
+                mmsg += "\n\t•Pedido: " + nombre +"\n\t /verPedido_"+id;
             }
         }
-        mmsg+="\n\n/verComandos";
+        mmsg+="\n\n/crearPedido\n/verComandos";
 
         return mmsg;
     }
@@ -128,7 +129,7 @@ public class PedidosManage {
 
 
     public String messageAndOrder(UserData user,String message){
-        return message+"\n\n\n"+verPedido(user,user.getPedidoId());
+        return message+"\n\n"+verPedido(user,user.getPedidoId());
     }
 
 }

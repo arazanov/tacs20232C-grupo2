@@ -126,7 +126,8 @@ public class ItemManage {
             itemText+="/sumarItem\n";
             itemText+="/restarItem\n\n";
             itemText+="Unidad: "+item.get("unit").asText()+".\n";
-            itemText+="/cambiarUnidadItem\n\n";
+            itemText+="/cambiarUnidadItem\n\n\n";
+            itemText+="/verComandos\n";
             itemText+="/volverAPedido";
             return itemText;
         }

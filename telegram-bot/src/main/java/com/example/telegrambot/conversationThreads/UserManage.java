@@ -5,7 +5,9 @@ import com.example.telegrambot.UserState;
 import com.example.telegrambot.api.UserApi;
 import com.fasterxml.jackson.databind.JsonNode;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class UserManage {
     public final HashMap<Long, UserData> userDatas = new HashMap<>();
@@ -35,7 +37,7 @@ public class UserManage {
         String loginToken = new UserApi().userSignUp(user.getUsername(),user.getMail(),message);
         user.setState(UserState.LOGOUT);
         if(loginToken!=null){
-            return "SignUp exitoso, ahora puedes hacer /login .";
+            return "SignUp exitoso, ahora puedes hacer /logIn .";
         }
         return "El signUp no se pudo efectuar de forma correcta.";
     }
@@ -51,7 +53,7 @@ public class UserManage {
         if((loginToken!=null) && (loginToken!="") && (loginToken!=" ")){
             user.setToken(loginToken);
             user.setState(UserState.LOGIN);
-            return "Login exitoso.\nObtenga los comandos disponibles con /verComandos .";
+            return "Inicio de sesion exitoso.\nObtenga los comandos disponibles con /verComandos .";
         }
         user.setState(UserState.LOGOUT);
         return "El usuario o contraseña es incorrecto.";
@@ -73,29 +75,36 @@ public class UserManage {
         user.resetData();
         JsonNode jsonNode = new UserApi().getUserById(user.getToken());
 
-        String mssg="Id de usuario: "+jsonNode.get("id").asText()+ "\nNombre de usuario: "+jsonNode.get("username").asText()+ "\nMail del usuario: "+jsonNode.get("email").asText()+ "\n/logout"+ "\n/verComandos";
+        String mssg="Id de usuario: "+jsonNode.get("id").asText()+ "\nNombre de usuario: "+jsonNode.get("username").asText()+ "\nMail del usuario: "+jsonNode.get("email").asText()+ "\n\n/logOut"+ "\n/verComandos";
 
         return mssg;
     }
 
     public String logout(UserData user){
         userDatas.remove(user.getChatId());
-        return "Logout realizado.";
+        return "Sesion cerrada correctamente.\n\n/verComandos";
     }
 
     public String notLoggedResponse(UserData userData,String message){
-        return message+"\n\n\n"+"Puedes intentar con alguno de estos comandos:\n/login\n/signUp";
+        return message+"\n\n"+"Puedes intentar con alguno de estos comandos:\n/logIn\n/signUp";
     }
 
-    public String loggedResponse(UserData userData,String message){
+    public String defaultMessage(UserData userData,String message){
         String response = "";
         response += message;
-        if(message!="") response += "\n\n\n";
-        return response+"Por favor ingrese uno de los siguientes comandos: " +
-                "\n/verPedidos" +
-                "\n/verUsuario" +
-                "\n/crearPedido" +
-                "\n/logout";
+        response += "\n\n";
+        response += verComandos(userData);
+        return response;
     }
+
+
+    public String verComandos(UserData userData){
+        String response = "Los comandos disponibles son los siguientes: ";
+        for(String command:userData.availableCommands()){
+            response+="\n\t• "+command;
+        }
+        return response;
+    }
+
 
 }

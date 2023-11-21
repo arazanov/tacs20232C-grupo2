@@ -151,8 +151,11 @@ public class apiCalls {
 
     public JsonNode get(String token,String path){
         try {
+            String fullPath = myUrl+path;
+
             // Crear una URL para la solicitud HTTP
-            URL url = new URL(myUrl+path);
+            URL url = new URL(fullPath);
+
 
             // Abrir una conexión HTTP
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
