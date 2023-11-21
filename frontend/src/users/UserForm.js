@@ -1,10 +1,8 @@
 import AppNavbar from "../navbar/AppNavbar";
 import {Button, Container, Form, FormFeedback, FormGroup, Input, Label} from "reactstrap";
-import {useNavigate} from "react-router-dom";
 import {useState} from "react";
 
 export function UserForm({ title, user, setUser, handleSubmit, children }) {
-    const navigate = useNavigate();
     const [invalidUsername, setInvalidUsername] = useState(false);
 
     function setUsername(e) {
@@ -58,7 +56,7 @@ export function UserForm({ title, user, setUser, handleSubmit, children }) {
 
                 <FormGroup style={{paddingTop: 50}}>
                     <Button color="primary" type="submit">Guardar</Button>{' '}
-                    <Button color="secondary" onClick={() => navigate(-1)}>Cancelar</Button>{' '}
+                    <Button color="secondary" href="/orders">Cancelar</Button>{' '}
                     {children}
                 </FormGroup>
             </Form>

@@ -1,5 +1,18 @@
 import {useEffect, useState} from 'react';
-import {Button, Container, Form, FormGroup, Input, Label} from 'reactstrap';
+import {
+    Button,
+    Card,
+    CardBody,
+    CardSubtitle,
+    CardTitle,
+    Col,
+    Container,
+    Form,
+    FormGroup,
+    Input,
+    Label,
+    Row
+} from 'reactstrap';
 import AppNavbar from '../navbar/AppNavbar';
 import {Link, useNavigate} from "react-router-dom";
 import {useAuth} from "../AuthContext";
@@ -11,18 +24,31 @@ export default function Login() {
     });
     const [badCredentials, setBadCredentials] = useState(false);
     const navigate = useNavigate();
-    const { setToken } = useAuth();
+    const {setToken} = useAuth();
+    const [monitor, setMonitor] = useState({
+        userCount: null,
+        orderCount: null
+    });
 
     useEffect(() => {
         setToken(null);
+        fetch("/monitor", {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => response.json())
+            .then(setMonitor);
     }, [setToken]);
 
     function setUsername(e) {
-        setUser({ ...user, username: e.target.value });
+        setUser({...user, username: e.target.value});
     }
 
     function setPassword(e) {
-        setUser({ ...user, password: e.target.value });
+        setUser({...user, password: e.target.value});
     }
 
     function handleSubmit(e) {
@@ -80,6 +106,42 @@ export default function Login() {
             <Link to={"/signup"}>
                 Registrarse
             </Link>
+        </Container>
+        <Container style={{paddingTop: 80}}>
+            <Row className="justify-content-md-center">
+                <Col className="text-center">
+                    <Card style={{width: '18rem', height: "14rem", display: "inline-block"}}>
+                        <CardBody>
+                            <CardTitle tag="h5">{monitor.userCount}</CardTitle>
+                            <CardSubtitle className="mb-2 text-muted" tag="h6">
+                                Usuarios activos
+                            </CardSubtitle>
+                        </CardBody>
+                        <img
+                            alt="user icon"
+                            src={require("./user.png")}
+                            width="110"
+                        />
+                    </Card>
+                </Col>
+                <Col className="text-center">
+                    <Card style={{width: '18rem', height: "14rem", display: "inline-block"}}>
+                        <CardBody>
+                            <CardTitle tag="h5">{monitor.orderCount}</CardTitle>
+                            <CardSubtitle className="mb-2 text-muted" tag="h6">
+                                Pedidos creados
+                            </CardSubtitle>
+                        </CardBody>
+                        <img
+                            alt="order icon"
+                            src={require("./order.png")}
+                            width="100"
+                            className={"mx-auto"}
+                        />
+                    </Card>
+                </Col>
+
+            </Row>
         </Container>
     </div>
 }
