@@ -29,6 +29,10 @@ public class ApiOrders extends apiCalls{
         return super.patch(token,"/orders/"+orderId,"{\"closed\": true}");
     }
 
+    public boolean openOrderApi(String orderId,String token){
+        return super.patch(token,"/orders/"+orderId,"{\"closed\": false}");
+    }
+
     public boolean shareOrderApi(String orderId,String token,String user){
         JsonNode userShare = new UserApi().getUserByUsername(token,user);
 

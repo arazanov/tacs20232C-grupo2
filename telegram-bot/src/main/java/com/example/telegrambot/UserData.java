@@ -22,6 +22,24 @@ public class UserData {
         this.state=UserState.LOGOUT;
     }
 
+    public void login(){
+        this.username=null;
+        this.mail=null;
+        this.token=null;
+        this.pedidoId=null;
+        this.itemId=null;
+        this.state=UserState.WAITING_ID;
+    }
+    public void signUp(){
+        this.username=null;
+        this.mail=null;
+        this.token=null;
+        this.pedidoId=null;
+        this.itemId=null;
+        this.state=UserState.WAITING_USERNAME_SIGNUP;
+    }
+
+
     public void resetData(){
         this.state=UserState.LOGIN;
         this.pedidoId=null;
@@ -82,6 +100,7 @@ public class UserData {
     }
 
     public void setPedidoId(String pedidoId) {
+        this.itemId = null;
         this.pedidoId = pedidoId;
     }
 

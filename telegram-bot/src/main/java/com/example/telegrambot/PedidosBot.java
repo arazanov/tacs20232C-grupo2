@@ -9,8 +9,8 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 public class PedidosBot extends TelegramLongPollingBot {
 
     MessageHandler messageHandler;
-    public static String BOT_TOKEN = "6474434866:AAH4dMSOvG3M-yrquvykVh_pZxKeJASvQqo";
-    public static String BOT_USERNAME  = "PedidosCompartidosbot";
+    public String BOT_TOKEN;
+    public String BOT_USERNAME;
 
     @Override
     public void onUpdateReceived(Update update){
@@ -24,7 +24,9 @@ public class PedidosBot extends TelegramLongPollingBot {
             if(response!=null && response!="") sendMessage(chatId,response);
         }
     }
-    public PedidosBot(){
+    public PedidosBot(String bot_token,String bot_username){
+        this.BOT_TOKEN=bot_token;
+        this.BOT_USERNAME=bot_username;
         this.messageHandler = new MessageHandler();
     }
     @Override
