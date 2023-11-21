@@ -77,6 +77,9 @@ public class ItemsApi extends apiCalls{
         return super.get(token,"/items/" + id);
     }
 
+    public boolean deleteItem(String token,String id) {
+        return super.delete(token,"/items/"+id);
+    }
 
     public JsonNode getOrderItems(String pedidoId,String token){
         return super.get(token,"/orders/"+pedidoId+"/items");

@@ -18,11 +18,13 @@ public class ItemService {
     }
 
     public Item findById(String id) {
-        return itemRepository.findById(id).orElseThrow();
+        Item item =itemRepository.findById(id).orElseThrow();
+        return item;
     }
 
     public List<Item> findByOrderId(String orderId) {
-        return itemRepository.findByOrderId(orderId);
+        List<Item> items = itemRepository.findByOrderId(orderId);
+        return items;
     }
 
     public void deleteById(String id) {

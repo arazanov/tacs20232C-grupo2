@@ -1,7 +1,7 @@
 package com.springboot.rest.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.*;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.stereotype.Component;
@@ -26,6 +26,7 @@ public class Item {
     @DBRef
     @JsonIgnore
     private Order order;
+
 
     public String getId() {
         return id;
@@ -74,5 +75,7 @@ public class Item {
     public void setOrder(Order order) {
         this.order = order;
     }
+
+    public boolean hasUser(String id){return order.hasUser(id);}
 
 }

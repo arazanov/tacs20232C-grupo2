@@ -36,8 +36,10 @@ public class UserManage {
     public String waitPasswordSignUp(UserData user,String message){
         String loginToken = new UserApi().userSignUp(user.getUsername(),user.getMail(),message);
         user.setState(UserState.LOGOUT);
-        if(loginToken!=null){
-            return "SignUp exitoso, ahora puedes hacer /logIn .";
+        if((loginToken!=null) && (loginToken!="") && (loginToken!=" ")){
+            user.setToken(loginToken);
+            user.setState(UserState.LOGIN);
+            return "SignUp exitoso, ahora ya estas loggeado.\nObtenga los comandos disponibles con /verComandos .";
         }
         return "El signUp no se pudo efectuar de forma correcta.";
     }

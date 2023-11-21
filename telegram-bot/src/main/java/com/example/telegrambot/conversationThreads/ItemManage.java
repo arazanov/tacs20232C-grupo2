@@ -2,6 +2,7 @@ package com.example.telegrambot.conversationThreads;
 
 import com.example.telegrambot.UserData;
 import com.example.telegrambot.UserState;
+import com.example.telegrambot.api.ApiOrders;
 import com.example.telegrambot.api.ItemsApi;
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -127,11 +128,18 @@ public class ItemManage {
             itemText+="/restarItem\n\n";
             itemText+="Unidad: "+item.get("unit").asText()+".\n";
             itemText+="/cambiarUnidadItem\n\n\n";
+            itemText+="/borrarItem\n";
             itemText+="/verComandos\n";
             itemText+="/volverAPedido";
             return itemText;
         }
         return "El item no pudo ser editado.";
+    }
+
+    public String borrarItem(UserData user){
+        boolean response = new ItemsApi().deleteItem(user.getToken(),user.getItemId());
+        if(response) return "Item borrado correctamente.\n\n"+new PedidosManage().verPedido(user,user.getPedidoId());
+        else return "El Item no pudo ser borrado.";
     }
 
 }

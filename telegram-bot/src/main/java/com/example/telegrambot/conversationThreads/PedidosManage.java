@@ -46,6 +46,7 @@ public class PedidosManage {
             pedidoText+="\n/cambiarNombreAPedido";
             if(pedido.get("owned").asBoolean()){
                 pedidoText+="\n/cerrarPedido";
+                pedidoText+="\n/borrarPedido";
             }
             pedidoText+="\n/verComandos";
             pedidoText+="\n/volverAPedidos";
@@ -130,6 +131,12 @@ public class PedidosManage {
 
     public String messageAndOrder(UserData user,String message){
         return message+"\n\n"+verPedido(user,user.getPedidoId());
+    }
+
+    public String borrarPedido(UserData user){
+        boolean response = new ApiOrders().deleteOrder(user.getToken(),user.getPedidoId());
+        if(response) return "Pedido borrado correctamente\n\n"+verPedidos(user);
+        else return "El pedido no pudo ser borrado";
     }
 
 }

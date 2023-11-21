@@ -61,8 +61,9 @@ public class ApiOrders extends apiCalls{
         return super.post(token,"/orders");
     }
 
-
-
+    public boolean deleteOrder(String token,String id) {
+        return super.delete(token,"/orders/"+id);
+    }
 
     public JsonNode getOrderById(String id,String token) {
         return super.get(token,"/orders/"+id);

@@ -42,6 +42,10 @@ public class OrderController {
     public Order getOrder(@AuthenticationPrincipal CustomUserDetails userDetails,@PathVariable String id) {
         Order order=findOrThrow(orderService::findById, id);
         order.setOwned(userDetails.id());
+        if (!order.isOwned()){
+            if(order.hasUser(userDetails.id())) return order;
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No permissions to see this order.");
+        }
         return order;
     }
 
@@ -119,9 +123,16 @@ public class OrderController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteOrder(@PathVariable String id) {
-        orderService.deleteById(id);
-        itemService.deleteByOrderId(id);
+    public void deleteOrder(@PathVariable String id,@AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        Order order = orderService.findById(id);
+
+        if (order.isOwner(userDetails.id())) {
+            orderService.deleteById(id);
+            itemService.deleteByOrderId(id);
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User is not the owner");
+        }
     }
 
     @DeleteMapping("/{id}/users/{userId}")

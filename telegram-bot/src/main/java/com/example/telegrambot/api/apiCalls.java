@@ -97,6 +97,47 @@ public class apiCalls {
         }
     }
 
+
+    public boolean delete(String token,String path){
+        try {
+            // URL de la API a la que deseas hacer la solicitud PATCH
+            String url = myUrl+path;
+            String apiUrl = url; // Reemplaza 123 con el valor de ID correcto
+
+            System.out.println(url);
+
+            // Tipo de contenido del cuerpo de la solicitud
+            MediaType mediaType = MediaType.parse("application/json");
+
+            // Crear un cliente OkHttpClient
+            OkHttpClient client = new OkHttpClient();
+
+            // Construir la solicitud PATCH con el cuerpo
+            Request request = new Request.Builder()
+                    .url(apiUrl)
+                    .delete()
+                    .addHeader("Authorization", "Bearer "+token)
+                    .build();
+
+            // Realizar la solicitud PATCH
+            Response response = client.newCall(request).execute();
+
+            // Verificar el código de respuesta
+            if (response.isSuccessful()) {
+                // La solicitud PATCH fue exitosa
+                System.out.println("Solicitud DELETE exitosa.");
+                return true;
+            } else {
+                // La solicitud PATCH no fue exitosa
+                System.out.println("La solicitud DELETE no fue exitosa. Código de respuesta: " + response.code());
+                return false;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public JsonNode post(String token,String path){
         return post(token,path,"");
     }

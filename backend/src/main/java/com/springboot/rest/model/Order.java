@@ -100,4 +100,6 @@ public class Order {
         this.closed = closed;
     }
 
+    public boolean hasUser(String userId) {return ((this.users.stream().anyMatch(user1 -> user1.getId().equals(userId))) || (isOwner(userId)));}
+
 }

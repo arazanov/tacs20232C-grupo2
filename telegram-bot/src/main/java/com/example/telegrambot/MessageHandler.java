@@ -109,6 +109,10 @@ public class MessageHandler {
                     return itemManage.cambiarUnidadItem(userData);
                 case "/verComandos":
                     return userManage.verComandos(userData);
+                case "/borrarPedido":
+                    return pedidosManage.borrarPedido(userData);
+                case "/borrarItem":
+                    return itemManage.borrarItem(userData);
                 default:
                     return userManage.defaultMessage(userData,"El comando seleccionado no existe.");
             }

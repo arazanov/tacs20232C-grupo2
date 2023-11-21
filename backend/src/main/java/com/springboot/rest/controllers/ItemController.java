@@ -23,8 +23,11 @@ public class ItemController {
     private UserService userService;
 
     @GetMapping
-    public Item getItem(@PathVariable String id) {
-        return itemService.findById(id);
+    public Item getItem(@AuthenticationPrincipal CustomUserDetails userDetails,@PathVariable String id) {
+
+        Item item = itemService.findById(id);
+        if(item.hasUser(userDetails.id())) return item;
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No permissions to see this item.");
     }
 
     @PutMapping
