@@ -51,7 +51,7 @@ export default function UserEdit() {
         })
         .then(data => {
             setToken(data.token);
-            navigate(-1);
+            navigate("/orders");
         });
 
     function remove() {
