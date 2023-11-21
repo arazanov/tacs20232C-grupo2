@@ -15,6 +15,10 @@ https://www.tacs-utn.com.ar/
 4. [Diagrama de objetos](#dominio)
 5. [Wireframes](#wireframes)
 6. [Bot de Telegram](#bot-de-telegram)
+   - [Tutorial](#creating-a-new-bot)
+   - [Documentación](#telegram-bots)
+   - [Modificación de application.properties](#applicationproperties)
+   - [Comandos](#algunos-de-los-comandos-disponibles-que-ofrece-nuestro-bot-de-pedidos)
 
 ## Build
 
@@ -202,7 +206,7 @@ Pedido Cerrado Admin:
 
 ![wireframe de login](/diagramas/wireframes/pedido_cerrado_admin.jpg)
 
-## Bot de telegram
+## Bot de Telegram
 
 Para utilizar el bot de telegram primero debes crear un bot de telegram.
 
@@ -213,7 +217,7 @@ Use the /newbot command to create a new bot. [@BotFather](https://t.me/botfather
 - The **name** of your bot is displayed in contact details and elsewhere.
 
 
-- The **username** is a short name, used in search, mentions and t.me links. Usernames are 5-32 characters long and not case sensitive – but may only include Latin characters, numbers, and underscores. Your bot's username must end in 'bot’, like 'tetris_bot' or 'TetrisBot'.
+- The **username** is a short name, used in search, mentions and t.me links. Usernames are 5-32 characters long and not case-sensitive – but may only include Latin characters, numbers, and underscores. Your bot's username must end in 'bot', like 'tetris_bot' or 'TetrisBot'.
 
 
 - The **token** is a string, like 110201543:AAHdqTcvCH1vGWJxfSeofSAs0K5PALDsaw, which is required to authorize the bot and send requests to the Bot API. Keep your token secure and store it safely, it can be used by anyone to control your bot.
@@ -221,7 +225,7 @@ Use the /newbot command to create a new bot. [@BotFather](https://t.me/botfather
 Unlike the bot’s name, the username cannot be changed later – so choose it carefully.
 When sending a request to api.telegram.org, remember to prefix the word ‘bot’ to your token.
 
-### Documentación de Telegram
+### Telegram API
 
 También puedes ver cómo crear un bot de telegram en el siguiente link:
 
@@ -238,7 +242,7 @@ bot.token = BOT_TOKEN
 bot.username = BOT_USERNAME
 ```
 
-Ahora cuando corras el bot de telegram ya podrás escribirle y recibir respustas de tu bot creado.
+Ahora cuando corras el bot de telegram ya podrás escribirle y recibir respuestas de tu bot creado.
 
 ### Algunos de los comandos disponibles que ofrece nuestro bot de pedidos:
 ```
