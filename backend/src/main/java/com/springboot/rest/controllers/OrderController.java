@@ -57,11 +57,7 @@ public class OrderController {
 
     @PostMapping
     public ResponseEntity<Order> createOrder(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        if (!userDetails.isActive()) {
-            User user = userDetails.getUser();
-            user.setActive(true);
-            userService.updateUser(user);
-        }
+        setActive(userDetails);
 
         Order newOrder = orderService.save(new Order());
 
@@ -74,8 +70,9 @@ public class OrderController {
     }
 
     @PostMapping("/{id}/items")
-    public Item createItem(@PathVariable String id) {
+    public Item createItem(@PathVariable String id, @AuthenticationPrincipal CustomUserDetails userDetails) {
         Order order = findOrThrow(orderService::findById, id);
+        setActive(userDetails);
         if (order.isClosed()) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Order closed");
         }
@@ -89,12 +86,7 @@ public class OrderController {
                             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         Order order = findOrThrow(orderService::findById, id);
-
-        if (!userDetails.isActive()) {
-            User user = userDetails.getUser();
-            user.setActive(true);
-            userService.updateUser(user);
-        }
+        setActive(userDetails);
 
         if (request.description() != null) {
             if (order.isClosed())
@@ -139,6 +131,14 @@ public class OrderController {
     }
 
     public record OrderRequest(int version, String description, Boolean closed, User user) {
+    }
+
+    private void setActive(CustomUserDetails userDetails) {
+        if (!userDetails.isActive()) {
+            User user = userDetails.getUser();
+            user.setActive(true);
+            userService.updateUser(user);
+        }
     }
 
     private interface Finder<T> {
