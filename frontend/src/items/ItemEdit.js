@@ -60,7 +60,7 @@ export default function ItemEdit() {
                 <FormGroup row>
                     <Label for="description" sm={2}>Descripción</Label>
                     <Col sm={10}>
-                        <Input type="text" id="description" defaultValue={item.description} autoComplete={"off"}
+                        <Input type="text" id="description" placeholder="Agregar descripción" defaultValue={item.description} autoComplete={"off"}
                                onChange={e => setItem({
                                    ...item, description: e.target.value
                                })}/>

@@ -12,7 +12,7 @@ public class Item {
 
     public Item() {
         this.version = 0;
-        this.description = "Agregar descripción";
+        this.description = "";
         this.quantity = 0;
     }
 

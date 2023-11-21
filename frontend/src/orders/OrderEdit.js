@@ -115,7 +115,7 @@ export default function OrderEdit() {
             <Form onSubmit={handleSubmit} style={{paddingBottom: 20}}>
                 <FormGroup>
                     <Label for="description">Descripción</Label>
-                    <Input type="text" id="description" defaultValue={order.description}
+                    <Input type="text" id="description" placeholder="Agregar descripción" defaultValue={order.description}
                            autoComplete={"off"}
                            onChange={e => {
                                setSuccess(false);

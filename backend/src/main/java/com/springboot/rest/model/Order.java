@@ -16,7 +16,7 @@ public class Order {
 
     public Order() {
         this.version = 0;
-        this.description = "Agregar descripción";
+        this.description = "";
         this.closed = false;
         this.users = new HashSet<>();
     }

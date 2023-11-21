@@ -18,6 +18,10 @@ https://www.tacs-utn.com.ar/
 ## Build
 
 ```
+luego de agregar 2 lineas en el archivo telegram-bot.src.main.resources->application.properties:
+   bot.token = TU-BOT-TOKEN
+   bot.username = TU-BOT-USERNAME
+   
 docker compose up
 ```
 
