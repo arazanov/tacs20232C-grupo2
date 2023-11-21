@@ -29,7 +29,7 @@ docker compose up
 ## Deploy en cloud con Azure
 
 - [Tutorial: Deploy a multi-container group using Docker Compose](https://learn.microsoft.com/en-us/azure/container-instances/tutorial-docker-compose)
-- [Link a la app](http://20.124.62.23:80)
+- [Link a la app](http://20.242.233.113:80)
 
 ## API Endpoints
 
