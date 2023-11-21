@@ -25,11 +25,6 @@ public class ItemService {
         return itemRepository.findByOrderId(orderId);
     }
 
-    public void update(Item item) {
-        itemRepository.deleteById(item.getId());
-        itemRepository.save(item);
-    }
-
     public void deleteById(String id) {
         itemRepository.deleteById(id);
     }

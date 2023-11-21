@@ -105,7 +105,7 @@ public class UserController {
         if (newPassword != null)
             update.setPassword(passwordEncoder.encode(newPassword));
 
-        userService.updateUser(update);
+        userService.save(update);
         return new JwtResponse(jwtUtils.generateJwtToken(newUsername));
     }
 

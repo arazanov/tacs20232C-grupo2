@@ -1,9 +1,11 @@
 import {Button, ButtonGroup, Table} from "reactstrap";
 import React from "react";
 import {useAuth} from "../AuthContext";
+import {useNavigate} from "react-router-dom";
 
-export function ItemList({ items, orderId, setItems }) {
-    const { token } = useAuth();
+export function ItemList({items, orderId, setItems}) {
+    const {token} = useAuth();
+    const navigate = useNavigate();
 
     function remove(id) {
         fetch("/items/" + id, {
@@ -13,8 +15,18 @@ export function ItemList({ items, orderId, setItems }) {
                 'Content-Type': 'application/json',
                 'Authorization': 'Bearer ' + token
             }
+        }).then(response => {
+            if (!response.ok) {
+                return response.text().then(body => {
+                    throw new Error(body)
+                });
+            }
         }).then(() => {
             setItems(items.filter(i => i.id !== id))
+        }).catch(e => {
+            console.log(e);
+            alert("Pedido cerrado");
+            navigate("/orders");
         });
     }
 

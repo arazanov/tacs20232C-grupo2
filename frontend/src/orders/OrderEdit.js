@@ -3,7 +3,6 @@ import React, {useEffect, useState} from "react";
 import {Button, Container, Form, FormGroup, Input, Label} from "reactstrap";
 import AppNavbar from "../navbar/AppNavbar";
 import {ItemList} from "../items/ItemList";
-import {SuccessMessage} from "./SuccessMessage";
 import {UserList} from "../share-users/UserList";
 import {useNavigate} from "react-router-dom";
 import {useAuth} from "../AuthContext";
@@ -31,18 +30,16 @@ export default function OrderEdit() {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + token
                 }
-            })
-                .then(response => {
-                    if (response.status === 401) {
-                        console.log(token);
-                        alert("No autorizado");
-                        navigate("/");
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    setter(data);
-                });
+            }).then(response => {
+                if (response.status === 401) {
+                    alert("No autorizado");
+                    navigate("/");
+                    return response.text().then(body => {
+                        throw new Error(body);
+                    });
+                }
+                return response.json();
+            }).then(setter).catch(console.log);
         }
 
         fetchConst("", setOrder);
@@ -67,21 +64,21 @@ export default function OrderEdit() {
             })
         })
             .then(response => {
-                if (response.status === 409 || response.status === 401)
-                    throw new Error(response.statusText);
+                if (!response.ok) {
+                    if (response.status === 409) {
+                        alert("Pedido desactualizado");
+                        window.location.reload();
+                    } else if (response.status === 401) {
+                        alert("Pedido cerrado");
+                        navigate("/orders");
+                    }
+                    return response.text().then(body => {
+                        throw new Error(body);
+                    });
+                }
             })
             .then(() => setSuccess(true))
-            .catch(e => {
-                console.log(e);
-                if (e.message.includes("Conflict")) {
-                    alert("Pedido desactualizado, recargar página.");
-                    window.location.reload();
-                }
-                if (e.message.includes("Unauthorized")) {
-                    alert("Pedido cerrado");
-                    navigate("/orders");
-                }
-            });
+            .catch(console.log);
     }
 
     function createItem() {
@@ -94,8 +91,11 @@ export default function OrderEdit() {
             }
         })
             .then(response => {
-                if (response.status === 401)
-                    throw new Error(response.statusText);
+                if (response.status === 401) {
+                    return response.text().then(body => {
+                        throw new Error(body);
+                    });
+                }
                 return response.json();
             })
             .then(data => {
@@ -122,7 +122,7 @@ export default function OrderEdit() {
                                setOrder({...order, description: e.target.value});
                            }}/>
                 </FormGroup>
-                <SuccessMessage success={success}/>
+                {success && <p style={{color: "green"}}> ¡Guardado! </p>}
                 <FormGroup>
                     <Button color="primary" type="submit">Guardar</Button>
                 </FormGroup>

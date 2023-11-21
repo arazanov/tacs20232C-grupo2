@@ -37,11 +37,6 @@ public class OrderService {
         return orderRepository.count();
     }
 
-    public void update(Order order) {
-        orderRepository.deleteById(order.getId());
-        orderRepository.save(order);
-    }
-
     public void deleteById(String id) {
         orderRepository.deleteById(id);
     }

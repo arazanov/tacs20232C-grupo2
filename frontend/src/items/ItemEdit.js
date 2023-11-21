@@ -43,7 +43,11 @@ export default function ItemEdit() {
             },
             body: JSON.stringify(item)
         }).then(response => {
-            if (!response.ok) throw new Error(response.statusText);
+            if (!response.ok) {
+                return response.text().then(body => {
+                    throw new Error(body);
+                });
+            }
             navigate(-1);
         }).catch(e => {
             console.log(e);

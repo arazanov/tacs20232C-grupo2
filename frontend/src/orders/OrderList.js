@@ -4,7 +4,7 @@ import AppNavbar from '../navbar/AppNavbar';
 import {useNavigate} from "react-router-dom";
 import {useAuth} from "../AuthContext";
 
-function List({ orders, handleChange, remove }) {
+function List({orders, handleChange, remove}) {
     return orders.map(order => {
         return <tr key={order.id}>
             <td style={{whiteSpace: 'nowrap'}}>{order.description}</td>
@@ -32,7 +32,7 @@ function List({ orders, handleChange, remove }) {
 
 export default function OrderList() {
     const [orders, setOrders] = useState([]);
-    const { token } = useAuth();
+    const {token} = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -43,18 +43,18 @@ export default function OrderList() {
                 'Content-Type': 'application/json',
                 'Authorization': 'Bearer ' + token
             }
-        })
-            .then(response => {
-                if (response.status === 401)
-                    throw new Error("Unauthorized user");
-                return response.json();
-            })
-            .then(setOrders)
-            .catch(e => {
-                console.log(e);
-                alert("Autenticación incorrecta.");
-                navigate("/");
-            });
+        }).then(response => {
+            if (response.status === 401) {
+                return response.text().then(body => {
+                    throw new Error(body);
+                });
+            }
+            return response.json();
+        }).then(setOrders).catch(e => {
+            console.log(e);
+            alert("Autenticación incorrecta.");
+            navigate("/");
+        });
     }, [token, navigate]);
 
     function remove(id) {
@@ -78,12 +78,14 @@ export default function OrderList() {
                 'Content-Type': 'application/json',
                 'Authorization': 'Bearer ' + token
             },
-            body: JSON.stringify({ closed: order.closed })
+            body: JSON.stringify({closed: order.closed})
         }).then(response => {
-            if(response.ok)
+            if (response.ok)
                 setOrders(orders.map(o => o.id === order.id ? order : o));
-            else console.log(response.body);
-        });
+            else return response.text().then(body => {
+                throw new Error(body);
+            });
+        }).catch(console.log);
     }
 
     function createOrder() {
@@ -96,14 +98,16 @@ export default function OrderList() {
             }
         })
             .then(response => response.json())
-            .then(data => { navigate("/orders/" + data.id); });
+            .then(data => {
+                navigate("/orders/" + data.id);
+            });
     }
 
     return (
         <div>
             <AppNavbar/>
             <Container fluid>
-                <h3 style={{ paddingTop: 50 }}>Pedidos</h3>
+                <h3 style={{paddingTop: 50}}>Pedidos</h3>
                 {
                     orders.length ?
                         <Table className="mt-4">
@@ -124,7 +128,7 @@ export default function OrderList() {
                         </Table> :
                         <div> No hay pedidos </div>
                 }
-                <div style={{ paddingTop: 50 }}>
+                <div style={{paddingTop: 50}}>
                     <Button color="success" onClick={() => createOrder()}>
                         Crear pedido
                     </Button>

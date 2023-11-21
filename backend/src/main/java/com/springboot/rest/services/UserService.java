@@ -35,11 +35,6 @@ public class UserService {
         return userRepository.existsByEmail(email);
     }
 
-    public void updateUser(User user) {
-        userRepository.deleteById(user.getId());
-        userRepository.save(user);
-    }
-
     public void deleteById(String id) {
         userRepository.deleteById(id);
     }

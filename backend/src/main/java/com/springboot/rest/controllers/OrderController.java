@@ -95,13 +95,13 @@ public class OrderController {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Order not up to date");
             order.incrementVersion();
             order.setDescription(request.description());
-            orderService.update(order);
+            orderService.save(order);
         }
 
         if (request.closed() != null) {
             if (order.isOwner(userDetails.id())) {
                 order.setClosed(request.closed());
-                orderService.update(order);
+                orderService.save(order);
             } else {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User is not the owner");
             }
@@ -110,8 +110,10 @@ public class OrderController {
         if (request.user() != null) {
             if (order.isClosed())
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Order closed");
+            if (request.user().equals(userDetails.getUser()))
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "User is owner");
             order.addUser(request.user());
-            orderService.update(order);
+            orderService.save(order);
         }
     }
 
@@ -126,8 +128,10 @@ public class OrderController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removeUser(@PathVariable String id, @PathVariable String userId) {
         Order order = findOrThrow(orderService::findById, id);
+        if (order.isClosed())
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Order closed");
         order.removeUser(userId);
-        orderService.update(order);
+        orderService.save(order);
     }
 
     public record OrderRequest(int version, String description, Boolean closed, User user) {
@@ -137,7 +141,7 @@ public class OrderController {
         if (!userDetails.isActive()) {
             User user = userDetails.getUser();
             user.setActive(true);
-            userService.updateUser(user);
+            userService.save(user);
         }
     }
 

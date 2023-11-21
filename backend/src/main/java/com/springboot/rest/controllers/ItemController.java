@@ -35,7 +35,7 @@ public class ItemController {
         if (!userDetails.isActive()) {
             User user = userDetails.getUser();
             user.setActive(true);
-            userService.updateUser(user);
+            userService.save(user);
         }
         
         if (item.isClosed())
@@ -48,11 +48,14 @@ public class ItemController {
         item.setDescription(update.getDescription());
         item.setQuantity(update.getQuantity());
         item.setUnit(update.getUnit());
-        itemService.update(item);
+        itemService.save(item);
     }
 
     @DeleteMapping
     public void deleteItem(@PathVariable String id) {
+        Item item = itemService.findById(id);
+        if (item.isClosed())
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Order is closed");
         itemService.deleteById(id);
     }
 

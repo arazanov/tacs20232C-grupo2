@@ -10,63 +10,13 @@ import {
     CardText,
     CardTitle,
     Container,
-    Form, FormFeedback,
+    Form,
+    FormFeedback,
     FormGroup,
     Input,
     Label
 } from "reactstrap";
-import {SuccessMessage} from "../orders/SuccessMessage";
 import {useAuth} from "../AuthContext";
-
-function UserFound({found, user, orderId, token, navigate}) {
-    const [success, setSuccess] = useState(false);
-
-    function share() {
-        fetch("/orders/" + orderId, {
-            method: 'PATCH',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + token
-            },
-            body: JSON.stringify({
-                user: user
-            })
-        }).then(response => {
-            if (response.ok)
-                setSuccess(true);
-            if (response.status === 401)
-                throw new Error(response.statusText);
-        }).catch(e => {
-            console.log(e);
-            alert("Pedido cerrado");
-            navigate("/orders");
-        });
-    }
-
-    if (found) return <Container style={{paddingTop: 50, paddingBottom: 50}}>
-        <Card style={{width: '18rem'}}>
-            <CardBody>
-                <CardTitle tag="h5">Usuario</CardTitle>
-                <CardSubtitle className="mb-2 text-muted" tag="h6">
-                    Información de usuario
-                </CardSubtitle>
-                <CardText>
-                    {"Nombre de usuario: " + user.username}
-                    <br/>
-                    {"Email: " + user.email}
-                </CardText>
-                <Button color="success" onClick={() => share()}>
-                    Compartir
-                </Button>
-            </CardBody>
-        </Card>
-        <div style={{paddingTop: 30}}>
-            <SuccessMessage success={success}></SuccessMessage>
-        </div>
-    </Container>;
-
-}
 
 export default function UserFind() {
     const [user, setUser] = useState({
@@ -77,6 +27,8 @@ export default function UserFind() {
     const navigate = useNavigate();
     const {id} = useParams();
     const [found, setFound] = useState(false);
+    const [notFound, setNotFound] = useState(false);
+    const [success, setSuccess] = useState(false);
     const [failure, setFailure] = useState(false);
     let {token} = useAuth();
 
@@ -90,13 +42,17 @@ export default function UserFind() {
                 'Authorization': 'Bearer ' + token
             }
         }).then(response => {
-            if (!response.ok) throw new Error("User not found");
+            if (!response.ok) {
+                return response.text().then(body => {
+                    throw new Error(body);
+                });
+            }
             return response.json();
         }).then(data => {
             setUser(data);
             setFound(true);
         }).catch((e) => {
-            setFailure(true);
+            setNotFound(true);
             console.log(e);
         });
     }
@@ -104,7 +60,37 @@ export default function UserFind() {
     function handleChange(e) {
         setUser({...user, username: e.target.value});
         setFound(false);
+        setNotFound(false);
+        setSuccess(false);
         setFailure(false);
+    }
+
+    function share() {
+        fetch("/orders/" + id, {
+            method: 'PATCH',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({
+                user: user
+            })
+        }).then(response => {
+            if (!response.ok) {
+                if (response.status === 401) {
+                    alert("Pedido cerrado");
+                    navigate("/orders");
+                }
+                else if (response.status === 409) {
+                    setFailure(true);
+                }
+                return response.text().then(body => {
+                    throw new Error(body)
+                });
+            }
+            setSuccess(true);
+        }).catch(console.log);
     }
 
     return <div>
@@ -115,8 +101,8 @@ export default function UserFind() {
                 <FormGroup>
                     <Label for="username">Nombre de usuario</Label>
                     <Input type="text" id="username" defaultValue={user.username} autoComplete="username"
-                           onChange={handleChange} invalid={failure}/>
-                    <FormFeedback valid={!failure}>No se encontró al usuario</FormFeedback>
+                           onChange={handleChange} invalid={notFound}/>
+                    <FormFeedback valid={!notFound}>No se encontró al usuario</FormFeedback>
                 </FormGroup>
                 <FormGroup style={{paddingTop: 50}}>
                     <Button color="primary" type="submit">Buscar</Button>{' '}
@@ -126,6 +112,29 @@ export default function UserFind() {
                 </FormGroup>
             </Form>
         </Container>
-        <UserFound found={found} user={user} orderId={id} token={token} navigate={navigate}/>
-    </div>;
+        {found &&
+            <Container style={{paddingTop: 50, paddingBottom: 50}}>
+                <Card style={{width: '18rem'}}>
+                    <CardBody>
+                        <CardTitle tag="h5">Usuario</CardTitle>
+                        <CardSubtitle className="mb-2 text-muted" tag="h6">
+                            Información de usuario
+                        </CardSubtitle>
+                        <CardText>
+                            {"Nombre de usuario: " + user.username}
+                            <br/>
+                            {"Email: " + user.email}
+                        </CardText>
+                        <Button color="success" onClick={() => share()}>
+                            Compartir
+                        </Button>
+                    </CardBody>
+                </Card>
+                <div style={{paddingTop: 30}}>
+                    {success && <p style={{color: "green"}}> ¡Guardado! </p>}
+                    {failure && <p style={{color: "red"}}> No se puede compartir el pedido con su dueño </p>}
+                </div>
+            </Container>
+        }
+    </div>
 }
