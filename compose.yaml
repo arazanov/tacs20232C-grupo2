@@ -2,15 +2,18 @@ version: '3'
 services:
   telegram-bot:
     build: telegram-bot
+    image: empanadapp.azurecr.io/telegram-bot
     ports:
       - "8081:8081"
+    depends_on:
+      - backend
   backend:
     build: backend
     image: empanadapp.azurecr.io/backend
     ports:
       - "8080:8080"
-    depends_on:
-      - mongodb
+#    depends_on:
+#      - mongodb
   frontend:
     build: frontend
     image: empanadapp.azurecr.io/frontend
@@ -20,7 +23,7 @@ services:
       - "80:80"
     depends_on:
       - backend
-  mongodb:
-    image: mongodb/mongodb-community-server
-    ports:
-      - "27017:27017"
+#  mongodb:
+#    image: mongodb/mongodb-community-server
+#    ports:
+#      - "27017:27017"

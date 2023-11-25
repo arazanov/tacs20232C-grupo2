@@ -20,20 +20,28 @@ https://www.tacs-utn.com.ar/
    - [Modificación de application.properties](#applicationproperties)
    - [Comandos](#algunos-de-los-comandos-disponibles-que-ofrece-nuestro-bot-de-pedidos)
 
-## Build
+## Build local
 
-```
-luego de agregar 2 lineas en el archivo telegram-bot.src.main.resources->application.properties:
+Para ejecutar el bot de Telegram primero agregar 2 líneas 
+en el archivo telegram-bot/src/main/resources/application.properties
+([instrucciones](#bot-de-telegram)):
+
+```properties
    bot.token = TU-BOT-TOKEN
    bot.username = TU-BOT-USERNAME
-   
+```
+
+Docker compose:
+
+```
 docker compose up
 ```
 
 ## Deploy en cloud con Azure
 
 - [Tutorial: Deploy a multi-container group using Docker Compose](https://learn.microsoft.com/en-us/azure/container-instances/tutorial-docker-compose)
-- [Link a la app](http://20.242.233.113:80)
+- [Link a la app](http://20.121.172.198:80)
+- [Bot de Telegram](https://t.me/tacs2023_bot)
 
 ## API Endpoints
 

@@ -11,14 +11,14 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class apiCalls {
+public class ApiCalls {
 
-    String myUrl ="http://backend:8080";
+    String myUrl = "http://backend:8080";
 
-    public boolean put(String token,String path,String body){
+    public boolean put(String token, String path, String body) {
         try {
             // URL de la API a la que deseas hacer la solicitud PATCH
-            String apiUrl = myUrl+path; // Reemplaza 123 con el valor de ID correcto
+            String apiUrl = myUrl + path; // Reemplaza 123 con el valor de ID correcto
 
             // Tipo de contenido del cuerpo de la solicitud
             MediaType mediaType = MediaType.parse("application/json");
@@ -30,7 +30,7 @@ public class apiCalls {
             Request request = new Request.Builder()
                     .url(apiUrl)
                     .put(RequestBody.create(mediaType, body))
-                    .addHeader("Authorization", "Bearer "+token)
+                    .addHeader("Authorization", "Bearer " + token)
                     .build();
 
             // Realizar la solicitud PATCH
@@ -53,10 +53,10 @@ public class apiCalls {
         }
     }
 
-    public boolean patch(String token,String path,String body){
+    public boolean patch(String token, String path, String body) {
         try {
             // URL de la API a la que deseas hacer la solicitud PATCH
-            String url = myUrl+path;
+            String url = myUrl + path;
             String apiUrl = url; // Reemplaza 123 con el valor de ID correcto
 
             System.out.println(url);
@@ -75,7 +75,7 @@ public class apiCalls {
             Request request = new Request.Builder()
                     .url(apiUrl)
                     .patch(RequestBody.create(mediaType, jsonBody))
-                    .addHeader("Authorization", "Bearer "+token)
+                    .addHeader("Authorization", "Bearer " + token)
                     .build();
 
             // Realizar la solicitud PATCH
@@ -98,10 +98,10 @@ public class apiCalls {
     }
 
 
-    public boolean delete(String token,String path){
+    public boolean delete(String token, String path) {
         try {
             // URL de la API a la que deseas hacer la solicitud PATCH
-            String url = myUrl+path;
+            String url = myUrl + path;
             String apiUrl = url; // Reemplaza 123 con el valor de ID correcto
 
             System.out.println(url);
@@ -116,7 +116,7 @@ public class apiCalls {
             Request request = new Request.Builder()
                     .url(apiUrl)
                     .delete()
-                    .addHeader("Authorization", "Bearer "+token)
+                    .addHeader("Authorization", "Bearer " + token)
                     .build();
 
             // Realizar la solicitud PATCH
@@ -138,13 +138,14 @@ public class apiCalls {
         }
     }
 
-    public JsonNode post(String token,String path){
-        return post(token,path,"");
+    public JsonNode post(String token, String path) {
+        return post(token, path, "");
     }
-    public JsonNode post(String token,String path,String body){
+
+    public JsonNode post(String token, String path, String body) {
         try {
             // URL de la API a la que deseas hacer la solicitud PATCH
-            String apiUrl = myUrl+path; // Reemplaza 123 con el valor de ID correcto
+            String apiUrl = myUrl + path; // Reemplaza 123 con el valor de ID correcto
 
             // Tipo de contenido del cuerpo de la solicitud
             MediaType mediaType = MediaType.parse("application/json");
@@ -156,7 +157,7 @@ public class apiCalls {
             Request request = new Request.Builder()
                     .url(apiUrl)
                     .post(RequestBody.create(mediaType, body))
-                    .addHeader("Authorization", "Bearer "+token)
+                    .addHeader("Authorization", "Bearer " + token)
                     .build();
 
             // Realizar la solicitud PATCH
@@ -190,13 +191,12 @@ public class apiCalls {
         }
     }
 
-    public JsonNode get(String token,String path){
+    public JsonNode get(String token, String path) {
         try {
-            String fullPath = myUrl+path;
+            String fullPath = myUrl + path;
 
             // Crear una URL para la solicitud HTTP
             URL url = new URL(fullPath);
-
 
             // Abrir una conexión HTTP
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -246,8 +246,5 @@ public class apiCalls {
             return null;
         }
     }
-
-
-
 
 }
